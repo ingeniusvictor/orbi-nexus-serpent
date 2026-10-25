@@ -17136,9 +17136,45 @@ export default function NexusSerpentDemo() {
         
         // Center camera coordinates inside standard viewport translation matrix with scaling
         const cam = core.camera;
-        ctx.translate(dimensions.width / 2, dimensions.height / 2);
-        ctx.scale(cam.zoom, cam.zoom);
-        ctx.translate(-cam.x, -cam.y);
+        // QA-01B: viewport-fit camera policy. The canvas occupies the entire
+        // available window; gameplay coordinates and collision geometry remain unchanged.
+        const viewW = Math.max(1, dimensions.width);
+        const viewH = Math.max(1, dimensions.height);
+        const fitPadding = 20;
+        let renderZoom = cam.zoom;
+        let renderCenterX = cam.x;
+        let renderCenterY = cam.y;
+        if (core.gameMode === 'nexus_assault') {
+          // Diamond and octagon corners need a little extra clearance.
+          const roomHalfExtent = NEXUS_ASSAULT_ARENA_RADIUS * 1.32;
+          const visibleDiameter = roomHalfExtent * 2;
+          renderZoom = Math.min(
+            (viewW - fitPadding * 2) / visibleDiameter,
+            (viewH - fitPadding * 2) / visibleDiameter
+          );
+          renderCenterX = 1425;
+          renderCenterY = 1425;
+        } else if (core.gameMode === 'vital_flow' && core.vitalFlow) {
+          const bounds = getActiveVitalFlowArenaBounds();
+          renderZoom = Math.min(
+            (viewW - fitPadding * 2) / Math.max(1, bounds.width),
+            (viewH - fitPadding * 2) / Math.max(1, bounds.height)
+          );
+          renderCenterX = bounds.centerX;
+          renderCenterY = bounds.centerY;
+        } else {
+          // The standard 2850x2850 arena must cover the viewport without
+          // exposing empty space beyond its edges, even on landscape Android.
+          const coverZoom = Math.max(viewW / core.arenaSize, viewH / core.arenaSize);
+          renderZoom = Math.max(cam.zoom, coverZoom);
+          const halfVisibleW = viewW / (2 * renderZoom);
+          const halfVisibleH = viewH / (2 * renderZoom);
+          renderCenterX = Math.max(halfVisibleW, Math.min(core.arenaSize - halfVisibleW, cam.x));
+          renderCenterY = Math.max(halfVisibleH, Math.min(core.arenaSize - halfVisibleH, cam.y));
+        }
+        ctx.translate(viewW / 2, viewH / 2);
+        ctx.scale(renderZoom, renderZoom);
+        ctx.translate(-renderCenterX, -renderCenterY);
 
         if (core.gameMode === 'vital_flow') {
           renderVitalFlow(ctx, dt);

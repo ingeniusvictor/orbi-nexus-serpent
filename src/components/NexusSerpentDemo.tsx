@@ -14380,7 +14380,8 @@ export default function NexusSerpentDemo() {
                   text: 'COLA SOBRECALENTADA (DMG -25%)',
                   color: '#f43f5e',
                   life: 1.5,
-                  maxLife: 1.5
+                  maxLife: 1.5,
+                  size: 16
                 });
               }
 
@@ -14566,6 +14567,7 @@ export default function NexusSerpentDemo() {
 
             if ((mod.element === 'terra' || mod.element === 'termo') && (mod.mutation === 'terra_pulse' || mod.mutation === 'termo_pulse')) {
               core.ability = {
+                ...core.ability,
                 radialEffectActive: true,
                 radialEffectRadius: 5,
                 radialEffectMaxRadius: 180,

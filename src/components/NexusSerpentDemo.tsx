@@ -5453,7 +5453,8 @@ export default function NexusSerpentDemo() {
       sentinelsPurged: 0,
       timeToPurgeSentinel: 0,
       damageTakenDuringSentinel: 0,
-      perfectSentinelPurge: false
+      perfectSentinelPurge: false,
+      nexusGuardianReached: false
     };
 
     core.gameMode = gameMode;

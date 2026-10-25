@@ -72,6 +72,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Comparaciones de tipo de sala para bonificaciones de velocidad normalizadas a `elite` y `swarm`, que son los valores declarados por `NexusAssaultRoomType`.
 - **Pendiente de validar:** medición posterior, compilación y prueba de Nexus Assault; no atribuir una cifra de errores sin prueba.
 
+### STB-01H — Validación local (2026-10-25)
+- Resultado comunicado: **14 errores TypeScript** (18 → 14, reducción de 4; acumulado 450 → 14).
+- `npm run build` exitoso con Vite 6.4.5: 1.675 módulos, 3,49 s; bundle JS de 635,12 KB (176,04 KB gzip), advertencia no bloqueante de tamaño.
+- Pendiente: diagnóstico exacto de los 14 errores y validación funcional de los cuatro modos.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

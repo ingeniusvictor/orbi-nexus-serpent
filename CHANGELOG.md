@@ -89,6 +89,13 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - `npm run build` exitoso: Vite 6.4.5, 1.675 módulos, 3,33 s; JS 634,30 KB (175,98 KB gzip). Advertencia no bloqueante de chunk >500 KB.
 - Pendientes: diagnóstico detallado de los nueve errores, comprobación del tipado limpio y pruebas de los cuatro modos.
 
+### STB-01J — Diagnóstico de nueve errores (2026-10-25)
+- Revisado `nexus-stb01i.txt` con **9 errores**.
+- Se tiparon explícitamente los dos faros de descanso `AssaultEnemy` para preservar el literal `REST_BEACON`.
+- La evolución final de Vital Flow utiliza `TITAN_SERPENT`, que existe en `EvolutionName`; `NEXUS_AVATAR` no existe en esa unión. Requiere revisar la nomenclatura visual esperada.
+- Eliminadas las comprobaciones de `vital_flow` del bloque `else` de simulación no-Vital Flow, que eran inalcanzables; se conservó la ruta dedicada previa del modo Vital Flow.
+- **Pendiente:** ejecución local de TypeScript, Vite y pruebas funcionales. Nueve es la medición anterior, no un resultado verificado de STB-01J.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

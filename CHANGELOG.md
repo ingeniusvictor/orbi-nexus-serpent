@@ -84,6 +84,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Añadido `REST_BEACON` a `AssaultEnemyType`, puesto que ya se usa en las salas de descanso.
 - **Pendiente de nueva medición:** quedan por revisar `NEXUS_AVATAR` y comparaciones de `vital_flow` en ramas del simulador. No se asegura aún cero errores ni regresión funcional.
 
+### STB-01I — Validación local (2026-10-25)
+- Recuento comunicado: **9 errores TypeScript** (14 → 9; reducción acumulada 450 → 9 = 98 %).
+- `npm run build` exitoso: Vite 6.4.5, 1.675 módulos, 3,33 s; JS 634,30 KB (175,98 KB gzip). Advertencia no bloqueante de chunk >500 KB.
+- Pendientes: diagnóstico detallado de los nueve errores, comprobación del tipado limpio y pruebas de los cuatro modos.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

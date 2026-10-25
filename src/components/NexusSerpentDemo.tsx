@@ -1277,6 +1277,10 @@ interface FloatingText {
   color: string;
   life: number;
   size: number;
+  vx?: number;
+  vy?: number;
+  decay?: number;
+  maxLife?: number;
 }
 
 // Procedural sound effects using Web Audio API to prevent broken audio dependencies
@@ -4938,12 +4942,7 @@ export default function NexusSerpentDemo() {
       upgradesAvailable: [] as AssaultUpgrade[],
       showUpgradeSelection: false
     },
-    objectives: [
-      { id: "reach_solar_stream", completed: false },
-      { id: "purify_two_zones", completed: false },
-      { id: "survive_blackout_surge", completed: false },
-      { id: "defeat_sentinel", completed: false },
-    ],
+    objectives: INITIAL_DEMO_OBJECTIVES.map(o => ({ ...o, completed: false, completedAt: undefined as number | undefined })),
     victoryTriggered: false,
     victoryDelayTimer: 0,
     survival: {
@@ -5522,7 +5521,7 @@ export default function NexusSerpentDemo() {
         hp: 100,
         maxHp: 100,
         roomIndex: 1,
-        roomType: 'NORMAL',
+        roomType: 'normal',
         roomCleared: false,
         enemies: [],
         projectiles: [],
@@ -5558,12 +5557,7 @@ export default function NexusSerpentDemo() {
       setAssaultUpgradeActive(false);
       setUpgradesList([]);
     }
-    core.objectives = [
-      { id: "reach_solar_stream", completed: false },
-      { id: "purify_two_zones", completed: false },
-      { id: "survive_blackout_surge", completed: false },
-      { id: "defeat_sentinel", completed: false },
-    ];
+    core.objectives = INITIAL_DEMO_OBJECTIVES.map(o => ({ ...o, completed: false, completedAt: undefined }));
     core.victoryTriggered = false;
     core.victoryDelayTimer = 0;
 

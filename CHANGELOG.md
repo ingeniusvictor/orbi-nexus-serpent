@@ -64,6 +64,14 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - `npm run build` **aprobado**: Vite 6.4.5, 1675 módulos, 3,47 s; JS 635,04 KB (176,03 KB gzip). Permanece advertencia de chunk superior a 500 KB.
 - **Pendiente:** los mensajes concretos de los 18 errores y pruebas funcionales de los cuatro modos.
 
+### STB-01H — Intervención sobre los últimos 18 errores (2026-10-25)
+- Analizado `nexus-stb01g.txt`: **18 errores TypeScript** antes de esta intervención.
+- Conservadas las propiedades del estado de habilidad al activar el pulso de núcleo (`...core.ability`), evitando que se pierdan indicadores de enfriamiento y duración por reemplazo parcial.
+- Añadido tamaño explícito al texto flotante de sobrecalentamiento de cola.
+- Los dos faros de salas de descanso (`rest_beacon`) ahora declaran velocidad inicial `vx: 0`, `vy: 0` y `lastShotTime: 0`, coherentes con su estado estático.
+- Comparaciones de tipo de sala para bonificaciones de velocidad normalizadas a `elite` y `swarm`, que son los valores declarados por `NexusAssaultRoomType`.
+- **Pendiente de validar:** medición posterior, compilación y prueba de Nexus Assault; no atribuir una cifra de errores sin prueba.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

@@ -50,7 +50,7 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 ### STB-01F — Progresión del jugador (2026-10-25)
 - Declaradas explícitamente siete propiedades diferidas del jugador para evolución, apariencia y radio (`pickupEvolutionEnergy`, `currentEvolutionStage`, `displayedEvolutionStage`, `internalCoreCount`, `progressionToNextStage`, `visualProfile`, `radius`).
 - Sus valores iniciales efectivos continúan siendo `undefined`; las rutinas existentes siguen asignando los valores al comenzar una partida.
-- **Estado:** cambio publicado, sin nueva ejecución local de TypeScript o prueba funcional. Última medición acreditada: **140 errores**, previa a STB-01E y STB-01F.
+- **Validación local comunicada:** TypeScript pasó de **140 a 95 errores** tras STB-01E y STB-01F (−45). `npm run build` exitoso: Vite 6.4.5, 1.675 módulos, 3,43 s, JS 634,63 KB (175,90 KB gzip); persiste advertencia no bloqueante de chunk superior a 500 KB. Falta prueba de regresión jugable.
 
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.

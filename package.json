@@ -10,7 +10,8 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "dev:local": "vite --host 127.0.0.1 --port 5173 --strictPort",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "qa:gate": "node scripts/qa-gate.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

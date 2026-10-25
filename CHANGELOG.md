@@ -52,6 +52,13 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Sus valores iniciales efectivos continúan siendo `undefined`; las rutinas existentes siguen asignando los valores al comenzar una partida.
 - **Validación local comunicada:** TypeScript pasó de **140 a 95 errores** tras STB-01E y STB-01F (−45). `npm run build` exitoso: Vite 6.4.5, 1.675 módulos, 3,43 s, JS 634,63 KB (175,90 KB gzip); persiste advertencia no bloqueante de chunk superior a 500 KB. Falta prueba de regresión jugable.
 
+### STB-01G — Diagnóstico de 95 errores (2026-10-25)
+- Analizado el diagnóstico local `nexus-stb01f.txt` con **95 errores TypeScript**.
+- `NexusAssaultRun`: añadidas declaraciones opcionales para sala del subestado `run`, enemigos pendientes, fin de cuenta regresiva, comienzo de combate y retardo de aparición.
+- Estado compartido: declarados los campos diferidos ya utilizados para reducción dinámica de efectos, seguimiento de FPS, tutorial, fondo de Nexus Assault, daño recibido y contadores de Supervivencia Nexus.
+- Estas declaraciones comienzan en `undefined` y preservan las rutinas existentes; no equivalen a verificar su inicialización funcional.
+- **Pendiente de validar:** recuento de TypeScript posterior, `npm run build` y pruebas de los cuatro modos. **95** es la última cifra medida **antes** de estos cambios.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

@@ -36,6 +36,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Se conservan sus valores iniciales efectivos como `undefined`; la lógica del juego sigue poblándolos en sus rutinas existentes. No se introduce nueva física ni se altera el movimiento.
 - **Validación local comunicada:** `npm run check:types` reportó **366 errores** (427 → 366, reducción de 61). Sigue pendiente la confirmación de `npm run build` y de la regresión funcional de Vital Flow.
 
+### STB-01D — Nexus Assault (2026-10-25)
+- Se asignó al estado inicial `assaultRun` la interfaz `NexusAssaultRun` ya existente en `src/types.ts`. Esta aserción es solo de TypeScript: no añade propiedades ni altera los valores del objeto en tiempo de ejecución.
+- Se extendió esa interfaz con metadatos opcionales de transición y diagnóstico de salas que ya usa el controlador.
+- **Base de medición comunicada:** 366 errores antes de STB-01D.
+- **Por validar:** recuento nuevo de TypeScript, `npm run build` y transiciones de salas en navegador. La aserción no garantiza que todas las propiedades opcionales estén inicializadas en cualquier fase.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

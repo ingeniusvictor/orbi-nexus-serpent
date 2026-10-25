@@ -1,0 +1,55 @@
+name: Nexus Serpent - Build and Type Audit
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Vite build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies from retained Bun lockfile
+        run: bun install --frozen-lockfile
+      - name: Build web application
+        run: bun run build
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-serpent-web-build
+          path: dist/
+          if-no-files-found: error
+
+  types:
+    name: TypeScript baseline (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Collect TypeScript diagnostics
+        shell: bash
+        run: |
+          set +e
+          bun run check:types > typescript-diagnostics.txt 2>&1
+          status=$?
+          echo "TypeScript exit status: $status"
+          grep -c 'error TS[0-9]*:' typescript-diagnostics.txt || true
+          exit "$status"
+      - name: Upload diagnostics even if type check fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-serpent-typescript-diagnostics
+          path: typescript-diagnostics.txt
+          if-no-files-found: warn

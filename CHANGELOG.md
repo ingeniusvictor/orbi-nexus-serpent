@@ -101,6 +101,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - `npm run build` aprobado: Vite 6.4.5, 1675 módulos, 3,29 s; JS 633,27 KB (175,70 KB gzip), advertencia de chunk >500 KB no bloqueante.
 - Pendientes: diagnóstico exacto de los dos errores, cierre de tipado y pruebas jugables de cuatro modos.
 
+### STB-01K — Últimos dos diagnósticos (2026-10-25)
+- Diagnosticados los dos errores `TS2353` de `NexusSerpentDemo.tsx` en los faros de descanso (líneas 10819 y 12095 del informe STB-01J).
+- Añadida propiedad opcional `archetype?: string` a `AssaultEnemy`, que refleja metadatos ya existentes en los objetos. Cambio exclusivo de tipado, sin modificación del comportamiento en tiempo de ejecución.
+- **Pendiente de verificación local:** ejecución de `npm run check:types` con expectativa de 0 errores y `npm run build`. No declarar cero errores antes de comprobarlo.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

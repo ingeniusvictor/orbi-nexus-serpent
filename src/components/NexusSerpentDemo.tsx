@@ -8776,7 +8776,7 @@ export default function NexusSerpentDemo() {
     } else if (stage <= 6) {
       core.player.evolution = 'GUARDIAN_SERPENT';
     } else {
-      core.player.evolution = 'NEXUS_AVATAR';
+      core.player.evolution = 'TITAN_SERPENT';
     }
 
     // Handle evolution flash and feedback on upgrade
@@ -10813,7 +10813,7 @@ export default function NexusSerpentDemo() {
       run.status = 'combat';
       setAssaultRunCleared(false);
 
-      const beacon = {
+      const beacon: AssaultEnemy = {
         id: 'rest_beacon_' + Date.now() + '_' + Math.random(),
         type: 'REST_BEACON',
         archetype: 'rest_beacon',
@@ -12089,7 +12089,7 @@ export default function NexusSerpentDemo() {
       core.assaultRun.run.status = 'combat';
       setAssaultRunCleared(false);
 
-      const beacon = {
+      const beacon: AssaultEnemy = {
         id: 'rest_beacon_' + Date.now() + '_' + Math.random(),
         type: 'REST_BEACON',
         archetype: 'rest_beacon',

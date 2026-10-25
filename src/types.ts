@@ -230,7 +230,7 @@ export interface AssaultAreaEffect {
   maxDuration?: number;
 }
 
-export type AssaultEnemyType = 'WISP' | 'DRONE' | 'SPITTER' | 'blackout_elite_core' | 'crimson_pulsar_core' | 'void_serpent_fragment';
+export type AssaultEnemyType = 'WISP' | 'DRONE' | 'SPITTER' | 'blackout_elite_core' | 'crimson_pulsar_core' | 'void_serpent_fragment' | 'REST_BEACON';
 
 export interface AssaultEnemy {
   id: string;

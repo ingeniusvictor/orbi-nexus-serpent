@@ -4942,7 +4942,7 @@ export default function NexusSerpentDemo() {
       enemiesKilled: 0,
       upgradesAvailable: [] as AssaultUpgrade[],
       showUpgradeSelection: false
-    },
+    } as NexusAssaultRun,
     objectives: INITIAL_DEMO_OBJECTIVES.map(o => ({ ...o, completed: false, completedAt: undefined as number | undefined })),
     victoryTriggered: false,
     victoryDelayTimer: 0,

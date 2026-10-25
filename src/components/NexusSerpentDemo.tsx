@@ -4838,6 +4838,7 @@ export default function NexusSerpentDemo() {
     redVitalVisualStage: 1,
     redVitalInternalCoreCount: 1,
     lastCountdownStepPlayed: "",
+    lastHelpTime: 0,
     player: {
       x: 1425,
       y: 1425,
@@ -5583,12 +5584,7 @@ export default function NexusSerpentDemo() {
       evolution: 'SPARK',
     });
 
-    setObjectives([
-      { id: "reach_solar_stream", completed: false },
-      { id: "purify_two_zones", completed: false },
-      { id: "survive_blackout_surge", completed: false },
-      { id: "defeat_sentinel", completed: false },
-    ]);
+    setObjectives(INITIAL_DEMO_OBJECTIVES.map(o => ({ ...o, completed: false, completedAt: undefined })));
     setCompletedBanner(null);
     setShowInfiniteBanner(false);
     setEndGameStats(null);

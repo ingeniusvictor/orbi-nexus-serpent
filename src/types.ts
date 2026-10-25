@@ -390,6 +390,12 @@ export interface NexusAssaultRun {
   transitionLock?: boolean;
   lastTransitionRoomId?: number;
   transitionReason?: string;
+  // Transition diagnostics and shape-fallback metadata used by the room controller.
+  roomShapeFallback?: boolean;
+  roomShapeReason?: string;
+  upgradePanelTimer?: number;
+  totalDamageDealt?: number;
+  totalSGradesEarned?: number;
 }
 
 export interface DemoObjective {

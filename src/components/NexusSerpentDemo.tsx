@@ -6845,7 +6845,7 @@ export default function NexusSerpentDemo() {
       triggerAbilityParticleBurst(p.x, p.y, '#34d399', 30);
       p.speed *= 2.2; // Huge speed boost
 
-    } else if (core.activeGuardian === 'TERMO' || core.activeGuardian === 'TERRA') {
+    } else if (core.activeGuardian === 'TERMO') {
       const isTermo = core.activeGuardian === 'TERMO';
       const sparkColor = isTermo ? '#ff6a2a' : '#fef08a';
       const freezeSparkColor = isTermo ? '#ff2d00' : '#10b981';
@@ -11588,7 +11588,7 @@ export default function NexusSerpentDemo() {
   const getSelectedAssaultHeroEnergy = (): OrbiEnergyId => {
     const core = stateRef.current;
     const guardian = core.activeGuardian; // 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'TERRA'
-    if (guardian === 'TERRA' || guardian === 'TERMO') return 'termo';
+    if (guardian === 'TERMO') return 'termo';
     return (guardian?.toLowerCase() as OrbiEnergyId) || 'foton';
   };
 

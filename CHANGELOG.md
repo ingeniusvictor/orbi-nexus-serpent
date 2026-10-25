@@ -40,7 +40,7 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Se asignó al estado inicial `assaultRun` la interfaz `NexusAssaultRun` ya existente en `src/types.ts`. Esta aserción es solo de TypeScript: no añade propiedades ni altera los valores del objeto en tiempo de ejecución.
 - Se extendió esa interfaz con metadatos opcionales de transición y diagnóstico de salas que ya usa el controlador.
 - **Base de medición comunicada:** 366 errores antes de STB-01D.
-- **Por validar:** recuento nuevo de TypeScript, `npm run build` y transiciones de salas en navegador. La aserción no garantiza que todas las propiedades opcionales estén inicializadas en cualquier fase.
+- **Validación local comunicada:** `npm run check:types` reportó **140 errores** (366 → 140, reducción de 226). `npm run build` **aprobado**: Vite 6.4.5, 1675 módulos, 3,78 s. Advertencia no bloqueante: chunk JS de 634,43 KB (175,88 KB gzip), superior al umbral de 500 KB. **Pendiente:** pruebas de regresión de Nexus Assault y de los cuatro modos. La aserción no garantiza la inicialización en tiempo de ejecución de todas las propiedades opcionales.
 
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.

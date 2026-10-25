@@ -235,6 +235,7 @@ export type AssaultEnemyType = 'WISP' | 'DRONE' | 'SPITTER' | 'blackout_elite_co
 export interface AssaultEnemy {
   id: string;
   type: AssaultEnemyType;
+  archetype?: string; // Existing rest-beacon and enemy classification metadata
   x: number;
   y: number;
   vx: number;

@@ -59,6 +59,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Estas declaraciones comienzan en `undefined` y preservan las rutinas existentes; no equivalen a verificar su inicialización funcional.
 - **Pendiente de validar:** recuento de TypeScript posterior, `npm run build` y pruebas de los cuatro modos. **95** es la última cifra medida **antes** de estos cambios.
 
+### STB-01G — Validación local (2026-10-25)
+- El usuario confirmó **18 errores TypeScript** tras actualizar `develop`: 95 → 18 (−77); reducción acumulada 450 → 18 (−432; 96 %).
+- `npm run build` **aprobado**: Vite 6.4.5, 1675 módulos, 3,47 s; JS 635,04 KB (176,03 KB gzip). Permanece advertencia de chunk superior a 500 KB.
+- **Pendiente:** los mensajes concretos de los 18 errores y pruebas funcionales de los cuatro modos.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

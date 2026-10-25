@@ -29,7 +29,7 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Inicializado `lastHelpTime` en el estado principal para mantener coherente la ayuda contextual.
 - Reinicio de objetivos de Red Vital: reutiliza `INITIAL_DEMO_OBJECTIVES` también para el estado de React, conservando `label` y `description`.
 - Diagnóstico base recibido: **433 errores**; de ellos **406 TS2339**, **8 TS2739**, **8 TS2367**, y **11 de otras categorías**, según el archivo adjunto de validación local.
-- Estado de validación **pendiente**: ejecutar de nuevo `npm run check:types` en `develop` actualizado y comprobar regresiones en el navegador.
+- **Validación comunicada:** después de STB-01B, ejecución local de `npm run check:types` reporta **427 errores** (433 → 427; reducción de 6). No se dispone del detalle de los 427 diagnósticos ni de pruebas de regresión completas.
 
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.

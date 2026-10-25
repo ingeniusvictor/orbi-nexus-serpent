@@ -4977,6 +4977,20 @@ export default function NexusSerpentDemo() {
       lastGridX: 0,
       lastGridY: 0,
       gridStepTimer: 0,
+      // Legacy Vital Flow state is populated when a run starts.
+      // Declare its fields up front without changing their runtime defaults.
+      head: undefined as Point | undefined,
+      direction: undefined as Point | undefined,
+      desiredDirection: undefined as Point | undefined,
+      bodyPoints: undefined as Point[] | undefined,
+      hasReceivedInput: undefined as boolean | undefined,
+      hasStartedMoving: undefined as boolean | undefined,
+      spawnGraceTimer: undefined as number | undefined,
+      resizeGraceTimer: undefined as number | undefined,
+      arenaBounds: undefined as ReturnType<typeof getActiveVitalFlowArenaBounds> | undefined,
+      lastEvolutionStage: undefined as number | undefined,
+      evolutionFlashTimer: undefined as number | undefined,
+      lastEvolutionLabel: undefined as string | undefined,
     }
   });
 

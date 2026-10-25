@@ -34,7 +34,7 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 ### STB-01C — Vital Flow (2026-10-25)
 - A partir del diagnóstico adjunto de **427 errores TypeScript**, declaradas 12 propiedades de estado diferido de Vital Flow en el inicializador principal (posición, dirección, entrada, cuerpo, temporizadores, arena y evolución).
 - Se conservan sus valores iniciales efectivos como `undefined`; la lógica del juego sigue poblándolos en sus rutinas existentes. No se introduce nueva física ni se altera el movimiento.
-- **Pendiente:** nueva medición de `npm run check:types`, compilación y prueba de Vital Flow después de sincronizar `develop`. El número 427 corresponde **a la medición anterior**.
+- **Validación local comunicada:** `npm run check:types` reportó **366 errores** (427 → 366, reducción de 61). Sigue pendiente la confirmación de `npm run build` y de la regresión funcional de Vital Flow.
 
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.

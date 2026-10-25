@@ -117,6 +117,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Advertencia no bloqueante:** chunk JS minificado superior a 500 KB.
 - **Alcance del cierre:** control estático y compilación; **pendientes** pruebas funcionales de Red Vital, Supervivencia Nexus, Nexus Assault y Vital Flow antes de declarar estable el juego.
 
+### QA-01A — Gate automático y matriz funcional (2026-10-25)
+- Añadido `npm run qa:gate` que ejecuta `check:types`, `build` y valida artefactos web emitidos; registra aviso de bundle principal >500 kB.
+- Añadida la matriz de regresión de los cuatro modos en `docs/QA-01-FUNCTIONAL-REGRESSION.md`, con criterios de salida y evidencia requerida.
+- **Pendiente:** ejecutar el gate en Windows y probar manualmente los 12 casos. El cierre STB-01K de cero errores es la última prueba aportada; estos cambios de QA todavía no se han ejecutado en el equipo del usuario.
+- `main` y la etiqueta de recuperación permanecen fuera de alcance.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

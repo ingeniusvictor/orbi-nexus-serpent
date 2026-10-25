@@ -19,6 +19,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - `NexusSerpentDemo.tsx`: valor inicial `roomType` normalizado de `NORMAL` a `normal` según `NexusAssaultRoomType`.
 - **Validación:** cambios publicados en `develop`, aún sin resultado de `tsc --noEmit` ni test jugable posterior. No marcar como resueltos numéricamente hasta medir.
 
+### Validación local comunicada (2026-10-25)
+- Tras actualizar `develop` hasta `7635d9a`, ejecutar `npm install` y `npm run check:types`, el usuario registró **433 errores TypeScript** y código de salida **2**.
+- Comparación con el respaldo original: **450 → 433** (17 diagnósticos menos; aproximadamente 3,8 %).
+- `npm install` auditó 218 paquetes y no informó vulnerabilidades; persisten advertencias informativas de scripts de instalación.
+- No equivale a compilación de producción aprobada ni a pruebas de regresión completas.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

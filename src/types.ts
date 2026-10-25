@@ -347,6 +347,7 @@ export interface NexusAssaultRun {
     status: 'combat' | 'room_cleared' | 'upgrade_selection' | 'transition_next_room' | 'game_over' | 'room_clear';
     currentRoomCleared: boolean;
     roomIndex?: number;
+    roomType?: AssaultRoomType;
     enemiesDefeated?: number;
   };
   upgradeChoices?: AssaultUpgrade[];
@@ -390,6 +391,11 @@ export interface NexusAssaultRun {
   transitionLock?: boolean;
   lastTransitionRoomId?: number;
   transitionReason?: string;
+  // Room-one delayed spawns, populated by existing countdown controller.
+  queuedEnemies?: AssaultEnemy[];
+  countdownComplete?: boolean;
+  combatStarted?: boolean;
+  enemySpawnDelayAfterCountdown?: number;
   // Transition diagnostics and shape-fallback metadata used by the room controller.
   roomShapeFallback?: boolean;
   roomShapeReason?: string;

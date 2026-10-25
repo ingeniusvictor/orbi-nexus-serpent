@@ -12,6 +12,13 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **STB-01 (2026-10-25):** comando `npm run check:types`, auditoría de TypeScript no bloqueante en CI y compilación automática en GitHub Actions.
 - **STB-01 (2026-10-25):** documentación de líneas de trabajo y criterios de calidad en `docs/STB-01-STABILIZATION.md`.
 
+### Corregido (STB-01 — 2026-10-25)
+- `src/types.ts`: tipado de zonas peligrosas acepta los temporizadores `damageTimer` y `tickTimer` que conviven en el código recuperado (no cambia comportamiento).
+- `NexusSerpentDemo.tsx`: objetivos de demo se inicializan usando la definición tipada `INITIAL_DEMO_OBJECTIVES` para conservar etiquetas y descripciones.
+- `NexusSerpentDemo.tsx`: el tipo del texto flotante documenta propiedades de animación que ya se usan (`vx`, `vy`, `decay`, `maxLife`).
+- `NexusSerpentDemo.tsx`: valor inicial `roomType` normalizado de `NORMAL` a `normal` según `NexusAssaultRoomType`.
+- **Validación:** cambios publicados en `develop`, aún sin resultado de `tsc --noEmit` ni test jugable posterior. No marcar como resueltos numéricamente hasta medir.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

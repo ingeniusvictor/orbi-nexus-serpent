@@ -123,6 +123,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Pendiente:** ejecutar el gate en Windows y probar manualmente los 12 casos. El cierre STB-01K de cero errores es la última prueba aportada; estos cambios de QA todavía no se han ejecutado en el equipo del usuario.
 - `main` y la etiqueta de recuperación permanecen fuera de alcance.
 
+### QA-01B — Encuadre responsivo de los cuatro escenarios (2026-10-25)
+- Inspeccionadas capturas de Red Vital, Supervivencia Nexus, Nexus Assault y Vital Flow en 127.0.0.1:5173: márgenes vacíos, cámara desplazada y arena visible con escala inconsistente.
+- Introducida política de cámara por modo en el transform del canvas: **cover** del mundo para Red Vital/Supervivencia Nexus con centro limitado al mundo; **contain** de límites de arena para Nexus Assault (con margen para formas diamante/octágono) y Vital Flow.
+- El canvas sigue utilizando 100 % del contenedor; no se alteran las coordenadas físicas, colisiones ni la lógica de progresión. En pantallas panorámicas, las arenas cuadradas/circulares conservan su proporción: el entorno de fondo ocupa el resto del viewport.
+- **Pendiente de validación local:** `npm run qa:gate`, capturas nuevas en los cuatro modos y prueba de movimiento/cámara, salas variables y rotación a paisaje Android. No promover a `main`.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

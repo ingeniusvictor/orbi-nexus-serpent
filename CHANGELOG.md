@@ -47,6 +47,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Última evidencia:** 140 diagnósticos TypeScript y compilación Vite de producción exitosa, antes de esta corrección.
 - **Pendiente:** nuevo recuento TypeScript y pruebas de juego; no se atribuye una reducción numérica sin esa medición.
 
+### STB-01F — Progresión del jugador (2026-10-25)
+- Declaradas explícitamente siete propiedades diferidas del jugador para evolución, apariencia y radio (`pickupEvolutionEnergy`, `currentEvolutionStage`, `displayedEvolutionStage`, `internalCoreCount`, `progressionToNextStage`, `visualProfile`, `radius`).
+- Sus valores iniciales efectivos continúan siendo `undefined`; las rutinas existentes siguen asignando los valores al comenzar una partida.
+- **Estado:** cambio publicado, sin nueva ejecución local de TypeScript o prueba funcional. Última medición acreditada: **140 errores**, previa a STB-01E y STB-01F.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

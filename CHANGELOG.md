@@ -96,6 +96,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Eliminadas las comprobaciones de `vital_flow` del bloque `else` de simulación no-Vital Flow, que eran inalcanzables; se conservó la ruta dedicada previa del modo Vital Flow.
 - **Pendiente:** ejecución local de TypeScript, Vite y pruebas funcionales. Nueve es la medición anterior, no un resultado verificado de STB-01J.
 
+### STB-01J — Validación local (2026-10-25)
+- El usuario confirmó **2 errores TypeScript** (9 → 2; 448 de 450 resueltos, ≈99,6 %).
+- `npm run build` aprobado: Vite 6.4.5, 1675 módulos, 3,29 s; JS 633,27 KB (175,70 KB gzip), advertencia de chunk >500 KB no bloqueante.
+- Pendientes: diagnóstico exacto de los dos errores, cierre de tipado y pruebas jugables de cuatro modos.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

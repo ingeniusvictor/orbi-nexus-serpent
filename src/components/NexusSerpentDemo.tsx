@@ -5045,11 +5045,11 @@ export default function NexusSerpentDemo() {
       NEXUS_ASSAULT_SPEED_CONFIG.baseSpeedMultiplier +
       Math.max(0, roomIndex - 1) * NEXUS_ASSAULT_SPEED_CONFIG.speedIncreasePerRoom;
 
-    if (roomType === "ELITE") {
+    if (roomType === "elite") {
       multiplier += NEXUS_ASSAULT_SPEED_CONFIG.eliteRoomBonus;
     }
 
-    if (roomType === "SWARM") {
+    if (roomType === "swarm") {
       multiplier += NEXUS_ASSAULT_SPEED_CONFIG.swarmRoomBonus;
     }
 
@@ -10866,6 +10866,9 @@ export default function NexusSerpentDemo() {
         accentColor: '#22d3ee',
         glowColor: '#0ea5e9',
         shootCooldown: 999999,
+        vx: 0,
+        vy: 0,
+        lastShotTime: 0,
         statusEffects: []
       };
       nexusAssaultState.enemies = [beacon];
@@ -12139,6 +12142,9 @@ export default function NexusSerpentDemo() {
         accentColor: '#22d3ee',
         glowColor: '#0ea5e9',
         shootCooldown: 999999,
+        vx: 0,
+        vy: 0,
+        lastShotTime: 0,
         statusEffects: []
       };
       core.assaultRun.enemies = [beacon];

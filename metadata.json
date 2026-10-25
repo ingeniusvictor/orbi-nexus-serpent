@@ -1,0 +1,8 @@
+{
+  "name": "Orbi Nexus Serpent v4",
+  "description": "Una demo de evolución energética sobre Orbi Foton Serpent en la Red Vital, inspirado en Snake con gráficos procedimentales y partículas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

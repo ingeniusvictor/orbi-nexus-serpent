@@ -4257,6 +4257,34 @@ function getVitalFlowVisibleInternalCoreCount(stage: number, pickupsCollected: n
   return base + getVitalFlowPostE8ExtraCoreCount(pickupsCollected);
 }
 
+// Shared constructor keeps survival resets aligned with the full initial state.
+const createInitialSurvivalState = () => ({
+      antiSerpents: [] as SurvivalAntiSerpent[],
+      antiProjectiles: [] as SurvivalAntiProjectile[],
+      hazards: [] as SurvivalHazardZone[],
+      elapsedTime: 0,
+      antiSerpentSpawnTimer: 0,
+      spawnInterval: 15,
+      maxAntiSerpents: 5,
+      threatRating: 0,
+      antiSerpentThreatLevel: 0,
+      activeSymphony: 'Eco de la Red Vital',
+      debuffType: null as 'ESTASIS' | 'ENTROPÍA' | null,
+      debuffTimer: 0,
+      debuffFeedbackCooldown: 0,
+      currentPhase: 0,
+      activeBlackoutEvent: null as SurvivalBlackoutEvent | null,
+      blackoutEventTimer: 0,
+      blackoutEventsCompleted: 0,
+      lastBlackoutEventType: undefined as SurvivalBlackoutEventType | undefined,
+      lastDamageReason: undefined as string | undefined,
+      magnetBoostTimer: undefined as number | undefined,
+      alphasDefeated: undefined as number | undefined,
+      antiSerpentsDefeated: undefined as number | undefined,
+      lastRewardedMinute: undefined as number | undefined,
+      entropyTimer: undefined as number | undefined
+    });
+
 export default function NexusSerpentDemo() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -4965,32 +4993,7 @@ export default function NexusSerpentDemo() {
     objectives: INITIAL_DEMO_OBJECTIVES.map(o => ({ ...o, completed: false, completedAt: undefined as number | undefined })),
     victoryTriggered: false,
     victoryDelayTimer: 0,
-    survival: {
-      antiSerpents: [] as SurvivalAntiSerpent[],
-      antiProjectiles: [] as SurvivalAntiProjectile[],
-      hazards: [] as SurvivalHazardZone[],
-      elapsedTime: 0,
-      antiSerpentSpawnTimer: 0,
-      spawnInterval: 15,
-      maxAntiSerpents: 5,
-      threatRating: 0,
-      antiSerpentThreatLevel: 0,
-      activeSymphony: 'Eco de la Red Vital',
-      debuffType: null as 'ESTASIS' | 'ENTROPÍA' | null,
-      debuffTimer: 0,
-      debuffFeedbackCooldown: 0,
-      currentPhase: 0,
-      activeBlackoutEvent: null as SurvivalBlackoutEvent | null,
-      blackoutEventTimer: 0,
-      blackoutEventsCompleted: 0,
-      lastBlackoutEventType: undefined as SurvivalBlackoutEventType | undefined,
-      lastDamageReason: undefined as string | undefined,
-      magnetBoostTimer: undefined as number | undefined,
-      alphasDefeated: undefined as number | undefined,
-      antiSerpentsDefeated: undefined as number | undefined,
-      lastRewardedMinute: undefined as number | undefined,
-      entropyTimer: undefined as number | undefined
-    },
+    survival: createInitialSurvivalState(),
     vitalFlow: {
       elapsedTime: 0,
       lengthScore: 0,
@@ -5484,26 +5487,7 @@ export default function NexusSerpentDemo() {
 
     core.gameMode = gameMode;
     if (gameMode === 'infinite') {
-      core.survival = {
-        antiSerpents: [] as SurvivalAntiSerpent[],
-        antiProjectiles: [] as SurvivalAntiProjectile[],
-        hazards: [] as SurvivalHazardZone[],
-        elapsedTime: 0,
-        antiSerpentSpawnTimer: 0,
-        spawnInterval: 15,
-        maxAntiSerpents: 5,
-        threatRating: 0,
-        antiSerpentThreatLevel: 0,
-        activeSymphony: 'Eco de la Red Vital',
-        debuffType: null as 'ESTASIS' | 'ENTROPÍA' | null,
-        debuffTimer: 0,
-        debuffFeedbackCooldown: 0,
-        currentPhase: 0,
-        activeBlackoutEvent: null as SurvivalBlackoutEvent | null,
-        blackoutEventTimer: 0,
-        blackoutEventsCompleted: 0,
-        lastBlackoutEventType: undefined as SurvivalBlackoutEventType | undefined
-      };
+      core.survival = createInitialSurvivalState();
     } else {
       core.survival = undefined as any;
     }
@@ -7225,16 +7209,7 @@ export default function NexusSerpentDemo() {
     if (core.gameMode !== "infinite") return;
 
     if (!core.survival) {
-      core.survival = {
-        antiSerpents: [] as SurvivalAntiSerpent[],
-        elapsedTime: 0,
-        antiSerpentSpawnTimer: 0,
-        spawnInterval: 15,
-        maxAntiSerpents: 5,
-        threatRating: 0,
-        antiSerpentThreatLevel: 0,
-        activeSymphony: 'Eco de la Red Vital'
-      };
+      core.survival = createInitialSurvivalState();
     }
     const survival = core.survival;
     if (!survival.antiSerpents) survival.antiSerpents = [];
@@ -9625,22 +9600,7 @@ export default function NexusSerpentDemo() {
     if (core.gameMode !== 'infinite') return;
 
     if (!core.survival) {
-      core.survival = {
-        antiSerpents: [] as SurvivalAntiSerpent[],
-        antiProjectiles: [] as SurvivalAntiProjectile[],
-        hazards: [] as SurvivalHazardZone[],
-        elapsedTime: 0,
-        antiSerpentSpawnTimer: 0,
-        spawnInterval: 15,
-        maxAntiSerpents: 5,
-        threatRating: 0,
-        antiSerpentThreatLevel: 0,
-        activeSymphony: 'Eco de la Red Vital',
-        debuffType: null as 'ESTASIS' | 'ENTROPÍA' | null,
-        debuffTimer: 0,
-        debuffFeedbackCooldown: 0,
-        currentPhase: 0
-      };
+      core.survival = createInitialSurvivalState();
     }
 
     const survival = core.survival;

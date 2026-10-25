@@ -77,6 +77,13 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - `npm run build` exitoso con Vite 6.4.5: 1.675 módulos, 3,49 s; bundle JS de 635,12 KB (176,04 KB gzip), advertencia no bloqueante de tamaño.
 - Pendiente: diagnóstico exacto de los 14 errores y validación funcional de los cuatro modos.
 
+### STB-01I — Últimos 14 diagnósticos (2026-10-25)
+- Analizado el informe local de **14 errores** (`nexus-stb01h.txt`).
+- Extraído un constructor único `createInitialSurvivalState()` para inicializar y reinicializar Supervivencia Nexus de modo consistente, sin perder temporizadores de eventos y contadores.
+- Eliminadas dos comparaciones con el guardián `TERRA` que no figura en la unión actual `GuardianId`; se mantiene la rama `TERMO`.
+- Añadido `REST_BEACON` a `AssaultEnemyType`, puesto que ya se usa en las salas de descanso.
+- **Pendiente de nueva medición:** quedan por revisar `NEXUS_AVATAR` y comparaciones de `vital_flow` en ramas del simulador. No se asegura aún cero errores ni regresión funcional.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

@@ -585,7 +585,10 @@ export interface SurvivalHazardZone {
   y: number;
   radius: number;
   duration: number;
-  tickTimer: number;
+  // Legacy survival hazards count damage intervals with damageTimer.
+  // Other event handlers use tickTimer. Both appear in recovered gameplay.
+  tickTimer?: number;
+  damageTimer?: number;
 }
 
 export type SurvivalBlackoutEventType =

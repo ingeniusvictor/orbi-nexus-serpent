@@ -42,6 +42,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Base de medición comunicada:** 366 errores antes de STB-01D.
 - **Validación local comunicada:** `npm run check:types` reportó **140 errores** (366 → 140, reducción de 226). `npm run build` **aprobado**: Vite 6.4.5, 1675 módulos, 3,78 s. Advertencia no bloqueante: chunk JS de 634,43 KB (175,88 KB gzip), superior al umbral de 500 KB. **Pendiente:** pruebas de regresión de Nexus Assault y de los cuatro modos. La aserción no garantiza la inicialización en tiempo de ejecución de todas las propiedades opcionales.
 
+### STB-01E — Estado de sesión (2026-10-25)
+- Corregido el reinicio de `statsExtra` en `NexusSerpentDemo.tsx`: ahora reinicializa explícitamente `nexusGuardianReached: false`, requerido por el modelo de estadísticas y coherente con el estado inicial.
+- **Última evidencia:** 140 diagnósticos TypeScript y compilación Vite de producción exitosa, antes de esta corrección.
+- **Pendiente:** nuevo recuento TypeScript y pruebas de juego; no se atribuye una reducción numérica sin esa medición.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

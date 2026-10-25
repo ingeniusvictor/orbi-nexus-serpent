@@ -4857,7 +4857,15 @@ export default function NexusSerpentDemo() {
       wingPhase: 0,
       orbitPhase: 0,
       gridBoundTicks: 0,
-      ticksSinceLastDamage: 0
+      ticksSinceLastDamage: 0,
+      // Progression/appearance fields are populated by the existing run reset.
+      pickupEvolutionEnergy: undefined as number | undefined,
+      currentEvolutionStage: undefined as number | undefined,
+      displayedEvolutionStage: undefined as number | undefined,
+      internalCoreCount: undefined as number | undefined,
+      progressionToNextStage: undefined as number | undefined,
+      visualProfile: undefined as ReturnType<typeof getOrbiSerpentEvolutionVisualProfile> | undefined,
+      radius: undefined as number | undefined
     },
     evolutionCinematic: {
       active: false,

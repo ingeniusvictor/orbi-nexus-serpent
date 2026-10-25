@@ -15995,9 +15995,7 @@ export default function NexusSerpentDemo() {
         
         // Set dynamic speeds based on current stage and guardian modifiers
         let targetSpeed = currentStage.speed * theme.speedModifier;
-        if (core.gameMode === 'vital_flow' && core.vitalFlow) {
-          targetSpeed = getVitalFlowMoveSpeed(core.vitalFlow.pickupsCollected);
-        } else if (core.ability.active && core.activeGuardian === 'AERO') {
+        if (core.ability.active && core.activeGuardian === 'AERO') {
           targetSpeed = currentStage.speed * theme.speedModifier * 2.2;
         }
         p.speed = p.speed * 0.88 + targetSpeed * 0.12;
@@ -16085,7 +16083,7 @@ export default function NexusSerpentDemo() {
         // Boundaries checks with customizable boundary modes and Nexus containment field (REBOOT 0.2C)
         let boundaryFlag = false;
 
-        if (core.gameMode !== 'vital_flow') {
+        {
           const distToBoundary = Math.min(p.x, p.y, size - p.x, size - p.y);
 
           if (BOUNDARY_MODE === 'bounce') {
@@ -16221,53 +16219,11 @@ export default function NexusSerpentDemo() {
         // Continuously interpolate actual length toward target length for smooth visual growth
         p.length = p.length * 0.95 + p.targetLength * 0.05;
 
-        // VITAL FLOW Mode Loop Updates (Section 3 & 5)
-        if (core.gameMode === 'vital_flow' && core.vitalFlow) {
-          const vf = core.vitalFlow;
-          
-          // Increment survived time
-          if (!cinematicActiveRef.current) {
-            vf.elapsedTime += (1 / 60) * dt;
-          }
-
-          // Check pickup collisions
-          for (let i = vf.pickups.length - 1; i >= 0; i--) {
-            const pickup = vf.pickups[i];
-            const dist = Math.hypot(p.x - pickup.x, p.y - pickup.y);
-            if (dist < 32) {
-              vf.pickups.splice(i, 1);
-              vf.pickupsCollected += 1;
-              
-              const growth = pickup.energyValue;
-              vf.lengthScore += growth;
-              vf.targetBodyLength += growth * 6; // Snake-like growth increment
-              p.targetLength = vf.targetBodyLength;
-              p.score += pickup.scoreValue;
-
-              // Evolve state check (Section 6 & 7)
-              const prevStage = getVitalFlowEvolutionStage(vf.pickupsCollected - 1);
-              const newStage = getVitalFlowEvolutionStage(vf.pickupsCollected);
-              if (newStage > prevStage) {
-                triggerAudioSign('Orbi evolucionado', 'evolve');
-                showTemporaryMessage(`EVOLUCIÓN ENERGÉTICA: E${newStage}`);
-                triggerBurstSparks(p.x, p.y, '#10b981', 'COLLECT_SHOCKWAVE', 25);
-              } else {
-                triggerAudioSign('Recogiendo esencia vital', 'solar');
-                triggerBurstSparks(pickup.x, pickup.y, pickup.kind === 'solar_orb' ? '#fbbf24' : '#10b981', 'NEXUS_SPARK', 8);
-              }
-              
-              spawnVitalFlowPickups(core);
-            }
-          }
-        }
-
         // Inverse Kinematics Body Segments trailing (Thicker seamless tapered Ribbon)
-        let jointsNeeded = core.gameMode === 'vital_flow'
-          ? Math.floor(p.length)
-          : Math.min(
-              PERFORMANCE_PROFILE[performanceProfile].maxTrailPoints,
-              Math.floor(p.length)
-            );
+        let jointsNeeded = Math.min(
+          PERFORMANCE_PROFILE[performanceProfile].maxTrailPoints,
+          Math.floor(p.length)
+        );
 
         if (core.gameMode === 'nexus_assault') {
           jointsNeeded = Math.floor(jointsNeeded * 1.30);
@@ -16416,13 +16372,7 @@ export default function NexusSerpentDemo() {
         // Lock camera boundaries safely
         const halfW = dimensions.width / 2;
         const halfH = dimensions.height / 2;
-        if (core.gameMode === 'vital_flow') {
-          const bounds = getVitalFlowArenaBounds();
-          if (cam.x < bounds.left + halfW) cam.x = bounds.left + halfW;
-          if (cam.x > bounds.right - halfW) cam.x = bounds.right - halfW;
-          if (cam.y < bounds.top + halfH) cam.y = bounds.top + halfH;
-          if (cam.y > bounds.bottom - halfH) cam.y = bounds.bottom - halfH;
-        } else {
+        {
           if (cam.x < halfW) cam.x = halfW;
           if (cam.x > size - halfW) cam.x = size - halfW;
           if (cam.y < halfH) cam.y = halfH;
@@ -16616,7 +16566,7 @@ export default function NexusSerpentDemo() {
 
         if (core.gameMode === 'nexus_assault') {
           updateNexusAssault(dt);
-        } else if (core.gameMode !== 'vital_flow') {
+        } else {
           if (core.gameMode === 'infinite') {
             updateSurvivalMode(dt);
           }

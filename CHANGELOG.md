@@ -129,6 +129,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - El canvas sigue utilizando 100 % del contenedor; no se alteran las coordenadas físicas, colisiones ni la lógica de progresión. En pantallas panorámicas, las arenas cuadradas/circulares conservan su proporción: el entorno de fondo ocupa el resto del viewport.
 - **Pendiente de validación local:** `npm run qa:gate`, capturas nuevas en los cuatro modos y prueba de movimiento/cámara, salas variables y rotación a paisaje Android. No promover a `main`.
 
+### QA-01C — Cámara y controles sincronizados (2026-10-25)
+- Referencia de escritorio establecida: 1920×1080, escala de Windows 100 %, relación 16:9; la dimensión CSS real se obtiene del contenedor del juego (navegador normal/F11).
+- Centralizado el encuadre en `getViewportCamera()` y la transformación puntero→mundo en `pointerToWorld()` usando el rectángulo real del canvas. El mismo zoom y centro sirven para dibujar y apuntar con mouse/táctil, incluidos Nexus Assault y Vital Flow.
+- No se alteran las físicas del juego; se corrige la coherencia de coordenadas visuales y de entrada tras QA-01B.
+- **Pendiente de verificar:** `npm run qa:gate` y pruebas reales en 1920×1080 (normal y F11) y Android horizontal 915×412; no se ha ejecutado el gate desde esta intervención.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

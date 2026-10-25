@@ -236,6 +236,8 @@ export interface AssaultEnemy {
   id: string;
   type: AssaultEnemyType;
   archetype?: string; // Existing rest-beacon and enemy classification metadata
+  accentColor?: string;
+  glowColor?: string;
   x: number;
   y: number;
   vx: number;

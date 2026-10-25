@@ -4839,6 +4839,12 @@ export default function NexusSerpentDemo() {
     redVitalInternalCoreCount: 1,
     lastCountdownStepPlayed: "",
     lastHelpTime: 0,
+    lowEffectsMode: undefined as boolean | undefined,
+    lowFpsConsecutiveSeconds: undefined as number | undefined,
+    highFpsConsecutiveSeconds: undefined as number | undefined,
+    avoidBlackoutTimer: undefined as number | undefined,
+    victoryGoalTimer: undefined as number | undefined,
+    assaultBackdrop: undefined as { dust: any[]; currents: any[]; nebula: any[]; initialized: boolean } | undefined,
     player: {
       x: 1425,
       y: 1425,
@@ -4865,7 +4871,12 @@ export default function NexusSerpentDemo() {
       internalCoreCount: undefined as number | undefined,
       progressionToNextStage: undefined as number | undefined,
       visualProfile: undefined as ReturnType<typeof getOrbiSerpentEvolutionVisualProfile> | undefined,
-      radius: undefined as number | undefined
+      radius: undefined as number | undefined,
+      lastHitZone: undefined as string | undefined,
+      lastHitTime: undefined as number | undefined,
+      inactivityTicks: undefined as number | undefined,
+      lowEnergyTicks: undefined as number | undefined,
+      abilityUnusedTicks: undefined as number | undefined
     },
     evolutionCinematic: {
       active: false,
@@ -4972,7 +4983,13 @@ export default function NexusSerpentDemo() {
       activeBlackoutEvent: null as SurvivalBlackoutEvent | null,
       blackoutEventTimer: 0,
       blackoutEventsCompleted: 0,
-      lastBlackoutEventType: undefined as SurvivalBlackoutEventType | undefined
+      lastBlackoutEventType: undefined as SurvivalBlackoutEventType | undefined,
+      lastDamageReason: undefined as string | undefined,
+      magnetBoostTimer: undefined as number | undefined,
+      alphasDefeated: undefined as number | undefined,
+      antiSerpentsDefeated: undefined as number | undefined,
+      lastRewardedMinute: undefined as number | undefined,
+      entropyTimer: undefined as number | undefined
     },
     vitalFlow: {
       elapsedTime: 0,

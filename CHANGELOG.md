@@ -106,6 +106,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Añadida propiedad opcional `archetype?: string` a `AssaultEnemy`, que refleja metadatos ya existentes en los objetos. Cambio exclusivo de tipado, sin modificación del comportamiento en tiempo de ejecución.
 - **Pendiente de verificación local:** ejecución de `npm run check:types` con expectativa de 0 errores y `npm run build`. No declarar cero errores antes de comprobarlo.
 
+### STB-01K — Tipado visual de faros (2026-10-25)
+- Tras la adición de `archetype`, el compilador comunicó dos errores TS2353 posteriores para `accentColor` en los faros de descanso (líneas 10826 y 12102).
+- Añadidas propiedades opcionales `accentColor?: string` y `glowColor?: string` a `AssaultEnemy`, ambos metadatos existentes en los faros. Cambio de tipos sin alteración del comportamiento en ejecución.
+- **Pendiente:** nueva ejecución local de `npm run check:types` antes de afirmar 0 errores.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

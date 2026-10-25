@@ -111,6 +111,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Añadidas propiedades opcionales `accentColor?: string` y `glowColor?: string` a `AssaultEnemy`, ambos metadatos existentes en los faros. Cambio de tipos sin alteración del comportamiento en ejecución.
 - **Pendiente:** nueva ejecución local de `npm run check:types` antes de afirmar 0 errores.
 
+### STB-01K — Cierre de tipado y compilación (2026-10-25)
+- **Confirmación local:** `npm run check:types` completó sin diagnósticos, **0 errores TypeScript**, frente a los 450 de la recuperación inicial.
+- **Build aprobado:** Vite 6.4.5, 1.675 módulos transformados, 3,42 s, JavaScript 633,27 KB (175,70 KB gzip).
+- **Advertencia no bloqueante:** chunk JS minificado superior a 500 KB.
+- **Alcance del cierre:** control estático y compilación; **pendientes** pruebas funcionales de Red Vital, Supervivencia Nexus, Nexus Assault y Vital Flow antes de declarar estable el juego.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

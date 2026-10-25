@@ -6024,16 +6024,59 @@ export default function NexusSerpentDemo() {
     core.activeControlMode = 'keyboard';
   };
 
+  // QA-01C: single source of truth for rendering and pointer hit-testing.
+  const getViewportCamera = () => {
+    const core = stateRef.current;
+    const viewW = Math.max(1, dimensions.width);
+    const viewH = Math.max(1, dimensions.height);
+    const padding = Math.min(20, viewW * 0.025, viewH * 0.025);
+    let zoom = core.camera.zoom;
+    let centerX = core.camera.x;
+    let centerY = core.camera.y;
+
+    if (core.gameMode === 'nexus_assault') {
+      const extent = NEXUS_ASSAULT_ARENA_RADIUS * 1.32;
+      zoom = Math.min(
+        Math.max(1, viewW - padding * 2) / (extent * 2),
+        Math.max(1, viewH - padding * 2) / (extent * 2)
+      );
+      centerX = 1425;
+      centerY = 1425;
+    } else if (core.gameMode === 'vital_flow' && core.vitalFlow) {
+      const bounds = getActiveVitalFlowArenaBounds();
+      zoom = Math.min(
+        Math.max(1, viewW - padding * 2) / Math.max(1, bounds.width),
+        Math.max(1, viewH - padding * 2) / Math.max(1, bounds.height)
+      );
+      centerX = bounds.centerX;
+      centerY = bounds.centerY;
+    } else {
+      zoom = Math.max(zoom, Math.max(viewW, viewH) / Math.max(1, core.arenaSize), viewW / Math.max(1, core.arenaSize), viewH / Math.max(1, core.arenaSize));
+      const halfW = viewW / (2 * zoom);
+      const halfH = viewH / (2 * zoom);
+      centerX = Math.max(halfW, Math.min(core.arenaSize - halfW, centerX));
+      centerY = Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
+    }
+
+    return { viewW, viewH, zoom: Math.max(0.001, zoom), centerX, centerY };
+  };
+
+  const pointerToWorld = (clientX: number, clientY: number) => {
+    const { viewW, viewH, zoom, centerX, centerY } = getViewportCamera();
+    const rect = canvasRef.current?.getBoundingClientRect();
+    const localX = rect ? (clientX - rect.left) * (viewW / Math.max(1, rect.width)) : clientX;
+    const localY = rect ? (clientY - rect.top) * (viewH / Math.max(1, rect.height)) : clientY;
+    return {
+      x: centerX + (localX - viewW / 2) / zoom,
+      y: centerY + (localY - viewH / 2) / zoom,
+    };
+  };
+
   const handleVitalFlowPointerInput = (pointerX: number, pointerY: number) => {
     const core = stateRef.current;
     if (!core.vitalFlow || gameMode !== "vital_flow") return;
 
-    // Convert screen coordinates to world coordinates
-    const screenDx = pointerX - (dimensions.width / 2);
-    const screenDy = pointerY - (dimensions.height / 2);
-    const cam = core.camera;
-    const worldX = cam.x + screenDx / cam.zoom;
-    const worldY = cam.y + screenDy / cam.zoom;
+    const { x: worldX, y: worldY } = pointerToWorld(pointerX, pointerY);
 
     const head = core.vitalFlow.head ?? { x: core.player.x, y: core.player.y };
     const dx = worldX - head.x;
@@ -9736,14 +9779,8 @@ export default function NexusSerpentDemo() {
     }
 
     const p = core.player;
-    const cam = core.camera;
-
-    // Convert screen coordinates to world coordinates taking camera panning and viewport-relative scaling into account
-    const screenDx = pointerX - (dimensions.width / 2);
-    const screenDy = pointerY - (dimensions.height / 2);
-
-    const worldMouseX = cam.x + screenDx / cam.zoom;
-    const worldMouseY = cam.y + screenDy / cam.zoom;
+    // Match the actual responsive viewport camera and canvas screen rectangle.
+    const { x: worldMouseX, y: worldMouseY } = pointerToWorld(pointerX, pointerY);
 
     const dx = worldMouseX - p.x;
     const dy = worldMouseY - p.y;
@@ -17136,42 +17173,7 @@ export default function NexusSerpentDemo() {
         
         // Center camera coordinates inside standard viewport translation matrix with scaling
         const cam = core.camera;
-        // QA-01B: viewport-fit camera policy. The canvas occupies the entire
-        // available window; gameplay coordinates and collision geometry remain unchanged.
-        const viewW = Math.max(1, dimensions.width);
-        const viewH = Math.max(1, dimensions.height);
-        const fitPadding = 20;
-        let renderZoom = cam.zoom;
-        let renderCenterX = cam.x;
-        let renderCenterY = cam.y;
-        if (core.gameMode === 'nexus_assault') {
-          // Diamond and octagon corners need a little extra clearance.
-          const roomHalfExtent = NEXUS_ASSAULT_ARENA_RADIUS * 1.32;
-          const visibleDiameter = roomHalfExtent * 2;
-          renderZoom = Math.min(
-            (viewW - fitPadding * 2) / visibleDiameter,
-            (viewH - fitPadding * 2) / visibleDiameter
-          );
-          renderCenterX = 1425;
-          renderCenterY = 1425;
-        } else if (core.gameMode === 'vital_flow' && core.vitalFlow) {
-          const bounds = getActiveVitalFlowArenaBounds();
-          renderZoom = Math.min(
-            (viewW - fitPadding * 2) / Math.max(1, bounds.width),
-            (viewH - fitPadding * 2) / Math.max(1, bounds.height)
-          );
-          renderCenterX = bounds.centerX;
-          renderCenterY = bounds.centerY;
-        } else {
-          // The standard 2850x2850 arena must cover the viewport without
-          // exposing empty space beyond its edges, even on landscape Android.
-          const coverZoom = Math.max(viewW / core.arenaSize, viewH / core.arenaSize);
-          renderZoom = Math.max(cam.zoom, coverZoom);
-          const halfVisibleW = viewW / (2 * renderZoom);
-          const halfVisibleH = viewH / (2 * renderZoom);
-          renderCenterX = Math.max(halfVisibleW, Math.min(core.arenaSize - halfVisibleW, cam.x));
-          renderCenterY = Math.max(halfVisibleH, Math.min(core.arenaSize - halfVisibleH, cam.y));
-        }
+        const { viewW, viewH, zoom: renderZoom, centerX: renderCenterX, centerY: renderCenterY } = getViewportCamera();
         ctx.translate(viewW / 2, viewH / 2);
         ctx.scale(renderZoom, renderZoom);
         ctx.translate(-renderCenterX, -renderCenterY);

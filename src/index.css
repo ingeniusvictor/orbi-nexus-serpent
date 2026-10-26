@@ -38,3 +38,54 @@
   display: none;
 }
 
+
+/* UI-AAA-01 — Cinematic main-mode selection. Scoped to START only. */
+.orbi-premium-start {
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 42% 55% at 17% 27%, rgba(5,142,197,.22), transparent 80%),
+    radial-gradient(ellipse 42% 55% at 86% 22%, rgba(123,28,176,.30), transparent 76%),
+    radial-gradient(ellipse 48% 35% at 50% 95%, rgba(186,73,18,.18), transparent 85%),
+    linear-gradient(155deg,#020614 5%,#08122b 46%,#080518 100%);
+}
+.orbi-premium-start::before {
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.42;
+  background-image:radial-gradient(1px 1px at 10% 20%,#fff 99%,transparent),radial-gradient(2px 2px at 75% 35%,#6ee7ff 99%,transparent),radial-gradient(1px 1px at 40% 72%,#fff 99%,transparent);
+  background-size:147px 131px, 239px 211px, 179px 193px;
+}
+.orbi-premium-title { text-shadow:0 0 15px rgba(110,226,255,.6),0 0 48px rgba(155,72,255,.24); }
+.orbi-premium-mode {
+  --mode-rgb: 25,209,238;
+  min-height:340px;
+  isolation:isolate;
+  overflow:hidden;
+  border-color:rgba(var(--mode-rgb),.5);
+  background:linear-gradient(180deg,rgba(5,10,27,.48),rgba(3,7,21,.96) 49%,rgba(3,7,21,.99));
+  box-shadow:inset 0 0 26px rgba(var(--mode-rgb),.09),0 12px 30px rgba(0,0,0,.45),0 0 18px rgba(var(--mode-rgb),.14);
+}
+.orbi-mode-vital { --mode-rgb:248,186,51; }
+.orbi-mode-survival { --mode-rgb:182,91,255; }
+.orbi-mode-assault { --mode-rgb:255,85,95; }
+.orbi-mode-flow { --mode-rgb:37,207,235; }
+.orbi-premium-mode:hover,.orbi-premium-mode:focus-within {
+ transform:translateY(-5px);
+ border-color:rgba(var(--mode-rgb),.95);
+ box-shadow:inset 0 0 28px rgba(var(--mode-rgb),.13),0 18px 38px rgba(0,0,0,.55),0 0 28px rgba(var(--mode-rgb),.35);
+}
+.orbi-mode-art {
+ height:134px; margin:-20px -20px 19px;
+ display:flex; align-items:center; justify-content:center;
+ border-bottom:1px solid rgba(var(--mode-rgb),.45);
+ background:
+ radial-gradient(circle at 50% 58%,rgba(var(--mode-rgb),.40),transparent 22%),
+ repeating-radial-gradient(circle at 50% 58%,transparent 0 23px,rgba(var(--mode-rgb),.18) 24px 25px,transparent 26px 45px),
+ radial-gradient(ellipse at 50% 100%,rgba(var(--mode-rgb),.24),transparent 75%);
+}
+.orbi-mode-art span {
+ font-size:64px; line-height:1; color:rgb(var(--mode-rgb));
+ text-shadow:0 0 12px rgba(var(--mode-rgb),.95),0 0 45px rgba(var(--mode-rgb),.65);
+ filter:drop-shadow(0 0 10px rgba(var(--mode-rgb),.7));
+}
+.orbi-premium-mode h3 {font-size:1.12rem; text-shadow:0 0 15px rgba(var(--mode-rgb),.4);}
+.orbi-premium-mode button { min-height:43px; box-shadow:0 0 18px rgba(var(--mode-rgb),.20);}
+@media (prefers-reduced-motion:reduce) { .orbi-premium-mode {transition:none;} .orbi-premium-mode:hover {transform:none;} }

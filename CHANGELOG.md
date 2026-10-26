@@ -135,6 +135,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - No se alteran las físicas del juego; se corrige la coherencia de coordenadas visuales y de entrada tras QA-01B.
 - **Pendiente de verificar:** `npm run qa:gate` y pruebas reales en 1920×1080 (normal y F11) y Android horizontal 915×412; no se ha ejecutado el gate desde esta intervención.
 
+### QA-01D — Ajuste inicial de geometría por modalidad (2026-10-25)
+- **Vital Flow:** `VITAL_FLOW_ARENA_SCALE` pasa de 0.75 a 0.375; ancho y alto de arena a la mitad (área total 25 % de la anterior), manteniendo la función de límites utilizada por spawn, cámara y colisiones al iniciar partida.
+- **Red Vital y Supervivencia Nexus:** confirmado que el mundo heredado usa `arenaSize: 2850` y comprobaciones cuadradas `size` para límites, generación y dibujo. La conversión real a rectángulo horizontal 16:9 es una siguiente intervención separada: hay que actualizar límites físicos, posiciones iniciales, distribución de objetos, radar y encuadre simultáneamente; **no se ha aplicado todavía**. Se preservan mundo grande y radar.
+- Pendiente de validar `npm run qa:gate` y partida nueva de Vital Flow; cambio de arena requiere reiniciar modo para adoptar los nuevos límites.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

@@ -5457,7 +5457,7 @@ export default function NexusSerpentDemo() {
       stage: ''
     };
 
-    core.camera.x = 1425;
+    core.camera.x = (gameMode === 'demo' || gameMode === 'infinite') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
     core.camera.y = 1425;
     core.camera.zoom = 0.95;
     core.camera.shakeTime = 0;
@@ -17272,7 +17272,7 @@ export default function NexusSerpentDemo() {
 
     // Layer 1: Dark cosmic base quadrant
     ctx.fillStyle = '#030712';
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : size, size);
 
     // Layer 2: Glowing soft gas clouds (Nebulizaciones adaptadas al perfil de rendimiento)
     const detail = PERFORMANCE_PROFILE[performanceProfile].backgroundDetail;
@@ -17527,16 +17527,16 @@ export default function NexusSerpentDemo() {
       // Draw the main warning boundary (180px away from the absolute arena boundaries)
       ctx.strokeStyle = `rgba(34, 216, 255, ${0.04 + pulsePhase * 0.05})`;
       ctx.lineWidth = 1.0;
-      ctx.strokeRect(NEXUS_BOUNDARY.warningDistance, NEXUS_BOUNDARY.warningDistance, core.arenaSize - NEXUS_BOUNDARY.warningDistance * 2, core.arenaSize - NEXUS_BOUNDARY.warningDistance * 2);
+      ctx.strokeRect(NEXUS_BOUNDARY.warningDistance, NEXUS_BOUNDARY.warningDistance, (core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : core.arenaSize) - NEXUS_BOUNDARY.warningDistance * 2, core.arenaSize - NEXUS_BOUNDARY.warningDistance * 2);
 
       // Draw the containment boundary (60px away)
       ctx.strokeStyle = `rgba(124, 77, 255, ${0.1 + pulsePhase * 0.08})`;
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(NEXUS_BOUNDARY.containmentDistance, NEXUS_BOUNDARY.containmentDistance, core.arenaSize - NEXUS_BOUNDARY.containmentDistance * 2, core.arenaSize - NEXUS_BOUNDARY.containmentDistance * 2);
+      ctx.strokeRect(NEXUS_BOUNDARY.containmentDistance, NEXUS_BOUNDARY.containmentDistance, (core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : core.arenaSize) - NEXUS_BOUNDARY.containmentDistance * 2, core.arenaSize - NEXUS_BOUNDARY.containmentDistance * 2);
 
       // Draw the absolute containment shield (35px margin)
       // If player is in containment zone, let's pulse it bright and vibrate a bit!
-      const distToEdge = Math.min(core.player.x, core.player.y, core.arenaSize - core.player.x, core.arenaSize - core.player.y);
+      const distToEdge = Math.min(core.player.x, core.player.y, (core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : core.arenaSize) - core.player.x, core.arenaSize - core.player.y);
       const inContainmentZone = distToEdge < NEXUS_BOUNDARY.containmentDistance;
       const isSevereZone = distToEdge < 35 || (inContainmentZone && core.boundaryExposureTime > NEXUS_BOUNDARY.severeAfterSeconds);
 

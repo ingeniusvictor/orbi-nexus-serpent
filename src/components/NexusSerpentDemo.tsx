@@ -7471,17 +7471,18 @@ export default function NexusSerpentDemo() {
     const core = stateRef.current;
     const p = core.player;
     const size = core.arenaSize || 2850;
+    const width = core.gameMode === 'infinite' ? core.arenaWidth : size;
     
     let attempts = 0;
     while (attempts < 50) {
-      const rx = 100 + Math.random() * (size - 200);
+      const rx = 100 + Math.random() * (width - 200);
       const ry = 100 + Math.random() * (size - 200);
       if (Math.hypot(rx - p.x, ry - p.y) >= minDist) {
         return { x: rx, y: ry };
       }
       attempts++;
     }
-    return { x: p.x + 200, y: p.y };
+    return { x: Math.max(100, Math.min(width - 100, p.x + 200)), y: Math.max(100, Math.min(size - 100, p.y)) };
   };
 
   const getNextBlackoutEventInterval = (timeAlive: number): number => {
@@ -15759,7 +15760,7 @@ export default function NexusSerpentDemo() {
 
           // If player moves in demo mode, hide compact hint
           if (core.gameMode === 'demo' && showCompactControlHint) {
-            if (Math.hypot(p.x - 1425, p.y - 1425) > 15) {
+            if (Math.hypot(p.x - core.arenaWidth / 2, p.y - core.arenaSize / 2) > 15) {
               setShowCompactControlHint(false);
             }
           }
@@ -16131,7 +16132,7 @@ export default function NexusSerpentDemo() {
             p.vx = 0;
             p.vy = 0;
             p.speed = 0;
-            p.x = 1425;
+            p.x = core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth / 2 : 1425;
             p.y = 1425;
           }
         }
@@ -17268,6 +17269,7 @@ export default function NexusSerpentDemo() {
   const drawSpaceAtmosphereNebula = (ctx: CanvasRenderingContext2D, camera: Camera) => {
     const core = stateRef.current;
     const size = core.arenaSize;
+    const width = core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : size;
     const wind = core.vitalEnergyWind;
 
     // Layer 1: Dark cosmic base quadrant
@@ -17279,21 +17281,21 @@ export default function NexusSerpentDemo() {
     const nebulas = [];
     if (detail === 'high') {
       nebulas.push(
-        { x: size * 0.25, y: size * 0.25, r: 580, color: 'rgba(32, 214, 255, 0.08)' }, // Cyan glow
-        { x: size * 0.75, y: size * 0.70, r: 680, color: 'rgba(124, 77, 255, 0.08)' }, // Violet glow
-        { x: size * 0.50, y: size * 0.50, r: 500, color: 'rgba(251, 191, 36, 0.04)' },  // Gold glow
-        { x: size * 0.20, y: size * 0.80, r: 620, color: 'rgba(14, 165, 233, 0.07)' },  // Hydro blue
-        { x: size * 0.82, y: size * 0.22, r: 590, color: 'rgba(16, 185, 129, 0.06)' }   // Aero green
+        { x: width * 0.25, y: size * 0.25, r: 580, color: 'rgba(32, 214, 255, 0.08)' }, // Cyan glow
+        { x: width * 0.75, y: size * 0.70, r: 680, color: 'rgba(124, 77, 255, 0.08)' }, // Violet glow
+        { x: width * 0.50, y: size * 0.50, r: 500, color: 'rgba(251, 191, 36, 0.04)' },  // Gold glow
+        { x: width * 0.20, y: size * 0.80, r: 620, color: 'rgba(14, 165, 233, 0.07)' },  // Hydro blue
+        { x: width * 0.82, y: size * 0.22, r: 590, color: 'rgba(16, 185, 129, 0.06)' }   // Aero green
       );
     } else if (detail === 'medium') {
       nebulas.push(
-        { x: size * 0.25, y: size * 0.25, r: 580, color: 'rgba(32, 214, 255, 0.08)' },
-        { x: size * 0.75, y: size * 0.70, r: 680, color: 'rgba(124, 77, 255, 0.08)' },
-        { x: size * 0.50, y: size * 0.50, r: 500, color: 'rgba(251, 191, 36, 0.04)' }
+        { x: width * 0.25, y: size * 0.25, r: 580, color: 'rgba(32, 214, 255, 0.08)' },
+        { x: width * 0.75, y: size * 0.70, r: 680, color: 'rgba(124, 77, 255, 0.08)' },
+        { x: width * 0.50, y: size * 0.50, r: 500, color: 'rgba(251, 191, 36, 0.04)' }
       );
     } else { // low
       nebulas.push(
-        { x: size * 0.50, y: size * 0.50, r: 500, color: 'rgba(32, 214, 255, 0.04)' }
+        { x: width * 0.50, y: size * 0.50, r: 500, color: 'rgba(32, 214, 255, 0.04)' }
       );
     }
 
@@ -17519,7 +17521,8 @@ export default function NexusSerpentDemo() {
     if (core.gameMode !== 'vital_flow') {
       // Simple, clean boundary warning ring (No grid blocks) replaced by dynamic Nexus Containment Field
       const margin = 35;
-      const boundarySize = core.arenaSize - (margin * 2);
+      const boundaryHeight = core.arenaSize - (margin * 2);
+      const boundaryWidth = (core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : core.arenaSize) - (margin * 2);
 
       // Subtle ambient pulsars for the warning boundary
       const pulsePhase = Math.sin(core.vitalEnergyWind * 2.0) * 0.5 + 0.5;
@@ -17560,14 +17563,14 @@ export default function NexusSerpentDemo() {
         ctx.shadowBlur = isSevereZone ? 15 : inContainmentZone ? 8 : 4;
       }
       
-      ctx.strokeRect(margin, margin, boundarySize, boundarySize);
+      ctx.strokeRect(margin, margin, boundaryWidth, boundaryHeight);
 
       // Draw secondary inner wave pulsing inward when in containment zone!
       if (inContainmentZone) {
         const waveOffset = (core.vitalEnergyWind * 45) % NEXUS_BOUNDARY.containmentDistance;
         ctx.strokeStyle = isSevereZone ? `rgba(239, 68, 68, ${0.25 - waveOffset / NEXUS_BOUNDARY.containmentDistance})` : `rgba(34, 216, 255, ${0.25 - waveOffset / NEXUS_BOUNDARY.containmentDistance})`;
         ctx.lineWidth = 1.2;
-        ctx.strokeRect(margin + waveOffset, margin + waveOffset, boundarySize - waveOffset * 2, boundarySize - waveOffset * 2);
+        ctx.strokeRect(margin + waveOffset, margin + waveOffset, boundaryWidth - waveOffset * 2, boundaryHeight - waveOffset * 2);
       }
 
       // Restore context shadow values to maintain performance
@@ -17905,7 +17908,7 @@ export default function NexusSerpentDemo() {
       for (let i = 0; i < 15; i++) {
         const startY = (i * (core.arenaSize / 15)) + Math.sin(timeSecs + i) * 40;
         ctx.moveTo(100, startY);
-        ctx.lineTo(core.arenaSize - 100, startY + 200);
+        ctx.lineTo(core.arenaWidth - 100, startY + 200);
       }
       ctx.stroke();
       ctx.setLineDash([]);

@@ -20383,36 +20383,37 @@ export default function NexusSerpentDemo() {
           SCREEN OVERLAY: START SCREEN (INTRODUCIR LA DEMO MASTER)
           ======================================================== */}
       {gameState === 'START' && (
-        <div className="absolute inset-0 z-40 bg-[#020617e8] backdrop-blur-xl flex flex-col items-center justify-start sm:justify-center p-6 text-center overflow-y-auto py-8 sm:py-6 animate-fade-in">
+        <div className="orbi-premium-start absolute inset-0 z-40 flex flex-col items-center justify-start p-4 sm:p-6 text-center overflow-y-auto animate-fade-in">
           
           {/* Symmetrical glowing energy backdrop sphere */}
           <div className="absolute w-[450px] h-[450px] rounded-full bg-violet-600/10 blur-[120px] pointer-events-none" />
           <div className="absolute w-[320px] h-[320px] rounded-full bg-cyan-600/10 blur-[90px] pointer-events-none mt-20" />
 
-          <div className="relative max-w-xl flex flex-col items-center">
+          <div className="relative z-10 w-full max-w-[1640px] mx-auto flex flex-col items-center pt-4 sm:pt-7">
             
             {/* Top decorative particle spark icon header */}
-            <div className="w-12 h-12 rounded-full bg-yellow-950/45 border border-[#fbbf24]/30 flex items-center justify-center text-yellow-400 animate-pulse mb-6 shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+            <div className="w-12 h-12 rounded-full bg-yellow-950/45 border border-[#fbbf24]/50 flex items-center justify-center text-yellow-400 animate-pulse mb-3 shadow-[0_0_25px_rgba(251,191,36,0.4)]">
               <Zap className="w-5 h-5" />
             </div>
 
-            <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-widest text-[#f8fafc] mb-1">
+            <h1 className="orbi-premium-title font-display font-black text-4xl sm:text-6xl tracking-[0.15em] text-[#f8fafc] mb-1">
               ORBI NEXUS SERPENT
             </h1>
             <p className="font-mono text-[10px] sm:text-xs text-cyan-400 uppercase tracking-widest font-semibold mb-6">
-              MÓDULO 1.1.2B — GAME MODE IDENTITY & START SCREEN CLARITY
+              DESPIERTA LA RED VITAL · CUATRO MUNDOS · UNA ENERGÍA
             </p>
 
             <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/25 to-transparent mb-6" />
 
-            <p className="font-sans text-sm text-slate-300 leading-relaxed max-w-md mb-8">
+            <p className="font-sans text-sm text-slate-200 leading-relaxed max-w-2xl mb-6">
               Una pequeña chispa solar de energía ORBI despierta dentro de la Red Vital. Absorbe orbes de luz codificados para evolucionar tu flujo de plasma continuo hacia un Guardián de Luz espectacular.
             </p>
 
             {/* Mode selection columns */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-5xl mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5 w-full mb-8">
               {/* CARD 1: RED VITAL */}
-              <div className="flex flex-col justify-between p-5 bg-[#050b18]/80 border border-cyan-500/20 rounded-xl hover:border-cyan-500/40 hover:shadow-[0_0_25px_rgba(34,211,238,0.15)] duration-150 transition-all text-left relative">
+              <div className="orbi-premium-mode orbi-mode-vital flex flex-col justify-between p-5 border rounded-xl transition-all text-left relative">
+                <div className="orbi-mode-art" aria-hidden="true"><span>✦</span></div>
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-[8px] px-2 py-0.5 rounded border border-cyan-400/25 text-cyan-400 bg-cyan-950/30 font-bold uppercase tracking-wider">
@@ -20442,7 +20443,8 @@ export default function NexusSerpentDemo() {
               </div>
 
               {/* CARD 2: SUPERVIVENCIA NEXUS */}
-              <div className="flex flex-col justify-between p-5 bg-[#050b18]/80 border border-purple-500/20 rounded-xl hover:border-purple-500/40 hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] duration-150 transition-all text-left relative">
+              <div className="orbi-premium-mode orbi-mode-survival flex flex-col justify-between p-5 border rounded-xl transition-all text-left relative">
+                <div className="orbi-mode-art" aria-hidden="true"><span>◈</span></div>
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-[8px] px-2 py-0.5 rounded border border-purple-400/25 text-purple-400 bg-purple-950/30 font-bold uppercase tracking-wider">
@@ -20472,7 +20474,8 @@ export default function NexusSerpentDemo() {
               </div>
 
               {/* CARD 3: NEXUS ASSAULT */}
-              <div className="flex flex-col justify-between p-5 bg-[#050b18]/80 border border-amber-500/20 rounded-xl hover:border-amber-500/40 hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] duration-150 transition-all text-left relative">
+              <div className="orbi-premium-mode orbi-mode-assault flex flex-col justify-between p-5 border rounded-xl transition-all text-left relative">
+                <div className="orbi-mode-art" aria-hidden="true"><span>⚔</span></div>
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-[8px] px-2 py-0.5 rounded border border-amber-400/25 text-amber-400 bg-amber-950/30 font-bold uppercase tracking-wider">
@@ -20502,7 +20505,8 @@ export default function NexusSerpentDemo() {
               </div>
 
               {/* CARD 4: VITAL FLOW */}
-              <div className="flex flex-col justify-between p-5 bg-[#050b18]/80 border border-emerald-500/20 rounded-xl hover:border-emerald-500/40 hover:shadow-[0_0_25px_rgba(16,185,129,0.15)] duration-150 transition-all text-left relative">
+              <div className="orbi-premium-mode orbi-mode-flow flex flex-col justify-between p-5 border rounded-xl transition-all text-left relative">
+                <div className="orbi-mode-art" aria-hidden="true"><span>∞</span></div>
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-[8px] px-2 py-0.5 rounded border border-emerald-400/25 text-emerald-400 bg-emerald-950/30 font-bold uppercase tracking-wider">

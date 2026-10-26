@@ -140,6 +140,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Red Vital y Supervivencia Nexus:** confirmado que el mundo heredado usa `arenaSize: 2850` y comprobaciones cuadradas `size` para límites, generación y dibujo. La conversión real a rectángulo horizontal 16:9 es una siguiente intervención separada: hay que actualizar límites físicos, posiciones iniciales, distribución de objetos, radar y encuadre simultáneamente; **no se ha aplicado todavía**. Se preservan mundo grande y radar.
 - Pendiente de validar `npm run qa:gate` y partida nueva de Vital Flow; cambio de arena requiere reiniciar modo para adoptar los nuevos límites.
 
+### QA-01E — Feedback de encuadre (2026-10-25)
+- Vital Flow: `VITAL_FLOW_ARENA_SCALE` incrementado de 0.375 a **0.46875** (+25 % de ancho y alto respecto de QA-01D). El área sigue siendo menor que la versión anterior a QA-01D.
+- Nexus Assault: margen geométrico de encuadre ajustado de radio ×1.32 a ×1.10 para ampliar la sala en la pantalla sin cambiar colisiones ni geometría física. **Requiere revisión** de puntas de rombos/octágonos y efectos que puedan desbordar la pantalla.
+- Red Vital / Supervivencia Nexus: pendiente transformar el mundo cuadrado legado 2850×2850 en mundo rectangular horizontal de verdad (distribución, límites, colisiones, minimapa y cámara), sin distorsionar geometría ni tomar el zoom del navegador como zoom del juego. No se marca como solucionado.
+- **Pendiente:** `npm run qa:gate`, revisión visual 1920×1080 y pruebas de jugabilidad.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

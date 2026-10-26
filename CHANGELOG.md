@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-02 — Selección premium independiente de Guardianes (2026-10-26)
+- Rediseñada la pantalla `CHOOSE`, que aparece después de escoger un modo: fondo cósmico, retratos energéticos por identidad y tarjetas con resaltado de selección.
+- Nuevo dossier del Guardián seleccionado con descripción y nombres de habilidades pasiva/activa procedentes directamente de `GUARDIAN_THEMES` (sin inventar estadísticas ni alterar mecánicas).
+- Se conserva todo el catálogo definido en el juego, incluyendo Guardianes adicionales a FOTON/HYDRO/AERO/TERMO; se preservan `setSelectedGuardian`, `handleReturnToMain` y `handleStartPlaying`.
+- Pendiente validar a 1920×1080 y horizontal móvil; `npm run qa:gate` y pruebas de selección/retorno/inicio para todos los Guardianes. Arte de retratos aún estilizado en CSS, pendiente ilustraciones finales.
+
 ### UI-AAA-01D — Ilustraciones individuales de cuatro modos (2026-10-26)
 - Incorporadas cuatro portadas SVG independientes en `public/assets/modes/`: `red-vital.svg`, `survival.svg`, `assault.svg` y `vital-flow.svg`. Identidades cósmicas de energía, Blackout, combate y flujo respectivamente.
 - Cada tarjeta del menú `START` presenta su propia portada en lugar del recorte repetido del fondo general. Se conserva íntegra la navegación `START` → `CHOOSE` y las mecánicas del juego.

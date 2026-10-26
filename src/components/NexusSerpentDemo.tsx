@@ -16240,8 +16240,8 @@ export default function NexusSerpentDemo() {
                 const hard = p.x < 35;
                 pushX += hard ? NEXUS_BOUNDARY.hardPushForce : NEXUS_BOUNDARY.softPushForce;
               }
-              if (p.x > size - NEXUS_BOUNDARY.containmentDistance) {
-                const hard = p.x > size - 35;
+              if (p.x > worldWidth - NEXUS_BOUNDARY.containmentDistance) {
+                const hard = p.x > worldWidth - 35;
                 pushX -= hard ? NEXUS_BOUNDARY.hardPushForce : NEXUS_BOUNDARY.softPushForce;
               }
               if (p.y < NEXUS_BOUNDARY.containmentDistance) {
@@ -16261,7 +16261,7 @@ export default function NexusSerpentDemo() {
             // Hard clamping so that under no circumstance Orbi escapes outside the arena canvas
             const hardMargin = 15;
             if (p.x < hardMargin) { p.x = hardMargin; p.vx = 0; }
-            if (p.x > size - hardMargin) { p.x = size - hardMargin; p.vx = 0; }
+            if (p.x > worldWidth - hardMargin) { p.x = worldWidth - hardMargin; p.vx = 0; }
             if (p.y < hardMargin) { p.y = hardMargin; p.vy = 0; }
             if (p.y > size - hardMargin) { p.y = size - hardMargin; p.vy = 0; }
           }

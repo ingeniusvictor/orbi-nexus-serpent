@@ -146,6 +146,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - Red Vital / Supervivencia Nexus: pendiente transformar el mundo cuadrado legado 2850×2850 en mundo rectangular horizontal de verdad (distribución, límites, colisiones, minimapa y cámara), sin distorsionar geometría ni tomar el zoom del navegador como zoom del juego. No se marca como solucionado.
 - **Pendiente:** `npm run qa:gate`, revisión visual 1920×1080 y pruebas de jugabilidad.
 
+### QA-01F — Corregida compensación involuntaria del zoom del navegador (2026-10-25)
+- El usuario confirmó que el encuadre seguía igual. Causa identificada en `getViewportCamera()`: para Red Vital y Supervivencia el `coverZoom` crecía cuando el navegador se alejaba a 25 %, cancelando el efecto de alejarse y forzando el recorte.
+- Se conserva el zoom propio de la cámara de exploración y se centra el mundo cuando cabe completo, evitando clamps invertidos. Nexus Assault y Vital Flow mantienen sus políticas de ajuste separadas.
+- **Límite explícito:** esto corrige el recorte inducido por zoom del navegador, **no** convierte todavía el mundo físico cuadrado 2850×2850 en rectángulo horizontal. La conversión 16:9 sigue pendiente y requiere coordenadas, límites, distribución y radar.
+- Requiere `npm run qa:gate` y comprobación visual normal/25 % del navegador. No afirmar solución total ni promover a `main`.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

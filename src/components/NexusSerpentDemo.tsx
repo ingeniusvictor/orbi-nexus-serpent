@@ -79,6 +79,10 @@ import {
   SurvivalBlackoutEvent
 } from '../types';
 
+// QA-01G: large exploration worlds are native landscape 16:9; Assault keeps its own room bounds.
+const EXPLORATION_WORLD_WIDTH = 2850 * 16 / 9;
+const EXPLORATION_WORLD_HEIGHT = 2850;
+
 const NEXUS_ASSAULT_ROOM_RADIUS_SCALE = 1.30; // Radius increased by 30% (effective playable area increased by ~69%)
 const NEXUS_ASSAULT_ARENA_RADIUS = 730 * NEXUS_ASSAULT_ROOM_RADIUS_SCALE; // ~949.00
 
@@ -4861,6 +4865,7 @@ export default function NexusSerpentDemo() {
   const stateRef = useRef({
     gameState: 'START',
     arenaSize: 2850,
+    arenaWidth: EXPLORATION_WORLD_WIDTH,
     activeGuardian: 'FOTON' as GuardianId,
     redVitalEvolutionEnergy: 0,
     redVitalVisualStage: 1,
@@ -5342,12 +5347,13 @@ export default function NexusSerpentDemo() {
   const generateWorldElements = () => {
     const core = stateRef.current;
     const size = core.arenaSize;
+    const worldWidth = core.arenaWidth;
 
     // Layer 1 stars (far parallax)
     const far: Point[] = [];
     for (let i = 0; i < 180; ++i) {
       far.push({
-        x: Math.random() * size,
+        x: Math.random() * worldWidth,
         y: Math.random() * size
       });
     }
@@ -5357,7 +5363,7 @@ export default function NexusSerpentDemo() {
     const mid: Point[] = [];
     for (let i = 0; i < 90; ++i) {
       mid.push({
-        x: Math.random() * size,
+        x: Math.random() * worldWidth,
         y: Math.random() * size
       });
     }
@@ -5367,7 +5373,7 @@ export default function NexusSerpentDemo() {
     const nodes: Point[] = [];
     for (let i = 0; i < QUALITY.vitalNetworkDensity; ++i) {
       nodes.push({
-        x: 150 + Math.random() * (size - 300),
+        x: 150 + Math.random() * (worldWidth - 300),
         y: 150 + Math.random() * (size - 300)
       });
     }
@@ -5399,7 +5405,7 @@ export default function NexusSerpentDemo() {
     const core = stateRef.current;
     
     // Position player in exact middle and initialize segments
-    core.player.x = 1425;
+    core.player.x = (gameMode === 'demo' || gameMode === 'infinite') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
     core.player.y = 1425;
     core.player.vx = 0;
     core.player.vy = 0;
@@ -5644,16 +5650,17 @@ export default function NexusSerpentDemo() {
   const findSafeSpawnPosition = () => {
     const core = stateRef.current;
     const size = core.arenaSize;
+    const worldWidth = core.arenaWidth;
     const p = core.player;
 
-    let bestX = size / 2;
+    let bestX = worldWidth / 2;
     let bestY = size / 2;
     let attempts = 0;
     let found = false;
 
     while (attempts < 50 && !found) {
       attempts++;
-      const testX = SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (size - SPAWN_SAFETY.minDistanceFromBoundary * 2);
+      const testX = SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (worldWidth - SPAWN_SAFETY.minDistanceFromBoundary * 2);
       const testY = SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (size - SPAWN_SAFETY.minDistanceFromBoundary * 2);
       const distToPlayer = Math.hypot(testX - p.x, testY - p.y);
 
@@ -5671,16 +5678,17 @@ export default function NexusSerpentDemo() {
   const findSafeSentinelSpawnPosition = () => {
     const core = stateRef.current;
     const size = core.arenaSize;
+    const worldWidth = core.arenaWidth;
     const p = core.player;
 
-    let bestX = size / 2;
+    let bestX = worldWidth / 2;
     let bestY = size / 2;
     let attempts = 0;
     let found = false;
 
     while (attempts < 80 && !found) {
       attempts++;
-      const testX = SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (size - SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary * 2);
+      const testX = SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (worldWidth - SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary * 2);
       const testY = SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary + Math.random() * (size - SENTINEL_SPAWN_SAFETY.minDistanceFromBoundary * 2);
       const distToPlayer = Math.hypot(testX - p.x, testY - p.y);
 
@@ -6059,9 +6067,9 @@ export default function NexusSerpentDemo() {
       const halfH = viewH / (2 * zoom);
       // Once the entire world fits, lock on its center rather than clamping
       // against inverted min/max bounds (which previously drifted off-screen).
-      centerX = halfW >= core.arenaSize / 2
-        ? core.arenaSize / 2
-        : Math.max(halfW, Math.min(core.arenaSize - halfW, centerX));
+      centerX = halfW >= core.arenaWidth / 2
+        ? core.arenaWidth / 2
+        : Math.max(halfW, Math.min(core.arenaWidth - halfW, centerX));
       centerY = halfH >= core.arenaSize / 2
         ? core.arenaSize / 2
         : Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
@@ -6171,6 +6179,7 @@ export default function NexusSerpentDemo() {
     const core = stateRef.current;
     if (core.gameMode === 'nexus_assault' || core.gameMode === 'vital_flow') return;
     const size = core.arenaSize;
+    const worldWidth = core.arenaWidth;
 
     // Keep clean, clear spawns in space
     const targetSolar = 40;
@@ -6189,11 +6198,11 @@ export default function NexusSerpentDemo() {
         type = 'BLACKOUT';
       }
 
-      const x = 120 + Math.random() * (size - 240);
+      const x = 120 + Math.random() * (worldWidth - 240);
       const y = 120 + Math.random() * (size - 240);
       
       // Prevent spawning overlapping elements near starting center
-      if (Math.hypot(x - 1425, y - 1425) < 300) continue;
+      if (Math.hypot(x - worldWidth / 2, y - size / 2) < 300) continue;
 
       const isSolar = type === 'SOLAR';
       const isNexus = type === 'NEXUS';
@@ -6214,10 +6223,10 @@ export default function NexusSerpentDemo() {
     }
 
     while (core.obstacles.length < targetSingularities) {
-      const x = 150 + Math.random() * (size - 300);
+      const x = 150 + Math.random() * (worldWidth - 300);
       const y = 150 + Math.random() * (size - 300);
 
-      if (Math.hypot(x - 1425, y - 1425) < 400) continue;
+      if (Math.hypot(x - worldWidth / 2, y - size / 2) < 400) continue;
 
       core.obstacles.push({
         id: Math.random().toString(36).substring(2, 9),
@@ -15669,6 +15678,7 @@ export default function NexusSerpentDemo() {
       const core = stateRef.current;
       const theme = GUARDIAN_THEMES[core.activeGuardian];
       const size = core.arenaSize;
+      const worldWidth = core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : size;
 
       // Time differences to lock speed on different screens
       let dt = (now - lastTime) / 16.666;
@@ -16130,19 +16140,19 @@ export default function NexusSerpentDemo() {
         let boundaryFlag = false;
 
         {
-          const distToBoundary = Math.min(p.x, p.y, size - p.x, size - p.y);
+          const distToBoundary = Math.min(p.x, p.y, worldWidth - p.x, size - p.y);
 
           if (BOUNDARY_MODE === 'bounce') {
             const padding = 45;
             if (p.x < padding) { p.x = padding; p.targetAngle = 0; p.angle = 0; p.vx = 0; p.vy = 0; boundaryFlag = true; }
-            if (p.x > size - padding) { p.x = size - padding; p.targetAngle = Math.PI; p.angle = Math.PI; p.vx = 0; p.vy = 0; boundaryFlag = true; }
+            if (p.x > worldWidth - padding) { p.x = worldWidth - padding; p.targetAngle = Math.PI; p.angle = Math.PI; p.vx = 0; p.vy = 0; boundaryFlag = true; }
             if (p.y < padding) { p.y = padding; p.targetAngle = Math.PI / 2; p.angle = Math.PI / 2; p.vx = 0; p.vy = 0; boundaryFlag = true; }
             if (p.y > size - padding) { p.y = size - padding; p.targetAngle = -Math.PI / 2; p.angle = -Math.PI / 2; p.vx = 0; p.vy = 0; boundaryFlag = true; }
           } else {
             // 'hybrid' or 'damage' styles
             const inWarning = distToBoundary < NEXUS_BOUNDARY.warningDistance;
             const inContainment = distToBoundary < NEXUS_BOUNDARY.containmentDistance;
-            const isHardOob = (p.x < 35 || p.x > size - 35 || p.y < 35 || p.y > size - 35);
+            const isHardOob = (p.x < 35 || p.x > worldWidth - 35 || p.y < 35 || p.y > size - 35);
 
             // 1. Show alerts based on active boundaries
             if (isHardOob) {

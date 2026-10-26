@@ -6,6 +6,11 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### QA-01G-4 — Seguimiento de cámara exploratoria (2026-10-26)
+- **Red Vital / Supervivencia Nexus:** la cámara se centra en la posición actual del jugador durante `PLAYING`, con límites independientes en X e Y; anteriormente seguía el centro asignado al iniciar y el personaje desaparecía fuera de pantalla al desplazarse por el rectángulo con escalas reducidas.
+- Cuando el mundo completo cabe en un eje, ese eje permanece centrado para evitar deriva; la misma transformación de cámara se comparte con el cálculo del puntero (`pointerToWorld`). Nexus Assault y Vital Flow conservan sus encuadres específicos.
+- **Pendiente:** validar seguimiento, ambos extremos y cuatro modos en Chrome 1920×1080 (100 % y 25 %); comprobar `npm run qa:gate`. No fusionar a `main`.
+
 ### QA-01G-3 — Eliminar barrera física cuadrada residual (2026-10-26)
 - **Red Vital / Supervivencia Nexus:** corregido el tope duro horizontal `p.x > size - hardMargin`, que continuaba restringiendo físicamente al personaje a X=2835 aunque el mundo ya medía 5066,67 de ancho.
 - Corregida también la detección y fuerza de empuje del borde derecho del campo de contención, sustituyendo el alto `size` por el ancho efectivo `worldWidth` exclusivamente en el eje X.

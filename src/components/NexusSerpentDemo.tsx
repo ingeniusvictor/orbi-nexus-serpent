@@ -20975,39 +20975,41 @@ export default function NexusSerpentDemo() {
           SCREEN OVERLAY: GUARDIAN CHOICE SELECTION SCREEN
           ======================================================== */}
       {gameState === 'CHOOSE' && (
-        <div className="absolute inset-0 z-45 bg-[#020617ee] backdrop-blur-xl p-4 sm:p-8 flex flex-col justify-between overflow-y-auto animate-fade-in">
+        <div className="orbi-guardian-choose absolute inset-0 z-45 p-4 sm:p-8 flex flex-col justify-between overflow-y-auto animate-fade-in">
           
           <div className="absolute w-[400px] h-[400px] -top-20 -left-20 rounded-full bg-cyan-600/5 blur-[100px] pointer-events-none" />
           <div className="absolute w-[400px] h-[400px] -bottom-20 -right-20 rounded-full bg-indigo-600/5 blur-[100px] pointer-events-none" />
 
           {/* Header */}
-          <div className="text-center max-w-xl mx-auto mt-4 sm:mt-6">
+          <div className="relative z-10 text-center max-w-3xl mx-auto mt-2 sm:mt-4">
             <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest bg-cyan-950/30 px-2.5 py-1 border border-cyan-505/20 rounded">
-              Selección de Esencia Cósmica
+              SALA DE ENLACE · GUARDIANES ENERGÉTICOS
             </span>
             <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-wider mt-3">
-              CONFIGURACIÓN DE ENTIDAD
+              ELIGE TU SERPIENTE
             </h2>
             <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
-              Cada guardián posee su propio motivo de visualización plasma solar, matriz cromática de estela y habilidades de protección vital.
+              Cada energía transforma tu estrategia. Examina los poderes pasivos y activos antes de despertar tu núcleo.
             </p>
           </div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 max-w-7xl mx-auto w-full my-6">
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 max-w-[1560px] mx-auto w-full my-5">
             {Object.values(GUARDIAN_THEMES).map((theme) => {
               const isSelected = selectedGuardian === theme.id;
               return (
                 <div
                   key={theme.id}
                   onClick={() => setSelectedGuardian(theme.id)}
-                  className={`border rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between transition-all duration-150 ${
+                  className={`orbi-guardian-card border rounded-2xl p-4 sm:p-5 cursor-pointer flex flex-col justify-between transition-all duration-150 ${
                     isSelected
-                      ? 'bg-slate-950/90 border-cyan-400 shadow-[0_0_24px_rgba(6,182,212,0.18)] translate-y-[-4px]'
-                      : 'bg-slate-950/50 border-white/5 hover:border-white/10 hover:bg-slate-950/75'
+                      ? 'orbi-guardian-selected bg-slate-950/90 border-cyan-400 shadow-[0_0_24px_rgba(6,182,212,0.28)] translate-y-[-4px]'
+                      : 'bg-slate-950/75 border-white/20 hover:border-cyan-400/50 hover:bg-slate-950/90'
                   }`}
                 >
                   <div>
+                    {/* Elemental energy avatar — no change to guardian gameplay */}
+                    <div className={`orbi-guardian-portrait orbi-guardian-${theme.id.toLowerCase()}`} aria-hidden="true"><span>{theme.name.charAt(0)}</span></div>
                     {/* Header bar */}
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex flex-col">
@@ -21042,8 +21044,21 @@ export default function NexusSerpentDemo() {
             })}
           </div>
 
+          {/* Selected guardian dossier; original game stats are read directly from GUARDIAN_THEMES. */}
+          <div className="orbi-guardian-dossier relative z-10 max-w-[1560px] w-full mx-auto rounded-2xl border border-cyan-400/25 p-4 sm:p-6 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
+              <h3 className="text-2xl sm:text-3xl font-display font-black text-white tracking-widest mt-1">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
+              <p className="text-slate-300 text-sm mt-2 max-w-xl">{GUARDIAN_THEMES[selectedGuardian].description}</p>
+            </div>
+            <div className="flex flex-wrap gap-3 font-mono text-xs">
+              <div className="rounded-lg border border-amber-400/25 bg-amber-950/20 px-4 py-3"><span className="block text-amber-300 text-[10px] mb-1">HABILIDAD PASIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong></div>
+              <div className="rounded-lg border border-cyan-400/25 bg-cyan-950/20 px-4 py-3"><span className="block text-cyan-300 text-[10px] mb-1">HABILIDAD ACTIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong></div>
+            </div>
+          </div>
+
           {/* Footer Navigation */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between max-w-xl mx-auto w-full mb-4 border-t border-white/5 pt-4">
+          <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center justify-between max-w-4xl mx-auto w-full mb-4 border-t border-cyan-400/20 pt-4">
             <button
               onClick={handleReturnToMain}
               className="px-6 py-2.5 bg-transparent border border-white/10 rounded-xl text-slate-400 text-xs font-mono tracking-widest uppercase hover:text-white hover:bg-white/5 duration-150 cursor-pointer w-full sm:w-auto"
@@ -21054,7 +21069,7 @@ export default function NexusSerpentDemo() {
               onClick={() => handleStartPlaying(selectedGuardian)}
               className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-indigo-600 border border-cyan-400/20 rounded-xl text-white text-xs font-mono tracking-widest font-bold uppercase hover:from-cyan-500 hover:to-indigo-500 active:scale-95 cursor-pointer duration-150 w-full sm:w-auto"
             >
-              DESPERTAR NÚCLEO
+              CONFIRMAR GUARDIÁN · DESPERTAR NÚCLEO
             </button>
           </div>
         </div>

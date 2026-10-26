@@ -152,6 +152,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 - **Límite explícito:** esto corrige el recorte inducido por zoom del navegador, **no** convierte todavía el mundo físico cuadrado 2850×2850 en rectángulo horizontal. La conversión 16:9 sigue pendiente y requiere coordenadas, límites, distribución y radar.
 - Requiere `npm run qa:gate` y comprobación visual normal/25 % del navegador. No afirmar solución total ni promover a `main`.
 
+### QA-01G — Conversión 16:9 del mundo de exploración (2026-10-26)
+- **Red Vital y Supervivencia Nexus:** mundo de exploración de 2850×2850 a **5066,67×2850** unidades (16:9), manteniendo la sala independiente de Nexus Assault y la arena de Vital Flow.
+- Cámara horizontal, punto inicial del jugador, distribución base de orbes/obstáculos, estrellas y nodos de fondo, límite físico horizontal, límites de contención y coordenadas de eventos de Supervivencia actualizados para usar `arenaWidth`.
+- Esta implementación aborda la causa del borde cuadrado observada al alejar Chrome al 25 %; el zoom de navegador no sustituye al zoom propio del juego.
+- **Pendiente de validar:** `npm run qa:gate`, nuevas partidas de Red Vital y Supervivencia, minimapa/radar, bordes en los cuatro extremos y visualización a 25 % en 1920×1080. No mover a `main` hasta superar QA. Puede haber subsistemas heredados aún basados en `arenaSize` que necesiten migración tras pruebas.
+
 ### Pendiente de comprobar
 - Ejecución y resultado del workflow de compilación.
 - Corrección de los errores TypeScript originales (450 observados en el respaldo; 441 en un experimento local que **no** forma parte de `develop`).

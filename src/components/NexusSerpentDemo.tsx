@@ -20993,68 +20993,42 @@ export default function NexusSerpentDemo() {
             </p>
           </div>
 
-          {/* Cards Grid */}
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 max-w-[1560px] mx-auto w-full my-5">
-            {Object.values(GUARDIAN_THEMES).map((theme) => {
-              const isSelected = selectedGuardian === theme.id;
-              return (
-                <div
-                  key={theme.id}
-                  onClick={() => setSelectedGuardian(theme.id)}
-                  className={`orbi-guardian-card border rounded-2xl p-4 sm:p-5 cursor-pointer flex flex-col justify-between transition-all duration-150 ${
-                    isSelected
-                      ? 'orbi-guardian-selected bg-slate-950/90 border-cyan-400 shadow-[0_0_24px_rgba(6,182,212,0.28)] translate-y-[-4px]'
-                      : 'bg-slate-950/75 border-white/20 hover:border-cyan-400/50 hover:bg-slate-950/90'
-                  }`}
-                >
-                  <div>
-                    {/* Elemental energy avatar — no change to guardian gameplay */}
-                    <div className={`orbi-guardian-portrait orbi-guardian-${theme.id.toLowerCase()}`} aria-hidden="true"><span>{theme.name.charAt(0)}</span></div>
-                    {/* Header bar */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest leading-none">ELEMENTO</span>
-                        <span className={`text-[11px] font-bold uppercase mt-1 leading-none ${theme.textColor}`}>{theme.element}</span>
-                      </div>
-                      <span className={`w-3 h-3 rounded-full ${
-                        theme.id === 'FOTON' ? 'bg-[#22c55e]' : theme.id === 'HYDRO' ? 'bg-[#0ea5e9]' : theme.id === 'AERO' ? 'bg-[#10b981]' : theme.id === 'TERMO' ? 'bg-[#ff6a2a]' : theme.id === 'MAGNE' ? 'bg-[#7c4dff]' : theme.id === 'ATON' ? 'bg-[#dfff4a]' : 'bg-[#eab308]'
-                      }`} />
-                    </div>
-
-                    <h3 className="text-lg font-bold text-white tracking-wide mb-2">
-                      {theme.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                      {theme.description}
-                    </p>
-                  </div>
-
-                  <div className="border-t border-white/5 pt-3 mt-4 flex flex-col gap-1.5 font-mono text-[11px]">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Pasivo:</span>
-                      <span className="text-slate-300 text-right leading-tight max-w-[130px]">{theme.passiveName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Activo:</span>
-                      <span className="text-slate-300 text-right leading-tight max-w-[130px]">{theme.abilityName}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* UI-AAA-02B: independent cinematic showcase, existing guardian data and handlers retained. */}
+          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-4 my-5">
+            <div className={`orbi-guardian-stage orbi-guardian-${selectedGuardian.toLowerCase()} rounded-2xl border border-cyan-400/30 relative overflow-hidden min-h-[270px] sm:min-h-[355px] flex items-center justify-center`}>
+              <svg className="orbi-serpent-silhouette" viewBox="0 0 600 360" role="img" aria-label={`Serpiente energética de ${GUARDIAN_THEMES[selectedGuardian].name}`}>
+                <defs><filter id="guardianGlow"><feGaussianBlur stdDeviation="11" /></filter></defs>
+                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="currentColor" strokeWidth="46" opacity=".45" filter="url(#guardianGlow)" strokeLinecap="round"/>
+                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round"/>
+                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="#fff" strokeOpacity=".68" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M475 108 L529 104 L515 140 L487 151 Z" fill="currentColor" stroke="#fff" strokeOpacity=".65" strokeWidth="2"/>
+                <circle cx="514" cy="119" r="4" fill="white"/>
+              </svg>
+              <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end gap-3">
+                <span className="font-mono text-[10px] tracking-widest text-white/75 uppercase">Previsualización energética</span>
+                <span className="font-mono text-xs font-bold text-white">{GUARDIAN_THEMES[selectedGuardian].element}</span>
+              </div>
+            </div>
+            <div className="orbi-guardian-dossier rounded-2xl border border-cyan-400/25 p-5 sm:p-7 flex flex-col justify-center min-w-0">
+              <span className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
+              <h3 className="font-display text-3xl sm:text-4xl font-black text-white mt-2">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mt-3">{GUARDIAN_THEMES[selectedGuardian].description}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 font-mono text-xs">
+                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-3"><span className="block text-amber-300 text-[10px] mb-1">HABILIDAD PASIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong></div>
+                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3"><span className="block text-cyan-300 text-[10px] mb-1">HABILIDAD ACTIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong></div>
+              </div>
+            </div>
           </div>
-
-          {/* Selected guardian dossier; original game stats are read directly from GUARDIAN_THEMES. */}
-          <div className="orbi-guardian-dossier relative z-10 max-w-[1560px] w-full mx-auto rounded-2xl border border-cyan-400/25 p-4 sm:p-6 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
-            <div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
-              <h3 className="text-2xl sm:text-3xl font-display font-black text-white tracking-widest mt-1">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
-              <p className="text-slate-300 text-sm mt-2 max-w-xl">{GUARDIAN_THEMES[selectedGuardian].description}</p>
-            </div>
-            <div className="flex flex-wrap gap-3 font-mono text-xs">
-              <div className="rounded-lg border border-amber-400/25 bg-amber-950/20 px-4 py-3"><span className="block text-amber-300 text-[10px] mb-1">HABILIDAD PASIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong></div>
-              <div className="rounded-lg border border-cyan-400/25 bg-cyan-950/20 px-4 py-3"><span className="block text-cyan-300 text-[10px] mb-1">HABILIDAD ACTIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong></div>
-            </div>
+          <div className="relative z-10 w-full max-w-[1440px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 mb-5" role="group" aria-label="Elegir guardián">
+            {Object.values(GUARDIAN_THEMES).map(theme => (
+              <button type="button" key={theme.id} aria-pressed={selectedGuardian === theme.id}
+                onClick={() => setSelectedGuardian(theme.id)}
+                className={`orbi-guardian-choice orbi-guardian-${theme.id.toLowerCase()} rounded-xl border p-3 flex flex-col items-center gap-2 cursor-pointer transition-all ${selectedGuardian === theme.id ? 'border-cyan-300 bg-cyan-950/60 shadow-[0_0_22px_rgba(34,211,238,.26)]' : 'border-white/15 bg-slate-950/75 hover:border-cyan-400/50'}`}>
+                <span className="orbi-guardian-token" aria-hidden="true">✦</span>
+                <strong className="text-white text-xs sm:text-sm">{theme.name}</strong>
+                <span className="text-slate-300 text-[9px] uppercase font-mono text-center">{theme.element}</span>
+              </button>
+            ))}
           </div>
 
           {/* Footer Navigation */}

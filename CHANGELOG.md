@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### QA-01G-3 — Eliminar barrera física cuadrada residual (2026-10-26)
+- **Red Vital / Supervivencia Nexus:** corregido el tope duro horizontal `p.x > size - hardMargin`, que continuaba restringiendo físicamente al personaje a X=2835 aunque el mundo ya medía 5066,67 de ancho.
+- Corregida también la detección y fuerza de empuje del borde derecho del campo de contención, sustituyendo el alto `size` por el ancho efectivo `worldWidth` exclusivamente en el eje X.
+- No se modifica el eje Y, el radar ni la geometría específica de las salas de Nexus Assault y Vital Flow.
+- **Estado:** implementado en `develop`; pendiente `npm run qa:gate` y comprobación manual de tránsito por X=2850 y del borde derecho real, sin afectar los cuatro modos. No fusionar a `main`.
+
 ### QA-01G-2 — Rectángulo físico/visual consistente (2026-10-26)
 - **Red Vital y Supervivencia Nexus:** el escudo perimetral y su onda interior se dibujan ahora con ancho y alto independientes, alineados con los límites físicos 5066,67×2850. Se conserva el tamaño de los mundos propios de Assault y Vital Flow.
 - Aparición de peligros de supervivencia usa el ancho exploratorio real y una posición alternativa dentro de límites. Corregidos el centro de referencia del aviso de controles de Red Vital y el reposicionamiento durante la cinemática.

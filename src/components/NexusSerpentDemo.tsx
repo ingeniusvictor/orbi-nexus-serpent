@@ -6065,8 +6065,14 @@ export default function NexusSerpentDemo() {
       zoom = Math.max(0.05, zoom);
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
-      // Once the entire world fits, lock on its center rather than clamping
-      // against inverted min/max bounds (which previously drifted off-screen).
+      // QA-01G-4: the exploration camera tracks the actual player even at
+      // reduced browser/game zoom. Keeping the reset-time camera coordinates
+      // fixed caused the serpent to disappear beyond the initial viewport.
+      // For an axis that fits entirely, keep that axis centered on the world.
+      if (core.gameState === 'PLAYING') {
+        centerX = core.player.x;
+        centerY = core.player.y;
+      }
       centerX = halfW >= core.arenaWidth / 2
         ? core.arenaWidth / 2
         : Math.max(halfW, Math.min(core.arenaWidth - halfW, centerX));

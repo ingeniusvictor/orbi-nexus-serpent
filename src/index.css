@@ -135,3 +135,17 @@
 }
 .orbi-premium-mode button:hover{filter:brightness(1.24);}
 @media(max-width:700px){.orbi-mode-art{height:125px}.orbi-premium-mode{min-height:340px;}}
+
+/* UI-AAA-01D — Four individually illustrated mode covers. */
+.orbi-mode-art {
+ background-size:cover;
+ background-position:center;
+ background-repeat:no-repeat;
+}
+.orbi-mode-vital .orbi-mode-art { background-image:linear-gradient(180deg,transparent 58%,#070912 100%),url('/assets/modes/red-vital.svg'); }
+.orbi-mode-survival .orbi-mode-art { background-image:linear-gradient(180deg,transparent 58%,#070912 100%),url('/assets/modes/survival.svg'); }
+.orbi-mode-assault .orbi-mode-art { background-image:linear-gradient(180deg,transparent 58%,#070912 100%),url('/assets/modes/assault.svg'); }
+.orbi-mode-flow .orbi-mode-art { background-image:linear-gradient(180deg,transparent 58%,#070912 100%),url('/assets/modes/vital-flow.svg'); }
+.orbi-mode-art span {display:none;}
+.orbi-premium-mode{overflow:hidden;}
+.orbi-premium-mode:focus-within .orbi-mode-art,.orbi-premium-mode:hover .orbi-mode-art {filter:saturate(1.3) brightness(1.14);}

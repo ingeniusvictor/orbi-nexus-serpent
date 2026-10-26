@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-01C — Fondo cinematográfico ilustrado y tarjetas por modo (2026-10-26)
+- Incorporado `public/assets/nexus-cosmic-hero.svg` como arte vectorial de fondo provisional, con campos cósmicos, órbitas y rastro multienergético horizontal.
+- Menú `START`: fondo a pantalla completa, viñeta y capas oscuras de legibilidad. Cuatro tarjetas con recortes del arte, tratamiento luminoso independiente y acciones de acceso originales intactas.
+- **Límite de esta fase:** el arte SVG es una recreación provisional, **no** una integración del PNG conceptual adjunto; pendiente incorporar y recortar originales raster por modo cuando estén disponibles como archivos accesibles al pipeline de GitHub.
+- **Validación pendiente:** `npm run qa:gate` y revisión visual a 1920×1080 y tamaños menores; confirmación de botones de acceso a `CHOOSE`, sonido, tutorial y modales. Sin cambios de física o en `main`.
+
 ### UI-AAA-01 — Primera fase de pantalla de inicio premium (2026-10-26)
 - Rediseñada la vista `START` como menú panorámico: cabecera de mayor jerarquía, cuatro tarjetas amplias con arte vectorial estilizado, identidades luminosas por modo y fondo espacial CSS adaptable.
 - Se mantienen exactamente los cuatro handlers `setGameMode(...)` + `setGameState('CHOOSE')`, el tutorial y los accesos originales a sonido, ayuda, información, créditos y restablecimiento.

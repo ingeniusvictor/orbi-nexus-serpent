@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-01D — Ilustraciones individuales de cuatro modos (2026-10-26)
+- Incorporadas cuatro portadas SVG independientes en `public/assets/modes/`: `red-vital.svg`, `survival.svg`, `assault.svg` y `vital-flow.svg`. Identidades cósmicas de energía, Blackout, combate y flujo respectivamente.
+- Cada tarjeta del menú `START` presenta su propia portada en lugar del recorte repetido del fondo general. Se conserva íntegra la navegación `START` → `CHOOSE` y las mecánicas del juego.
+- **Limitación:** estas portadas son sustitutos vectoriales originales y no equivalen a los PNG artísticos de los conceptos aprobados, cuya transferencia binaria al repositorio aún está pendiente.
+- **Pruebas:** pendiente verificación manual de las cuatro tarjetas, escalas, entradas y `npm run qa:gate`; nunca promover a `main` sin autorización.
+
 ### UI-AAA-01C — Fondo cinematográfico ilustrado y tarjetas por modo (2026-10-26)
 - Incorporado `public/assets/nexus-cosmic-hero.svg` como arte vectorial de fondo provisional, con campos cósmicos, órbitas y rastro multienergético horizontal.
 - Menú `START`: fondo a pantalla completa, viñeta y capas oscuras de legibilidad. Cuatro tarjetas con recortes del arte, tratamiento luminoso independiente y acciones de acceso originales intactas.

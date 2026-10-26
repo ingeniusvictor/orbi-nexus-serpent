@@ -6051,11 +6051,20 @@ export default function NexusSerpentDemo() {
       centerX = bounds.centerX;
       centerY = bounds.centerY;
     } else {
-      zoom = Math.max(zoom, Math.max(viewW, viewH) / Math.max(1, core.arenaSize), viewW / Math.max(1, core.arenaSize), viewH / Math.max(1, core.arenaSize));
+      // Exploration worlds intentionally extend beyond the normal viewport.
+      // Never force a cover-zoom when the browser is zoomed out: doing so
+      // cancels the user's attempt to inspect the complete world.
+      zoom = Math.max(0.05, zoom);
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
-      centerX = Math.max(halfW, Math.min(core.arenaSize - halfW, centerX));
-      centerY = Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
+      // Once the entire world fits, lock on its center rather than clamping
+      // against inverted min/max bounds (which previously drifted off-screen).
+      centerX = halfW >= core.arenaSize / 2
+        ? core.arenaSize / 2
+        : Math.max(halfW, Math.min(core.arenaSize - halfW, centerX));
+      centerY = halfH >= core.arenaSize / 2
+        ? core.arenaSize / 2
+        : Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
     }
 
     return { viewW, viewH, zoom: Math.max(0.001, zoom), centerX, centerY };

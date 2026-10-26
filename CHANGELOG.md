@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-01 — Primera fase de pantalla de inicio premium (2026-10-26)
+- Rediseñada la vista `START` como menú panorámico: cabecera de mayor jerarquía, cuatro tarjetas amplias con arte vectorial estilizado, identidades luminosas por modo y fondo espacial CSS adaptable.
+- Se mantienen exactamente los cuatro handlers `setGameMode(...)` + `setGameState('CHOOSE')`, el tutorial y los accesos originales a sonido, ayuda, información, créditos y restablecimiento.
+- Las imágenes conceptuales aprobadas son referencia artística; esta fase utiliza arte CSS sin incorporar aún el archivo raster ilustrado al repositorio.
+- **Pendiente de validar:** build, `npm run qa:gate`, legibilidad/scroll a 1920×1080 y otras resoluciones, navegación en los cuatro modos. Las ventanas `CHOOSE` permanecen sin rediseñar en esta fase. No tocar `main`.
+
 ### QA-01G-4 — Seguimiento de cámara exploratoria (2026-10-26)
 - **Red Vital / Supervivencia Nexus:** la cámara se centra en la posición actual del jugador durante `PLAYING`, con límites independientes en X e Y; anteriormente seguía el centro asignado al iniciar y el personaje desaparecía fuera de pantalla al desplazarse por el rectángulo con escalas reducidas.
 - Cuando el mundo completo cabe en un eje, ese eje permanece centrado para evitar deriva; la misma transformación de cámara se comparte con el cálculo del puntero (`pointerToWorld`). Nexus Assault y Vital Flow conservan sus encuadres específicos.

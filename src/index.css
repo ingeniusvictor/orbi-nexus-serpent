@@ -89,3 +89,49 @@
 .orbi-premium-mode h3 {font-size:1.12rem; text-shadow:0 0 15px rgba(var(--mode-rgb),.4);}
 .orbi-premium-mode button { min-height:43px; box-shadow:0 0 18px rgba(var(--mode-rgb),.20);}
 @media (prefers-reduced-motion:reduce) { .orbi-premium-mode {transition:none;} .orbi-premium-mode:hover {transform:none;} }
+
+/* UI-AAA-01C — Illustrated landing page, scoped to START. */
+.orbi-premium-start {
+ background-image:linear-gradient(180deg,rgba(2,4,15,.18) 0%,rgba(2,4,15,.53) 29%,rgba(2,4,15,.91) 95%),url('/assets/nexus-cosmic-hero.svg');
+ background-position:center,center;
+ background-size:cover,cover;
+ background-repeat:no-repeat;
+}
+.orbi-premium-start::before{opacity:.12;}
+.orbi-premium-start::after{
+ content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+ box-shadow:inset 0 0 105px 35px rgba(0,0,0,.68);
+}
+.orbi-premium-mode {
+ min-height:390px;
+ border-width:2px;
+ border-radius:14px;
+ background:linear-gradient(180deg,rgba(4,9,25,.28),rgba(2,5,17,.91) 37%,rgba(2,5,17,.98) 100%);
+ backdrop-filter:blur(8px);
+}
+.orbi-premium-mode::after{
+ content:"";position:absolute;inset:7px;border:1px solid rgba(var(--mode-rgb),.12);
+ border-radius:8px;pointer-events:none;
+}
+.orbi-mode-art {
+ height:165px;position:relative;overflow:hidden;
+ background-image:linear-gradient(180deg,rgba(4,7,20,.08),rgba(4,8,22,.20)),url('/assets/nexus-cosmic-hero.svg');
+ background-size:cover,auto 600px;
+ background-position:center,var(--art-position,5% 37%);
+}
+.orbi-mode-vital {--art-position:3% 34%;}
+.orbi-mode-survival {--art-position:93% 19%;}
+.orbi-mode-assault {--art-position:70% 48%;}
+.orbi-mode-flow {--art-position:45% 40%;}
+.orbi-mode-art::after{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(180deg,transparent 52%,rgba(1,3,12,.94));
+}
+.orbi-mode-art span {position:relative;z-index:1;font-size:45px;opacity:.9;}
+.orbi-premium-mode button{
+ background-image:linear-gradient(115deg,rgba(var(--mode-rgb),.45),rgba(var(--mode-rgb),.10));
+ border-color:rgba(var(--mode-rgb),.85);
+ letter-spacing:.06em;text-shadow:0 0 12px rgba(var(--mode-rgb),.8);
+}
+.orbi-premium-mode button:hover{filter:brightness(1.24);}
+@media(max-width:700px){.orbi-mode-art{height:125px}.orbi-premium-mode{min-height:340px;}}

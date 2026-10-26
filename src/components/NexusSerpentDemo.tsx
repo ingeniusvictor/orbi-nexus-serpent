@@ -7226,7 +7226,7 @@ export default function NexusSerpentDemo() {
     let sy = p.y + Math.sin(angle) * dist;
     
     // Clamp to arena bounds
-    sx = Math.max(120, Math.min(core.arenaSize - 120, sx));
+    sx = Math.max(120, Math.min(core.arenaWidth - 120, sx));
     sy = Math.max(120, Math.min(core.arenaSize - 120, sy));
     return { x: sx, y: sy };
   };
@@ -8201,7 +8201,7 @@ export default function NexusSerpentDemo() {
       }
     }
 
-    serpent.x = Math.max(50, Math.min(core.arenaSize - 50, serpent.x));
+    serpent.x = Math.max(50, Math.min(core.arenaWidth - 50, serpent.x));
     serpent.y = Math.max(50, Math.min(core.arenaSize - 50, serpent.y));
   }
 
@@ -17838,9 +17838,9 @@ export default function NexusSerpentDemo() {
     
     if (event.type === "eclipse_field") {
       ctx.fillStyle = "rgba(15, 0, 30, 0.28)";
-      ctx.fillRect(0, 0, core.arenaSize, core.arenaSize);
+      ctx.fillRect(0, 0, core.arenaWidth, core.arenaSize);
 
-      const centerX = core.arenaSize / 2;
+      const centerX = core.arenaWidth / 2;
       const centerY = core.arenaSize / 2;
       const grad = ctx.createRadialGradient(centerX, centerY, 100, centerX, centerY, 800);
       grad.addColorStop(0, "rgba(91, 44, 255, 0.08)");
@@ -17851,7 +17851,7 @@ export default function NexusSerpentDemo() {
       ctx.fill();
 
       if (Math.random() < 0.12 * dt) {
-        const pX = Math.random() * core.arenaSize;
+        const pX = Math.random() * core.arenaWidth;
         const pY = Math.random() * core.arenaSize;
         const color = Math.random() < 0.5 ? '#fbbf24' : '#5b2cff';
         core.particles.push({
@@ -17874,10 +17874,10 @@ export default function NexusSerpentDemo() {
       
       ctx.strokeStyle = `rgba(168, 85, 247, ${borderAlpha})`;
       ctx.lineWidth = 12;
-      ctx.strokeRect(0, 0, core.arenaSize, core.arenaSize);
+      ctx.strokeRect(0, 0, core.arenaWidth, core.arenaSize);
 
       if (Math.random() < 0.1 * dt) {
-        const pX = Math.random() * core.arenaSize;
+        const pX = Math.random() * core.arenaWidth;
         const pY = Math.random() * core.arenaSize;
         core.particles.push({
           id: `wave_${Date.now()}_${Math.random()}`,
@@ -17911,7 +17911,7 @@ export default function NexusSerpentDemo() {
       ctx.setLineDash([]);
     } else if (event.type === "entropy_storm") {
       if (Math.random() < 0.15 * dt) {
-        const pX = Math.random() * core.arenaSize;
+        const pX = Math.random() * core.arenaWidth;
         const pY = Math.random() * core.arenaSize;
         const color = Math.random() < 0.6 ? '#f97316' : '#ea580c';
         core.particles.push({
@@ -17931,7 +17931,7 @@ export default function NexusSerpentDemo() {
     } else if (event.type === "anti_serpent_alpha") {
       const flash = Math.abs(Math.sin(Date.now() * 0.002)) * 0.05;
       ctx.fillStyle = `rgba(239, 68, 68, ${flash})`;
-      ctx.fillRect(0, 0, core.arenaSize, core.arenaSize);
+      ctx.fillRect(0, 0, core.arenaWidth, core.arenaSize);
     }
 
     ctx.restore();

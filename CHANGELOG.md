@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### QA-01G-2 — Rectángulo físico/visual consistente (2026-10-26)
+- **Red Vital y Supervivencia Nexus:** el escudo perimetral y su onda interior se dibujan ahora con ancho y alto independientes, alineados con los límites físicos 5066,67×2850. Se conserva el tamaño de los mundos propios de Assault y Vital Flow.
+- Aparición de peligros de supervivencia usa el ancho exploratorio real y una posición alternativa dentro de límites. Corregidos el centro de referencia del aviso de controles de Red Vital y el reposicionamiento durante la cinemática.
+- Nebulosas de fondo distribuidas a lo ancho del mundo; trazos de evento `vacuum_surge` prolongados hasta el borde horizontal.
+- **Validación pendiente:** `npm run qa:gate`, visual 1920×1080/25 %, radar, cuatro bordes físicos, eventos Blackout y regresión de los cuatro modos. Sin promoción a `main`.
+
 ### Añadido
 - **STB-01 (2026-10-25):** rama `develop` para trabajo de estabilización independiente de `main`.
 - **STB-01 (2026-10-25):** comando `npm run dev:local` para iniciar Vite en `127.0.0.1:5173`.

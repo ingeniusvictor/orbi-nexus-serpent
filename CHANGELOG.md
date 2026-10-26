@@ -6,6 +6,12 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-02B — Serpiente protagonista y selector de seis Guardianes (2026-10-26)
+- `CHOOSE` reorganizado en dos paneles: previsualización vectorial grande de la serpiente seleccionada y dossier con nombre, descripción y habilidades reales enlazadas a `GUARDIAN_THEMES`.
+- Seis Guardianes en selector compacto accesible (`button`, `aria-pressed`), manteniendo `setSelectedGuardian`, `handleReturnToMain` y `handleStartPlaying`.
+- Corregido CSS de desbordamiento horizontal de esta pantalla mediante anchura acotada, columnas flexibles y tarjetas adaptables. Sin alteraciones de física, ataques ni selección de modos.
+- **Pendiente:** pruebas `npm run qa:gate`, selección de los seis Guardianes, vista 1920×1080 y tamaños pequeños; el personaje mostrado es una representación vectorial estilizada y no un render del modelo jugable.
+
 ### UI-AAA-02 — Selección premium independiente de Guardianes (2026-10-26)
 - Rediseñada la pantalla `CHOOSE`, que aparece después de escoger un modo: fondo cósmico, retratos energéticos por identidad y tarjetas con resaltado de selección.
 - Nuevo dossier del Guardián seleccionado con descripción y nombres de habilidades pasiva/activa procedentes directamente de `GUARDIAN_THEMES` (sin inventar estadísticas ni alterar mecánicas).

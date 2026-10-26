@@ -186,3 +186,15 @@
 .orbi-guardian-aton{--energy:#d9ff5a}
 .orbi-guardian-dossier{background:linear-gradient(110deg,rgba(2,16,34,.94),rgba(12,5,37,.94));box-shadow:inset 0 0 25px rgba(34,211,238,.08),0 10px 32px rgba(0,0,0,.4);}
 @media(prefers-reduced-motion:reduce){.orbi-guardian-card:hover{transform:none;}}
+
+/* UI-AAA-02B: contained cinematic stage and compact guardian chooser. */
+.orbi-guardian-choose{overflow-x:hidden;max-width:100vw;width:100%;box-sizing:border-box}
+.orbi-guardian-showcase,.orbi-guardian-stage,.orbi-guardian-dossier{min-width:0}
+.orbi-guardian-stage{--energy:#22d3ee;color:var(--energy);background:radial-gradient(ellipse at center,color-mix(in srgb,var(--energy) 23%,transparent),transparent 57%),repeating-radial-gradient(circle at center,transparent 0 35px,color-mix(in srgb,var(--energy) 18%,transparent) 36px 37px,transparent 38px 70px),linear-gradient(125deg,#050c20,#110b29);box-shadow:inset 0 0 48px color-mix(in srgb,var(--energy) 20%,transparent),0 12px 40px rgba(0,0,0,.45)}
+.orbi-serpent-silhouette{width:min(94%,610px);height:auto;max-height:330px;overflow:visible;filter:drop-shadow(0 0 12px currentColor)}
+.orbi-guardian-choice{--energy:#22d3ee;min-width:0;min-height:100px;box-shadow:inset 0 0 15px color-mix(in srgb,var(--energy) 8%,transparent)}
+.orbi-guardian-choice:hover,.orbi-guardian-choice:focus-visible{transform:translateY(-3px);outline:2px solid var(--energy);outline-offset:2px}
+.orbi-guardian-token{font-size:24px;color:var(--energy);text-shadow:0 0 13px var(--energy)}
+.orbi-guardian-choice strong,.orbi-guardian-choice span{overflow-wrap:anywhere}
+@media(max-width:700px){.orbi-guardian-stage{min-height:240px}.orbi-guardian-choice{min-height:90px}}
+@media(prefers-reduced-motion:reduce){.orbi-guardian-choice:hover{transform:none}}

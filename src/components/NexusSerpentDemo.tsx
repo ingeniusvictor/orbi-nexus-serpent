@@ -2868,7 +2868,7 @@ const ENABLE_EVOLUTION_ENERGY_HUD = true;
 const INTERNAL_CORE_MIN_GAP_SEGMENTS = 2;
 const INTERNAL_CORE_RADIUS_MULTIPLIER = 0.88; // 12% reduction
 const INTERNAL_CORE_GLOW_MULTIPLIER = 0.85;   // 15% reduction
-const VITAL_FLOW_ARENA_SCALE = 0.75;          // 25% area reduction (multiplier applied to arena dimensions)
+const VITAL_FLOW_ARENA_SCALE = 0.375; // QA-01D: 50% of previous arena width and height          // 25% area reduction (multiplier applied to arena dimensions)
 
 type OrbiEvolutionEnergySource = 'solar_orb' | 'nexus_core' | 'vital_essence' | 'minor_energy' | 'assault_core';
 

@@ -20,4 +20,17 @@ check(component.includes('getAssaultDiscoveredEnergies(run)'), 'GAIA must track 
 check(types.includes('gaiaSeals?: OrbiEnergyId[]'), 'Run must declare GAIA seals');
 check(component.includes('reviveShieldSec'), 'Revival shield baseline must be retained');
 check(component.includes('core.assaultRun.enemiesKilled % 5 === 0'), 'Earned Filamento growth baseline must be retained');
-console.log(`ASSAULT-RV-02: ${checks} static isolation/roster checks passed.`);
+const art = readFileSync(new URL('../src/components/GuardianShowcaseArt.tsx', import.meta.url), 'utf8');
+const guardianIds = energies.map(energy => energy.toUpperCase());
+for (const guardian of guardianIds) {
+  check(types.includes(`'${guardian}'`), `Guardian ${guardian} is missing from GuardianId`);
+  check(component.includes(`  ${guardian}: {`), `Missing guardian theme for ${guardian}`);
+  check(art.includes(`  ${guardian}: {`), `Missing guardian artwork for ${guardian}`);
+  check(art.includes(`  ${guardian}: '`), `Missing guardian sigil for ${guardian}`);
+}
+for (const guardian of ['KINETRIX', 'H2NOVA', 'QUANTUM']) {
+  check(component.includes(`core.activeGuardian === '${guardian}'`), `Missing playable ability for ${guardian}`);
+}
+check(component.includes('Object.values(GUARDIAN_THEMES).map(theme => ('), 'Guardian selection must use full theme roster');
+check(component.includes('createOrbiCombatModule(startEnergy, 3, "common")'), 'Selected guardian must start with matching Assault core');
+console.log(`ASSAULT-RV-02: ${checks} static isolation/roster/guardian checks passed.`);

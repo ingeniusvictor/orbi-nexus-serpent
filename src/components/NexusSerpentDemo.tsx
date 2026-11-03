@@ -10860,8 +10860,8 @@ export default function NexusSerpentDemo() {
         id: 'rest_beacon_' + Date.now() + '_' + Math.random(),
         type: 'REST_BEACON',
         archetype: 'rest_beacon',
-        x: 1425,
-        y: 1425,
+        x: Math.max(260, Math.min(ASSAULT_WORLD_WIDTH - 260, stateRef.current.player.x + 300)),
+        y: stateRef.current.player.y,
         radius: 35,
         health: 100,
         maxHealth: 100,
@@ -11037,8 +11037,8 @@ export default function NexusSerpentDemo() {
         id: 'rest_beacon_' + Date.now() + '_' + Math.random(),
         type: 'REST_BEACON',
         archetype: 'rest_beacon',
-        x: 1425,
-        y: 1425,
+        x: Math.max(260, Math.min(ASSAULT_WORLD_WIDTH - 260, stateRef.current.player.x + 300)),
+        y: stateRef.current.player.y,
         radius: 35,
         health: 100,
         maxHealth: 100,
@@ -11338,32 +11338,24 @@ export default function NexusSerpentDemo() {
   };
 
   const getAssaultSpawnPos = () => {
+    // Local encounters preserve combat pace in a world larger than one screen.
     const core = stateRef.current;
-    const shape = core.assaultRun?.room?.shape || 'RECTANGLE';
-    let rx = 1425;
-    let ry = 1425;
-    let attempts = 0;
-    while (attempts < 100) {
-      rx = 1425 + (Math.random() - 0.5) * 1300;
-      ry = 1425 + (Math.random() - 0.5) * 1300;
-      
+    const shape = core.assaultRun?.room?.shape || 'WIDE_RECTANGLE';
+    for (let attempts = 0; attempts < 90; attempts++) {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 490 + Math.random() * 740;
+      const rx = core.player.x + Math.cos(angle) * distance;
+      const ry = core.player.y + Math.sin(angle) * distance;
       const check = constrainPointToRoom(rx, ry, shape, 700);
-      const playerDist = Math.hypot(rx - core.player.x, ry - core.player.y);
-      
-      if (!check.hitWall && playerDist > 320) {
-        break;
+      if (!check.hitWall && Math.hypot(rx - core.player.x, ry - core.player.y) > 420) {
+        return { x: rx, y: ry };
       }
-      attempts++;
     }
-    
-    if (attempts >= 100 && shape !== 'RECTANGLE') {
-      if (core.assaultRun?.room) {
-        core.assaultRun.room.shape = 'RECTANGLE';
-      }
-      rx = 1425 + (Math.random() - 0.5) * 1100;
-      ry = 1425 + (Math.random() - 0.5) * 1100;
-    }
-    return { x: rx, y: ry };
+    const fallbackX = core.player.x < ASSAULT_WORLD_CENTER_X
+      ? core.player.x + 510 : core.player.x - 510;
+    const fallbackY = core.player.y + (core.player.y < ASSAULT_WORLD_CENTER_Y ? 110 : -110);
+    const safe = constrainPointToRoom(fallbackX, fallbackY, shape, 700);
+    return { x: safe.x, y: safe.y };
   };
 
   const getOrbiCorePalette = (element: string) => {
@@ -12132,8 +12124,8 @@ export default function NexusSerpentDemo() {
         id: 'rest_beacon_' + Date.now() + '_' + Math.random(),
         type: 'REST_BEACON',
         archetype: 'rest_beacon',
-        x: 1425,
-        y: 1425,
+        x: Math.max(260, Math.min(ASSAULT_WORLD_WIDTH - 260, stateRef.current.player.x + 300)),
+        y: stateRef.current.player.y,
         radius: 35,
         health: 100,
         maxHealth: 100,
@@ -12652,15 +12644,19 @@ export default function NexusSerpentDemo() {
 
     const bossHp = Math.round(baseHp * difficulty.enemyHpMultiplier);
 
+    const anchorX = Math.max(370, Math.min(ASSAULT_WORLD_WIDTH - 370, stateRef.current.player.x + 340));
+    const anchorY = Math.max(340, Math.min(ASSAULT_WORLD_HEIGHT - 340, stateRef.current.player.y - 280));
     const boss = {
       id: `boss_${bossType}_${roomIndex}_${Date.now()}`,
+      homeX: anchorX,
+      homeY: anchorY,
       type: bossType,
       name:
         bossType === "blackout_elite_core" ? "BLACKOUT ELITE CORE" :
         bossType === "crimson_pulsar_core" ? "CRIMSON PULSAR CORE" :
         "VOID SERPENT FRAGMENT",
-      x: 1425,
-      y: 1425 - 280, // slightly offset upwards from center
+      x: anchorX,
+      y: anchorY, // nearby anchor within the panoramic Assault world
       vx: 0,
       vy: 0,
       radius:
@@ -12929,8 +12925,8 @@ export default function NexusSerpentDemo() {
       }
 
     } else if (boss.type === "crimson_pulsar_core") {
-      const targetX = 1425;
-      const targetY = 1425 - 240;
+      const targetX = boss.homeX ?? ASSAULT_WORLD_CENTER_X;
+      const targetY = boss.homeY ?? (ASSAULT_WORLD_CENTER_Y - 240);
       boss.x += (targetX - boss.x) * 0.05 * dt;
       boss.y += (targetY - boss.y) * 0.05 * dt;
 
@@ -12976,8 +12972,8 @@ export default function NexusSerpentDemo() {
 
     } else if (boss.type === "void_serpent_fragment") {
       const time = core.vitalEnergyWind * 1.2;
-      const targetX = 1425 + Math.sin(time) * 320;
-      const targetY = 1425 - 180 + Math.sin(time * 2) * 140;
+      const targetX = (boss.homeX ?? ASSAULT_WORLD_CENTER_X) + Math.sin(time) * 320;
+      const targetY = (boss.homeY ?? ASSAULT_WORLD_CENTER_Y) + Math.sin(time * 2) * 140;
       boss.x += (targetX - boss.x) * 0.08 * dt;
       boss.y += (targetY - boss.y) * 0.08 * dt;
 
@@ -13952,8 +13948,10 @@ export default function NexusSerpentDemo() {
     updateAssaultStatusEffects(dt);
     updateAssaultAreaEffects(dt);
 
-    const boxMin = 1425 - (NEXUS_ASSAULT_ARENA_RADIUS + 20);
-    const boxMax = 1425 + (NEXUS_ASSAULT_ARENA_RADIUS + 20);
+    const boxMinX = 0;
+    const boxMaxX = ASSAULT_WORLD_WIDTH;
+    const boxMinY = 0;
+    const boxMaxY = ASSAULT_WORLD_HEIGHT;
 
     core.assaultRun.enemies.forEach((enemy: any) => {
       if (enemy.spawnPortalTimer !== undefined && enemy.spawnPortalTimer > 0) {
@@ -13968,11 +13966,11 @@ export default function NexusSerpentDemo() {
       enemy.y = enemyRes.y;
       if (enemyRes.hitWall) {
         if (enemy.type === 'DRONE') {
-          const limit = NEXUS_ASSAULT_ARENA_RADIUS - enemy.radius;
-          if (enemy.x <= 1425 - limit || enemy.x >= 1425 + limit) {
+          const margin = ASSAULT_WALL_MARGIN + enemy.radius;
+          if (enemy.x <= margin || enemy.x >= ASSAULT_WORLD_WIDTH - margin) {
             enemy.vx *= -1;
           }
-          if (enemy.y <= 1425 - limit || enemy.y >= 1425 + limit) {
+          if (enemy.y <= margin || enemy.y >= ASSAULT_WORLD_HEIGHT - margin) {
             enemy.vy *= -1;
           }
         } else {
@@ -14114,8 +14112,8 @@ export default function NexusSerpentDemo() {
           enemy.x += enemy.vx * dt;
           enemy.y += enemy.vy * dt;
 
-          if (enemy.x < boxMin + 20 || enemy.x > boxMax - 20) { enemy.vx *= -1; }
-          if (enemy.y < boxMin + 20 || enemy.y > boxMax - 20) { enemy.vy *= -1; }
+          if (enemy.x < boxMinX + 20 || enemy.x > boxMaxX - 20) { enemy.vx *= -1; }
+          if (enemy.y < boxMinY + 20 || enemy.y > boxMaxY - 20) { enemy.vy *= -1; }
 
           // SLOW SHOT heavy glob
           const diff = getNexusAssaultRoomDifficulty(core.assaultRun.roomIndex ?? 1);
@@ -14152,8 +14150,8 @@ export default function NexusSerpentDemo() {
           enemy.x += enemy.vx * dt;
           enemy.y += enemy.vy * dt;
 
-          if (enemy.x < boxMin + 20 || enemy.x > boxMax - 20) { enemy.vx *= -1; }
-          if (enemy.y < boxMin + 20 || enemy.y > boxMax - 20) { enemy.vy *= -1; }
+          if (enemy.x < boxMinX + 20 || enemy.x > boxMaxX - 20) { enemy.vx *= -1; }
+          if (enemy.y < boxMinY + 20 || enemy.y > boxMaxY - 20) { enemy.vy *= -1; }
 
           // DOUBLE SHOT
           const diff = getNexusAssaultRoomDifficulty(core.assaultRun.roomIndex ?? 1);
@@ -14201,8 +14199,8 @@ export default function NexusSerpentDemo() {
           enemy.x += enemy.vx * dt;
           enemy.y += enemy.vy * dt;
 
-          if (enemy.x < boxMin + 20 || enemy.x > boxMax - 20) { enemy.vx *= -1; }
-          if (enemy.y < boxMin + 20 || enemy.y > boxMax - 20) { enemy.vy *= -1; }
+          if (enemy.x < boxMinX + 20 || enemy.x > boxMaxX - 20) { enemy.vx *= -1; }
+          if (enemy.y < boxMinY + 20 || enemy.y > boxMaxY - 20) { enemy.vy *= -1; }
 
           // FRAGMENT SHOT
           const diff = getNexusAssaultRoomDifficulty(core.assaultRun.roomIndex ?? 1);
@@ -14249,8 +14247,8 @@ export default function NexusSerpentDemo() {
           enemy.x += enemy.vx * dt;
           enemy.y += enemy.vy * dt;
 
-          if (enemy.x < boxMin + 20 || enemy.x > boxMax - 20) { enemy.vx *= -1; }
-          if (enemy.y < boxMin + 20 || enemy.y > boxMax - 20) { enemy.vy *= -1; }
+          if (enemy.x < boxMinX + 20 || enemy.x > boxMaxX - 20) { enemy.vx *= -1; }
+          if (enemy.y < boxMinY + 20 || enemy.y > boxMaxY - 20) { enemy.vy *= -1; }
 
           // AIMED SHOT
           const diff = getNexusAssaultRoomDifficulty(core.assaultRun.roomIndex ?? 1);
@@ -14900,7 +14898,7 @@ export default function NexusSerpentDemo() {
     });
 
     core.assaultRun.projectiles = core.assaultRun.projectiles.filter((p: any) => {
-      if (p.x < boxMin - 100 || p.x > boxMax + 100 || p.y < boxMin - 100 || p.y > boxMax + 100) return false;
+      if (p.x < boxMinX - 100 || p.x > boxMaxX + 100 || p.y < boxMinY - 100 || p.y > boxMaxY + 100) return false;
       return p.x > 0;
     });
 

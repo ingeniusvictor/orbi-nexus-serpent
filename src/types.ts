@@ -327,6 +327,8 @@ export interface NexusAssaultRun {
   enemies: AssaultEnemy[];
   projectiles: AssaultProjectile[];
   modules: OrbiCombatModule[];
+  /** RV-02: nine GAIA energy discoveries independent of eight physical module slots. */
+  gaiaSeals?: OrbiEnergyId[];
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;

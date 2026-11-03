@@ -475,7 +475,7 @@ export interface Camera {
   smoothAngle?: number;
 }
 
-export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON';
+export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON' | 'KINETRIX' | 'H2NOVA' | 'QUANTUM';
 
 export interface GuardianTheme {
   id: GuardianId;

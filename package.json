@@ -14,7 +14,8 @@
     "qa:gate": "node scripts/qa-gate.mjs",
     "qa:assault-landscape": "node scripts/qa-assault-landscape.mjs",
     "qa:assault-geometry": "node --import tsx --test src/gameplay/assault/resonanceGeometry.test.ts src/gameplay/assault/resonancePreview.test.ts",
-    "qa:assault-preview-scope": "node scripts/qa-assault-preview-scope.mjs"
+    "qa:assault-preview-scope": "node scripts/qa-assault-preview-scope.mjs",
+    "qa:assault-revive": "node --import tsx --test src/gameplay/assault/assaultRevive.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

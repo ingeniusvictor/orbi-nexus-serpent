@@ -84,8 +84,12 @@ import {
 const EXPLORATION_WORLD_WIDTH = 2850 * 16 / 9;
 const EXPLORATION_WORLD_HEIGHT = 2850;
 
-const NEXUS_ASSAULT_ROOM_RADIUS_SCALE = 1.30; // Radius increased by 30% (effective playable area increased by ~69%)
-const NEXUS_ASSAULT_ARENA_RADIUS = 730 * NEXUS_ASSAULT_ROOM_RADIUS_SCALE; // ~949.00
+// QA-AS16-01: Nexus Assault shares the fully navigable 16:9 exploration footprint.
+const ASSAULT_WORLD_WIDTH = EXPLORATION_WORLD_WIDTH;
+const ASSAULT_WORLD_HEIGHT = EXPLORATION_WORLD_HEIGHT;
+const ASSAULT_WORLD_CENTER_X = ASSAULT_WORLD_WIDTH / 2;
+const ASSAULT_WORLD_CENTER_Y = ASSAULT_WORLD_HEIGHT / 2;
+const ASSAULT_WALL_MARGIN = 45;
 
 const ORBI_COUNTDOWN_AUDIO_CONFIG = {
   enabled: true,
@@ -5135,15 +5139,11 @@ export default function NexusSerpentDemo() {
     const pos = core.player;
     if (!pos) return;
 
-    // Boundary box is: center (1425) +/- 750 (boxMin=675, boxMax=2175)
-    const boxMin = 1425 - 750;
-    const boxMax = 1425 + 750;
     const safePadding = 160;
-
-    const minX = boxMin + safePadding;
-    const maxX = boxMax - safePadding;
-    const minY = boxMin + safePadding;
-    const maxY = boxMax - safePadding;
+    const minX = safePadding;
+    const maxX = ASSAULT_WORLD_WIDTH - safePadding;
+    const minY = safePadding;
+    const maxY = ASSAULT_WORLD_HEIGHT - safePadding;
 
     const targetX = Math.max(minX, Math.min(maxX, pos.x));
     const targetY = Math.max(minY, Math.min(maxY, pos.y));
@@ -5406,7 +5406,7 @@ export default function NexusSerpentDemo() {
     const core = stateRef.current;
     
     // Position player in exact middle and initialize segments
-    core.player.x = (gameMode === 'demo' || gameMode === 'infinite') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
+    core.player.x = (gameMode === 'demo' || gameMode === 'infinite' || gameMode === 'nexus_assault') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
     core.player.y = 1425;
     core.player.vx = 0;
     core.player.vy = 0;
@@ -5458,7 +5458,7 @@ export default function NexusSerpentDemo() {
       stage: ''
     };
 
-    core.camera.x = (gameMode === 'demo' || gameMode === 'infinite') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
+    core.camera.x = (gameMode === 'demo' || gameMode === 'infinite' || gameMode === 'nexus_assault') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
     core.camera.y = 1425;
     core.camera.zoom = 0.95;
     core.camera.shakeTime = 0;
@@ -6043,15 +6043,8 @@ export default function NexusSerpentDemo() {
     let centerX = core.camera.x;
     let centerY = core.camera.y;
 
-    if (core.gameMode === 'nexus_assault') {
-      const extent = NEXUS_ASSAULT_ARENA_RADIUS * 1.10;
-      zoom = Math.min(
-        Math.max(1, viewW - padding * 2) / (extent * 2),
-        Math.max(1, viewH - padding * 2) / (extent * 2)
-      );
-      centerX = 1425;
-      centerY = 1425;
-    } else if (core.gameMode === 'vital_flow' && core.vitalFlow) {
+    // Assault uses the exploration follow camera rather than a fixed small-room fit.
+    if (core.gameMode === 'vital_flow' && core.vitalFlow) {
       const bounds = getActiveVitalFlowArenaBounds();
       zoom = Math.min(
         Math.max(1, viewW - padding * 2) / Math.max(1, bounds.width),
@@ -9877,10 +9870,10 @@ export default function NexusSerpentDemo() {
 
     if (!nexusAssaultState.room) {
       nexusAssaultState.room = {
-        width: 2850,
-        height: 2850,
-        boundaryPadding: 1425 - 750 + 25,
-        shape: 'RECTANGLE'
+        width: ASSAULT_WORLD_WIDTH,
+        height: ASSAULT_WORLD_HEIGHT,
+        boundaryPadding: ASSAULT_WALL_MARGIN,
+        shape: 'WIDE_RECTANGLE'
       };
     }
 
@@ -9912,12 +9905,9 @@ export default function NexusSerpentDemo() {
   };
 
   const createAssaultEnergyPickup = (x: number, y: number): EnergyOrb => {
-    const boxMin = 1425 - 750; // 675
-    const boxMax = 1425 + 750; // 2175
-    const padding = 25 + 60; // limitMargin + 60px padding as requested
-
-    const safeX = Math.max(boxMin + padding, Math.min(boxMax - padding, x));
-    const safeY = Math.max(boxMin + padding, Math.min(boxMax - padding, y));
+    const padding = ASSAULT_WALL_MARGIN + 60;
+    const safeX = Math.max(padding, Math.min(ASSAULT_WORLD_WIDTH - padding, x));
+    const safeY = Math.max(padding, Math.min(ASSAULT_WORLD_HEIGHT - padding, y));
 
     return {
       id: 'spawn_orb_' + Date.now() + Math.random(),
@@ -10828,28 +10818,18 @@ export default function NexusSerpentDemo() {
     // CHOOSE SHAPE FIRST BEFORE SPAWNING (IMPLEMENTACIÓN 4)
     if (!nexusAssaultState.room) {
       nexusAssaultState.room = {
-        width: 2850,
-        height: 2850,
-        boundaryPadding: 1425 - 750 + 25,
-        shape: 'RECTANGLE'
+        width: ASSAULT_WORLD_WIDTH,
+        height: ASSAULT_WORLD_HEIGHT,
+        boundaryPadding: ASSAULT_WALL_MARGIN,
+        shape: 'WIDE_RECTANGLE'
       };
     }
 
     const roomIndex = nextRoomNumber;
-    if (roomIndex === 1) {
-      nexusAssaultState.room.shape = 'RECTANGLE';
-    } else if (roomIndex === 2) {
-      nexusAssaultState.room.shape = Math.random() < 0.5 ? 'RECTANGLE' : 'WIDE_RECTANGLE';
-    } else if (roomIndex <= 4) {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE'];
-      nexusAssaultState.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    } else if (roomIndex <= 6) {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE', 'OCTAGON'];
-      nexusAssaultState.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    } else {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE', 'OCTAGON', 'DIAMOND'];
-      nexusAssaultState.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    }
+    // Keep all room types, boss cadence, upgrades and transitions; geometry is panoramic.
+    nexusAssaultState.room.shape = 'WIDE_RECTANGLE';
+    nexusAssaultState.room.width = ASSAULT_WORLD_WIDTH;
+    nexusAssaultState.room.height = ASSAULT_WORLD_HEIGHT;
 
     nexusAssaultState.roomShapeFallback = false;
     nexusAssaultState.roomShapeReason = 'none';
@@ -11573,9 +11553,15 @@ export default function NexusSerpentDemo() {
     let rx = x;
     let ry = y;
 
-    // Apply the 30% area expansion multiplier (+14% radius) only for Nexus Assault
-    const currentMode = stateRef.current?.gameMode;
-    const scaledRadius = currentMode === 'nexus_assault' ? radius * NEXUS_ASSAULT_ROOM_RADIUS_SCALE : radius;
+    // Assault's player, enemy and spawning constraints match the drawn world edge.
+    // The radius argument used by enemy callers encodes their own collision margin.
+    if (stateRef.current?.gameMode === 'nexus_assault') {
+      const margin = ASSAULT_WALL_MARGIN + Math.max(0, 730 - radius);
+      const ax = Math.max(margin, Math.min(ASSAULT_WORLD_WIDTH - margin, x));
+      const ay = Math.max(margin, Math.min(ASSAULT_WORLD_HEIGHT - margin, y));
+      return { x: ax, y: ay, hitWall: ax !== x || ay !== y };
+    }
+    const scaledRadius = radius;
 
     if (shape === 'CIRCLE') {
       const dx = x - cx;
@@ -12114,28 +12100,18 @@ export default function NexusSerpentDemo() {
 
     if (!core.assaultRun.room) {
       core.assaultRun.room = {
-        width: 2850,
-        height: 2850,
-        boundaryPadding: 1425 - 750 + 25,
-        shape: 'RECTANGLE'
+        width: ASSAULT_WORLD_WIDTH,
+        height: ASSAULT_WORLD_HEIGHT,
+        boundaryPadding: ASSAULT_WALL_MARGIN,
+        shape: 'WIDE_RECTANGLE'
       };
     }
 
     // IMPLEMENTACIÓN 12 — ROOM SHAPE BALANCE (WITH PROGRESSION AND DIAMOND SHAPE SUPPORT)
-    if (roomIndex === 1) {
-      core.assaultRun.room.shape = 'RECTANGLE';
-    } else if (roomIndex === 2) {
-      core.assaultRun.room.shape = Math.random() < 0.5 ? 'RECTANGLE' : 'WIDE_RECTANGLE';
-    } else if (roomIndex <= 4) {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE'];
-      core.assaultRun.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    } else if (roomIndex <= 6) {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE', 'OCTAGON'];
-      core.assaultRun.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    } else {
-      const shapes = ['RECTANGLE', 'WIDE_RECTANGLE', 'CIRCLE', 'OCTAGON', 'DIAMOND'];
-      core.assaultRun.room.shape = shapes[Math.floor(Math.random() * shapes.length)];
-    }
+    // Every Assault room inhabits the same 16:9 navigable world footprint.
+    core.assaultRun.room.shape = 'WIDE_RECTANGLE';
+    core.assaultRun.room.width = ASSAULT_WORLD_WIDTH;
+    core.assaultRun.room.height = ASSAULT_WORLD_HEIGHT;
 
     core.assaultRun.roomShapeFallback = false;
     core.assaultRun.roomShapeReason = 'none';
@@ -15686,7 +15662,7 @@ export default function NexusSerpentDemo() {
       const core = stateRef.current;
       const theme = GUARDIAN_THEMES[core.activeGuardian];
       const size = core.arenaSize;
-      const worldWidth = core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth : size;
+      const worldWidth = core.gameMode === 'demo' || core.gameMode === 'infinite' || core.gameMode === 'nexus_assault' ? core.arenaWidth : size;
 
       // Time differences to lock speed on different screens
       let dt = (now - lastTime) / 16.666;
@@ -16139,7 +16115,7 @@ export default function NexusSerpentDemo() {
             p.vx = 0;
             p.vy = 0;
             p.speed = 0;
-            p.x = core.gameMode === 'demo' || core.gameMode === 'infinite' ? core.arenaWidth / 2 : 1425;
+            p.x = core.gameMode === 'demo' || core.gameMode === 'infinite' || core.gameMode === 'nexus_assault' ? core.arenaWidth / 2 : 1425;
             p.y = 1425;
           }
         }

@@ -18,6 +18,7 @@ const run = (label, args) => {
   console.log(`[QA-01] OK: ${label}`);
 };
 
+run('Panorama Nexus Assault 16:9', ['run', 'qa:assault-landscape']);
 run('TypeScript', ['run', 'check:types']);
 run('Compilación de producción', ['run', 'build']);
 

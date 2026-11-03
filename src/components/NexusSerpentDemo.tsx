@@ -14930,9 +14930,10 @@ export default function NexusSerpentDemo() {
     }
 
     const backdrop = core.assaultBackdrop;
-    const cx = 1425;
-    const cy = 1425;
-    const arenaR = NEXUS_ASSAULT_ARENA_RADIUS;
+    const minX = 90;
+    const maxX = ASSAULT_WORLD_WIDTH - 90;
+    const minY = 90;
+    const maxY = ASSAULT_WORLD_HEIGHT - 90;
 
     // 1. Living Nebula Layer (Soft glowing blobs with slow drift & scaling)
     if (backdrop.nebula.length === 0) {
@@ -14943,11 +14944,9 @@ export default function NexusSerpentDemo() {
         'rgba(245, 158, 11, 0.02)',  // Amber
       ];
       for (let i = 0; i < nebulaPatchesMax; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const rValue = Math.random() * (arenaR - 200);
         backdrop.nebula.push({
-          x: cx + Math.cos(angle) * rValue,
-          y: cy + Math.sin(angle) * rValue,
+          x: minX + Math.random() * (maxX - minX),
+          y: minY + Math.random() * (maxY - minY),
           size: 250 + Math.random() * 250,
           color: colors[i % colors.length],
           vx: (Math.random() - 0.5) * 0.12,
@@ -14964,11 +14963,9 @@ export default function NexusSerpentDemo() {
       neb.y += neb.vy * dt;
       neb.phase += neb.pulseSpeed * dt;
       
-      const d = Math.hypot(neb.x - cx, neb.y - cy);
-      if (d > arenaR) {
-        const angle = Math.random() * Math.PI * 2;
-        neb.x = cx + Math.cos(angle) * (arenaR - 150);
-        neb.y = cy + Math.sin(angle) * (arenaR - 150);
+      if (neb.x < 0 || neb.x > ASSAULT_WORLD_WIDTH || neb.y < 0 || neb.y > ASSAULT_WORLD_HEIGHT) {
+        neb.x = minX + Math.random() * (maxX - minX);
+        neb.y = minY + Math.random() * (maxY - minY);
       }
 
       const scale = 1 + Math.sin(neb.phase) * 0.15;
@@ -14984,12 +14981,10 @@ export default function NexusSerpentDemo() {
 
     // 2. Ambient Energy Dust (Slowly drifting small light specks)
     while (backdrop.dust.length < ambientDustMax) {
-      const angle = Math.random() * Math.PI * 2;
-      const rValue = Math.random() * arenaR;
       const colors = ['#22d3ee', '#818cf8', '#a78bfa', '#f59e0b', '#10b981'];
       backdrop.dust.push({
-        x: cx + Math.cos(angle) * rValue,
-        y: cy + Math.sin(angle) * rValue,
+        x: minX + Math.random() * (maxX - minX),
+        y: minY + Math.random() * (maxY - minY),
         size: 0.8 + Math.random() * 1.5,
         color: colors[Math.floor(Math.random() * colors.length)],
         vx: (Math.random() - 0.5) * 0.18,
@@ -15008,12 +15003,10 @@ export default function NexusSerpentDemo() {
       d.y += (d.vy - p.vy * parallaxFactor) * dt;
       d.phase += d.pulseSpeed * dt;
 
-      const dist = Math.hypot(d.x - cx, d.y - cy);
-      if (dist > arenaR - 10) {
-        const angle = Math.atan2(d.y - cy, d.x - cx) + Math.PI + (Math.random() - 0.5) * 0.5;
-        d.x = cx + Math.cos(angle) * (arenaR - 20);
-        d.y = cy + Math.sin(angle) * (arenaR - 20);
-      }
+      if (d.x < minX) d.x = maxX;
+      if (d.x > maxX) d.x = minX;
+      if (d.y < minY) d.y = maxY;
+      if (d.y > maxY) d.y = minY;
 
       let reactionGlow = 0;
       const distToPlayer = Math.hypot(d.x - p.x, d.y - p.y);
@@ -15039,11 +15032,9 @@ export default function NexusSerpentDemo() {
 
     // 3. Drift Currents (Thin faint curved/straight energy vector streaks)
     while (backdrop.currents.length < driftCurrentsMax) {
-      const angle = Math.random() * Math.PI * 2;
-      const rValue = Math.random() * arenaR;
       backdrop.currents.push({
-        x: cx + Math.cos(angle) * rValue,
-        y: cy + Math.sin(angle) * rValue,
+        x: minX + Math.random() * (maxX - minX),
+        y: minY + Math.random() * (maxY - minY),
         length: 25 + Math.random() * 45,
         speed: 0.25 + Math.random() * 0.35,
         angle: Math.random() * Math.PI * 2,
@@ -15058,12 +15049,10 @@ export default function NexusSerpentDemo() {
       c.x += (Math.cos(c.angle) * c.speed - p.vx * parallaxFactor) * dt;
       c.y += (Math.sin(c.angle) * c.speed - p.vy * parallaxFactor) * dt;
 
-      const dist = Math.hypot(c.x - cx, c.y - cy);
-      if (dist > arenaR + 50) {
-        const randAngle = Math.random() * Math.PI * 2;
-        c.x = cx - Math.cos(randAngle) * arenaR;
-        c.y = cy - Math.sin(randAngle) * arenaR;
-        c.angle = randAngle + (Math.random() - 0.5) * 0.3;
+      if (c.x < minX || c.x > maxX || c.y < minY || c.y > maxY) {
+        c.x = minX + Math.random() * (maxX - minX);
+        c.y = minY + Math.random() * (maxY - minY);
+        c.angle = Math.random() * Math.PI * 2;
       }
 
       ctx.strokeStyle = c.color;
@@ -15079,47 +15068,17 @@ export default function NexusSerpentDemo() {
     const core = stateRef.current;
     if (!core.assaultRun) return;
 
-    const boxMin = 1425 - 750;
-    const boxMax = 1425 + 750;
-    const boxSize = 1500;
+    const boxMinX = 0;
+    const boxMaxX = ASSAULT_WORLD_WIDTH;
+    const boxMinY = 0;
+    const boxMaxY = ASSAULT_WORLD_HEIGHT;
 
     ctx.save();
 
-    const shape = core.assaultRun.room?.shape || 'RECTANGLE';
-    const cx = 1425;
-    const cy = 1425;
-    const r = NEXUS_ASSAULT_ARENA_RADIUS;
-
+    // Every Assault chamber now shares the large rectangular 16:9 boundary.
     const createRoomPath = (offset: number = 0) => {
       ctx.beginPath();
-      const currentRadius = r + offset;
-      if (shape === 'CIRCLE') {
-        ctx.arc(cx, cy, currentRadius, 0, Math.PI * 2);
-      } else if (shape === 'DIAMOND') {
-        const d_limit = currentRadius * 1.2533;
-        ctx.moveTo(cx, cy - d_limit);
-        ctx.lineTo(cx + d_limit, cy);
-        ctx.lineTo(cx, cy + d_limit);
-        ctx.lineTo(cx - d_limit, cy);
-        ctx.closePath();
-      } else if (shape === 'OCTAGON') {
-        const r_oct = currentRadius * 1.0531;
-        for (let j = 0; j < 8; j++) {
-          const ang = (j / 8) * Math.PI * 2 + Math.PI / 8;
-          const px = cx + Math.cos(ang) * r_oct;
-          const py = cy + Math.sin(ang) * r_oct;
-          if (j === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-      } else if (shape === 'WIDE_RECTANGLE') {
-        const rx = currentRadius * 1.1824;
-        const ry = currentRadius * 0.6651;
-        ctx.rect(cx - rx, cy - ry, rx * 2, ry * 2);
-      } else {
-        const s = currentRadius * 0.8862;
-        ctx.rect(cx - s, cy - s, s * 2, s * 2);
-      }
+      ctx.rect(-offset, -offset, ASSAULT_WORLD_WIDTH + 2 * offset, ASSAULT_WORLD_HEIGHT + 2 * offset);
     };
 
     ctx.save();
@@ -15135,16 +15094,16 @@ export default function NexusSerpentDemo() {
 
     ctx.strokeStyle = 'rgba(34, 211, 238, 0.04)';
     ctx.lineWidth = 1.0;
-    for (let x = boxMin; x <= boxMax; x += gridSpacing) {
+    for (let x = boxMinX; x <= boxMaxX; x += gridSpacing) {
       ctx.beginPath();
-      ctx.moveTo(x, boxMin);
-      ctx.lineTo(x, boxMax);
+      ctx.moveTo(x, boxMinY);
+      ctx.lineTo(x, boxMaxY);
       ctx.stroke();
     }
-    for (let y = boxMin; y <= boxMax; y += gridSpacing) {
+    for (let y = boxMinY; y <= boxMaxY; y += gridSpacing) {
       ctx.beginPath();
-      ctx.moveTo(boxMin, y);
-      ctx.lineTo(boxMax, y);
+      ctx.moveTo(boxMinX, y);
+      ctx.lineTo(boxMaxX, y);
       ctx.stroke();
     }
     ctx.restore();
@@ -15152,7 +15111,7 @@ export default function NexusSerpentDemo() {
     // Shade everything outside the true boundary shape (Implementation 3 / 5)
     ctx.save();
     ctx.beginPath();
-    ctx.rect(cx - 2000, cy - 2000, 4000, 4000); // huge outer box
+    ctx.rect(-ASSAULT_WORLD_WIDTH, -ASSAULT_WORLD_HEIGHT, ASSAULT_WORLD_WIDTH * 3, ASSAULT_WORLD_HEIGHT * 3); // outside full world
     createRoomPath(0); // inner shape
     ctx.fillStyle = 'rgba(2, 1, 8, 0.75)'; // dark semi-transparent space outside
     ctx.fill('evenodd');
@@ -15586,7 +15545,7 @@ export default function NexusSerpentDemo() {
       
       // Outer dims and grids backdrop shading
       ctx.fillStyle = `rgba(3, 4, 15, ${opacity})`;
-      ctx.fillRect(boxMin - 100, boxMin - 100, boxSize + 200, boxSize + 200);
+      ctx.fillRect(-100, -100, ASSAULT_WORLD_WIDTH + 200, ASSAULT_WORLD_HEIGHT + 200);
 
       // Core integrations sweep circles centered on Orbi's exact real-time head location
       const p = core.player;

@@ -11,7 +11,8 @@
     "lint": "tsc --noEmit",
     "dev:local": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "check:types": "tsc --noEmit",
-    "qa:gate": "node scripts/qa-gate.mjs"
+    "qa:gate": "node scripts/qa-gate.mjs",
+    "qa:assault-landscape": "node scripts/qa-assault-landscape.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

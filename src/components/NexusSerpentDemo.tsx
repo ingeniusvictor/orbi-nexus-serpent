@@ -12336,6 +12336,20 @@ export default function NexusSerpentDemo() {
     );
   };
 
+  // RV-03: bounded work for Assault only; other gameplay modes retain their budgets.
+  const enforceAssaultLateGameBudget = () => {
+    const core = stateRef.current;
+    if (core.gameMode !== 'nexus_assault' || !core.assaultRun) return;
+    const run = core.assaultRun;
+    let hostile = 0, friendly = 0;
+    run.projectiles = run.projectiles.filter((p: any) =>
+      p.isEnemy ? ++hostile <= 135 : ++friendly <= 105
+    );
+    if (core.particles.length > 380) core.particles.splice(0, core.particles.length - 380);
+    if (core.floatingTexts.length > 65) core.floatingTexts.splice(0, core.floatingTexts.length - 65);
+    if (core.orbs.length > 80) core.orbs.splice(0, core.orbs.length - 80);
+  };
+
   const generateAssaultUpgrades = () => {
     const run = stateRef.current.assaultRun;
     if (!run) return;
@@ -12477,7 +12491,8 @@ export default function NexusSerpentDemo() {
       description: 'Aumenta la longitud objetivo de la serpiente en 5 segmentos para facilitar el Cerco de Resonancia.',
       rarity: 'rare',
       apply: (r) => {
-        growAssaultOrbiBodyProgress(5);
+        // A non-core selection additionally grants 0.5 growth in the selection handler.
+        growAssaultOrbiBodyProgress(4.5);
         return r;
       }
     });
@@ -12705,8 +12720,13 @@ export default function NexusSerpentDemo() {
       return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
     });
 
+    // Avoid the 8/9 GAIA dead end: force an available discovery seal into the next panel.
+    if (totalModules >= 8 && knownEnergies.size < GAIA_EVOLUTION_LOCK.requiredEnergies.length) {
+      const sealIndex = copy.findIndex(card => card.id.startsWith('seal_'));
+      if (sealIndex >= 0) finalSelection.push(copy.splice(sealIndex, 1)[0]);
+    }
     // Every third room guarantees a selectable body-growth card when length is below cap.
-    if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60) {
+    if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60 && finalSelection.length < 3) {
       const growthIndex = copy.findIndex(card => card.id === 'body_resonance_filament');
       if (growthIndex >= 0) finalSelection.push(copy.splice(growthIndex, 1)[0]);
     }
@@ -12746,10 +12766,21 @@ export default function NexusSerpentDemo() {
 
     if (run.status !== 'upgrade_selection') return;
 
+    const gaiaBefore = getGaiaEnergyProgress(core.assaultRun);
     if (upgrade.apply) {
       core.assaultRun = upgrade.apply(core.assaultRun);
     } else if (upgrade.action) {
       upgrade.action(core);
+    }
+    const gaiaAfter = getGaiaEnergyProgress(core.assaultRun);
+    if (gaiaAfter > gaiaBefore) {
+      showTemporaryMessage(gaiaAfter === 9
+        ? 'GAIA LOCK 9/9 · SINCRONIZACIÓN COMPLETA'
+        : `SELLO GAIA · ${gaiaAfter}/9 ENERGÍAS`);
+      if (gaiaAfter === 9) {
+        triggerAudioSign('Red Vital Conectada', 'evolve');
+        triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'NEXUS_SPARK', 30);
+      }
     }
 
     // Serpent Growth and Slot Sync
@@ -14703,6 +14734,7 @@ export default function NexusSerpentDemo() {
       }
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.modules.forEach((mod: any) => {
       if (mod.lastFireTime === undefined) mod.lastFireTime = 0;
       mod.lastFireTime += 1 * dt;
@@ -15140,6 +15172,7 @@ export default function NexusSerpentDemo() {
       return p.x > 0;
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.enemies = core.assaultRun.enemies.filter((enemy: any) => enemy.health > 0);
 
     // Call high-precision wave progression logic and failsafe checks

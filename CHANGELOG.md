@@ -6,6 +6,14 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### UI-AAA-02C — Seis serpientes con identidad energética (2026-11-03)
+- Introducido `src/components/GuardianShowcaseArt.tsx`: arte SVG encapsulado con seis trayectorias corporales, cabezas, firmas y motivos elementales distintos para FOTON, HYDRO, AERO, TERMO, MAGNE y ATON. Es arte de selección, no un modelo 3D jugable.
+- `CHOOSE`: escenario cinematográfico con vista artística protagonista por personaje; selector de seis Guardianes con símbolos individuales y accesibilidad `aria-pressed`. Se mantienen el modo seleccionado y los handlers originales para volver/iniciar.
+- El dossier presenta las descripciones **reales** de las habilidades pasiva y activa, además de los modificadores base de velocidad, energía y resistencia calculados desde `GUARDIAN_THEMES` (multiplicadores, no valores absolutos ni estadísticas inventadas).
+- CSS: iluminación energética, órbitas y partículas animadas, clases por elemento, ancho responsive y `prefers-reduced-motion` para desactivar animaciones.
+- **No modificado:** simulación, colisiones, efectos reales de habilidades, controles, transición de modos o rama `main`.
+- **Pendiente:** confirmar `npm run qa:gate`, inspección visual a 1920×1080 y landscape móvil, comprobar selección y partida con los seis Guardianes. Sustitución futura por ilustraciones/renders finales aprobados.
+
 ### UI-AAA-02B — Serpiente protagonista y selector de seis Guardianes (2026-10-26)
 - `CHOOSE` reorganizado en dos paneles: previsualización vectorial grande de la serpiente seleccionada y dossier con nombre, descripción y habilidades reales enlazadas a `GUARDIAN_THEMES`.
 - Seis Guardianes en selector compacto accesible (`button`, `aria-pressed`), manteniendo `setSelectedGuardian`, `handleReturnToMain` y `handleStartPlaying`.

@@ -33,6 +33,8 @@ import {
   Skull
 } from 'lucide-react';
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
+import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
+import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
   ASSAULT_RESONANCE_PREVIEW_ENABLED,
   advanceAssaultResonancePreview,
@@ -5529,6 +5531,8 @@ export default function NexusSerpentDemo() {
         roomIndex: 1,
         roomType: 'normal',
         roomCleared: false,
+        reviveCount: 0,
+        reviveShieldSec: 0,
         enemies: [],
         projectiles: [],
         assaultBodyGrowth: 1,
@@ -11495,6 +11499,18 @@ export default function NexusSerpentDemo() {
     core.assaultRun.enemiesKilled++;
     setAssaultKills(core.assaultRun.enemiesKilled);
 
+    // Assault-only Filamento de Resonancia: slow, earned body growth.
+    // No purchases or new weapons needed to experiment with the loop preview.
+    if (core.assaultRun.enemiesKilled % 5 === 0 && core.player.targetLength < 60) {
+      growAssaultOrbiBodyProgress(1);
+      core.floatingTexts.push({
+        id: 'assault_filament_' + core.assaultRun.enemiesKilled,
+        x: core.player.x, y: core.player.y - 34,
+        text: 'FILAMENTO ORBI · CUERPO +1',
+        color: '#a5f3fc', life: 1.4, size: 14
+      });
+    }
+
     if (enemy.isElite) {
       const healAmount = Math.round(core.assaultRun.maxHp * 0.15);
       core.assaultRun.hp = Math.min(core.assaultRun.maxHp, core.assaultRun.hp + healAmount);
@@ -12520,7 +12536,8 @@ export default function NexusSerpentDemo() {
 
   const hurtAssaultPlayer = (amount: number, zone?: "head" | "tail" | "body") => {
     const core = stateRef.current;
-    if (!core.assaultRun) return;
+    if (!core.assaultRun || core.gameState !== 'PLAYING' ||
+        core.assaultRun.hp <= 0 || (core.assaultRun.reviveShieldSec ?? 0) > 0) return;
 
     let finalAmount = amount;
     
@@ -12589,6 +12606,7 @@ export default function NexusSerpentDemo() {
     }
 
     if (core.assaultRun.hp <= 0) {
+      core.assaultRun.run.status = 'game_over';
       setGameState('GAMEOVER');
       triggerAudioSign('Red vital purgada', 'reset');
     }
@@ -13876,6 +13894,11 @@ export default function NexusSerpentDemo() {
   const updateNexusAssault = (dt: number) => {
     const core = stateRef.current;
     if (!core.assaultRun) return;
+
+    // The emergency-reconnection shield expires in simulated play time only.
+    core.assaultRun.reviveShieldSec = tickAssaultReviveShield(
+      core.assaultRun.reviveShieldSec ?? 0, dt / 60
+    );
 
     // Handle delayed combat start after countdownComplete is true
     if (!core.assaultRun.combatStarted) {
@@ -15541,6 +15564,32 @@ export default function NexusSerpentDemo() {
     ctx.restore();
   };
 
+  // ORBI-RV-01: a single earned/free reconnection per Assault run.
+  // Future paid reconnections stay disabled until a verified server wallet exists.
+  const handleFreeAssaultRevive = () => {
+    const core = stateRef.current;
+    const run = core.assaultRun;
+    if (!run || !canUseFreeAssaultRevive(core.gameMode, gameState, run.hp, run.reviveCount ?? 0)) return;
+
+    run.reviveCount = (run.reviveCount ?? 0) + 1;
+    run.hp = computeAssaultRevivalHp(run.maxHp);
+    run.reviveShieldSec = ASSAULT_RECONNECT_POLICY.shieldSeconds;
+    run.run.status = 'combat';
+    // Keep enemy HP, boss phase, installed cores, mutations, room, and rewards.
+    // Remove only hostile missiles in flight to give the player a fair restart.
+    run.projectiles = run.projectiles.filter(projectile => !projectile.isEnemy);
+    run.enemyProjectiles = [];
+    core.player.energy = Math.max(40, core.player.energy);
+    core.player.damageCooldown = 0;
+    core.boundaryExposureTime = 0;
+    core.gameState = 'PLAYING';
+    setAssaultRunHp(run.hp);
+    setGameState('PLAYING');
+    triggerAudioSign('Red Vital Conectada', 'evolve');
+    triggerBurstSparks(core.player.x, core.player.y, '#22d3ee', 'NEXUS_SPARK', 30);
+    showTemporaryMessage('¡RECONEXIÓN DE EMERGENCIA! ESCUDO ACTIVO');
+  };
+
   // Play and Start game triggers
   const handleStartPlaying = (guardian: GuardianId) => {
     setSelectedGuardian(guardian);
@@ -17153,6 +17202,26 @@ export default function NexusSerpentDemo() {
           drawNexusAssaultRoom(ctx, dt);
           // Render Player Avatar (Orbi Foton Flow - Ribbon + reactor core + stage wings)
           drawPremiumOrbiSerpent(ctx);
+          // Short, visible post-revival protection: world-space halo, no new physics.
+          if (core.assaultRun && (core.assaultRun.reviveShieldSec ?? 0) > 0) {
+            ctx.save();
+            ctx.strokeStyle = '#67e8f9';
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = 0.46 + Math.sin(now * 0.012) * 0.22;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = core.lowEffectsMode ? 0 : 16;
+            ctx.beginPath();
+            ctx.arc(core.player.x, core.player.y, 65, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 0.92;
+            ctx.fillStyle = '#e0faff';
+            ctx.font = 'bold 12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('ESCUDO ' + Math.ceil(core.assaultRun.reviveShieldSec) + 's',
+              core.player.x, core.player.y - 77);
+            ctx.restore();
+          }
 
           // AS-R1B: visual overlay only, painted in native 16:9 world coordinates.
           if (ASSAULT_RESONANCE_PREVIEW_ENABLED) {
@@ -21430,6 +21499,38 @@ export default function NexusSerpentDemo() {
                 <div className="mb-4 bg-red-950/40 border border-red-500/20 px-3 py-1 rounded-lg">
                   <span className="font-mono text-[9px] text-red-400 uppercase tracking-widest font-bold">
                     Causa: <span className="text-white ml-1 font-black">{vitalFlowSummary.cause === 'WALL COLLISION' ? 'COLISIÓN CON LÍMITES' : 'AUTO-COLISIÓN DE ESTELA'}</span>
+                  </span>
+                </div>
+              )}
+
+              {/* ORBI-RV-01: opt-in free resurrection; premium IAP intentionally offline. */}
+              {gameMode === 'nexus_assault' && stateRef.current.assaultRun && (
+                <div className="w-full mb-4 rounded-xl border border-cyan-400/30 bg-cyan-950/20 p-3 flex flex-col gap-2">
+                  <span className="font-mono text-[10px] text-cyan-300 font-black tracking-widest uppercase">
+                    ENLACE DE EMERGENCIA · NEXUS ASSAULT
+                  </span>
+                  <p className="font-mono text-[10px] leading-relaxed text-slate-300">
+                    Reconecta tu Guardián en esta misma sala con sus núcleos, mejoras y progreso intactos.
+                  </p>
+                  {getAssaultReviveOffer(stateRef.current.assaultRun.reviveCount ?? 0).kind === 'free' ? (
+                    <button
+                      type="button"
+                      onClick={handleFreeAssaultRevive}
+                      className="w-full rounded-lg px-3 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black font-mono tracking-wide text-xs cursor-pointer active:scale-95"
+                    >
+                      REVIVIR GRATIS · {Math.round(ASSAULT_RECONNECT_POLICY.healthFraction * 100)}% HP
+                    </button>
+                  ) : (
+                    <div className="rounded-lg border border-white/10 bg-black/35 p-2 text-center">
+                      <span className="text-slate-300 font-mono text-[10px] block">RECONEXIÓN GRATIS YA UTILIZADA</span>
+                      <button type="button" disabled aria-disabled="true"
+                        className="mt-2 w-full rounded-md border border-amber-500/25 bg-amber-950/20 p-2 text-amber-300/70 font-mono text-[10px] cursor-not-allowed">
+                        {ORBI_PRISMAS.symbol} {formatOrbiPrismas(ORBI_ASSAULT_RECONNECTION_OFFER.costPrismas)} · PRÓXIMAMENTE
+                      </button>
+                    </div>
+                  )}
+                  <span className="font-mono text-[8px] text-slate-400">
+                    {ORBI_PRISMAS.name} ({ORBI_PRISMAS.code}) · moneda futura de ORBI Ecosystem · compras deshabilitadas.
                   </span>
                 </div>
               )}

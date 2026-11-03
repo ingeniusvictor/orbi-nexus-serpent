@@ -17,7 +17,8 @@
     "qa:assault-preview-scope": "node scripts/qa-assault-preview-scope.mjs",
     "qa:assault-revive": "node --import tsx --test src/gameplay/assault/assaultRevive.test.ts",
     "qa:assault-revive-scope": "node scripts/qa-assault-revive-scope.mjs",
-    "qa:assault-nine-energies": "node scripts/qa-assault-nine-energies.mjs"
+    "qa:assault-nine-energies": "node scripts/qa-assault-nine-energies.mjs",
+    "qa:assault-rv03": "node scripts/qa-assault-rv03.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

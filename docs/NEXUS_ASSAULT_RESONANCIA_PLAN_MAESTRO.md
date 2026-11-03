@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-03  
 **Punto de referencia:** rama `develop`, commit `1dc73fe` (QA-AS16, arena panorámica 16:9)  
-**Estado:** diseño y auditoría. **Las propuestas de esta especificación no están implementadas.**  
+**Estado:** plan y auditoría formalizados. La **base geométrica pura AS-R1** ya existe y tiene 17 pruebas automatizadas aprobadas; **la detección visual y el daño de cerco no están conectados a las partidas**. El resto de las propuestas sigue sin implementar.  
 **Alcance:** exclusivamente `nexus_assault`; proteger `demo`, `infinite`, `vital_flow`, `main` y todas las acciones existentes.
 
 ## 1. Propósito y límite de inspiración

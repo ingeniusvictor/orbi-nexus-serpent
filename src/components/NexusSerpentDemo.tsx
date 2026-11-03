@@ -11884,11 +11884,15 @@ export default function NexusSerpentDemo() {
     };
   };
 
+  // RV-02: discovery persists through the run, independent of eight physical core slots.
+  const getAssaultDiscoveredEnergies = (run: any): Set<string> => new Set([
+    ...(run?.modules ?? []).map((m: any) => m.element === 'terra' ? 'termo' : m.element),
+    ...(run?.gaiaSeals ?? [])
+  ]);
+
   const hasAllGaiaEnergies = (run: any): boolean => {
     if (!run) return false;
-    const elements = new Set(
-      (run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element)
-    );
+    const elements = getAssaultDiscoveredEnergies(run);
     const hasAll = GAIA_EVOLUTION_LOCK.requiredEnergies.every(e =>
       elements.has(e)
     );
@@ -11900,7 +11904,7 @@ export default function NexusSerpentDemo() {
 
   const getGaiaEnergyProgress = (run: any): number => {
     if (!run) return 0;
-    const elements = new Set((run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element));
+    const elements = getAssaultDiscoveredEnergies(run);
     return GAIA_EVOLUTION_LOCK.requiredEnergies.filter(e => elements.has(e)).length;
   };
 
@@ -11948,6 +11952,21 @@ export default function NexusSerpentDemo() {
         range = 560;
         speed = 5.2;
         statusEffect = "knockback";
+        break;
+      case "magne":
+        name = "Magne Core"; damage = 10; cooldownSec = 0.95; range = 690; speed = 6.5;
+        statusEffect = "slow"; break;
+      case "aton":
+        name = "Aton Core"; damage = 17; cooldownSec = 1.35; range = 590; speed = 5.8;
+        break;
+      case "kinetrix":
+        name = "Kinetrix Core"; damage = 11; cooldownSec = 0.65; range = 750; speed = 9.0;
+        statusEffect = "knockback"; break;
+      case "h2nova":
+        name = "H2Nova Core"; damage = 12; cooldownSec = 1.1; range = 650; speed = 6.4;
+        break;
+      case "quantum":
+        name = "Quantum Core"; damage = 19; cooldownSec = 1.55; range = 710; speed = 8.0;
         break;
       default:
         name = "Energy Core";
@@ -12187,6 +12206,7 @@ export default function NexusSerpentDemo() {
     const hasHydro = run.modules.some((m: any) => m.element === 'hydro');
     const hasAero = run.modules.some((m: any) => m.element === 'aero');
     const hasTermo = run.modules.some((m: any) => m.element === 'termo' || m.element === 'terra');
+    const knownEnergies = getAssaultDiscoveredEnergies(run);
 
     const fotonLvl3 = run.modules.some((m: any) => m.element === 'foton' && m.level >= 3 && !m.mutation);
     const hydroLvl3 = run.modules.some((m: any) => m.element === 'hydro' && m.level >= 3 && !m.mutation);
@@ -12257,6 +12277,82 @@ export default function NexusSerpentDemo() {
             const idx = getNextAvailableModuleBodyIndex(r);
             const mod = createOrbiCombatModule('termo', idx, rar);
             r.modules.push(mod);
+            return r;
+          }
+        });
+      }
+    }
+
+    // RV-02: complete the nine-energy roster with real core profiles, keeping room 1 familiar.
+    const advancedEnergies: { id: OrbiEnergyId; label: string; room: number }[] = [
+      { id: 'magne', label: 'MAGNE', room: 2 },
+      { id: 'aton', label: 'ATON', room: 3 },
+      { id: 'kinetrix', label: 'KINETRIX', room: 3 },
+      { id: 'h2nova', label: 'H2NOVA', room: 4 },
+      { id: 'quantum', label: 'QUANTUM', room: 5 }
+    ];
+    for (const energy of advancedEnergies) {
+      if (currentRoom < energy.room) continue;
+      const owned = run.modules.some((m: any) => m.element === energy.id);
+      const discovered = knownEnergies.has(energy.id);
+      if (!discovered && totalModules < 8) {
+        const rarity = getRarity();
+        availableOptions.push({
+          id: 'add_' + energy.id,
+          title: 'AÑADIR NÚCLEO ' + energy.label,
+          description: 'Nueva energía ORBI: ' + energy.label + '. Acopla un núcleo con identidad de ataque y progresión propias.',
+          rarity, element: energy.id,
+          apply: (r) => {
+            r.modules.push(createOrbiCombatModule(energy.id, getNextAvailableModuleBodyIndex(r), rarity));
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      } else if (!discovered && totalModules >= 8) {
+        availableOptions.push({
+          id: 'seal_' + energy.id,
+          title: 'SELLO GAIA · ' + energy.label,
+          description: 'Sincroniza ' + energy.label + ' para GAIA sin exceder los 8 núcleos físicos.',
+          rarity: 'epic', element: energy.id,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      }
+      if (owned && run.modules.some((m: any) => m.element === energy.id && m.level < 5)) {
+        availableOptions.push({
+          id: 'upg_' + energy.id,
+          title: 'MEJORAR NÚCLEO ' + energy.label,
+          description: 'Mejora el núcleo ' + energy.label + ': daño, rango, velocidad y cadencia.',
+          rarity: getRarity(), element: energy.id,
+          apply: (r) => upgradeExistingCore(r, energy.id)
+        });
+      }
+    }
+    // Core acquisition remains optional; a dedicated choice allows deliberate body growth.
+    availableOptions.push({
+      id: 'body_resonance_filament',
+      title: 'FILAMENTO DE RESONANCIA · CUERPO +5',
+      description: 'Aumenta la longitud objetivo de la serpiente en 5 segmentos para facilitar el Cerco de Resonancia.',
+      rarity: 'rare',
+      apply: (r) => {
+        growAssaultOrbiBodyProgress(5);
+        return r;
+      }
+    });
+    // When all core slots are occupied, the remaining base energies can be synchronized
+    // by seals (including Termo/Aero/Hydro if not acquired). Foton is initially equipped.
+    if (totalModules >= 8) {
+      for (const energy of GAIA_EVOLUTION_LOCK.requiredEnergies) {
+        if (knownEnergies.has(energy) || advancedEnergies.some(e => e.id === energy)) continue;
+        availableOptions.push({
+          id: 'seal_' + energy,
+          title: 'SELLO GAIA · ' + energy.toUpperCase(),
+          description: 'Registra esta energía para la sincronización GAIA sin ocupar un núcleo.',
+          rarity: 'epic', element: energy,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy]));
             return r;
           }
         });
@@ -12469,6 +12565,11 @@ export default function NexusSerpentDemo() {
       return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
     });
 
+    // Every third room guarantees a selectable body-growth card when length is below cap.
+    if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60) {
+      const growthIndex = copy.findIndex(card => card.id === 'body_resonance_filament');
+      if (growthIndex >= 0) finalSelection.push(copy.splice(growthIndex, 1)[0]);
+    }
     while (finalSelection.length < 3 && copy.length > 0) {
       const idx = Math.floor(Math.random() * Math.min(copy.length, 5));
       finalSelection.push(copy.splice(idx, 1)[0]);

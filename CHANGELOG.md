@@ -6,6 +6,14 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### AS-R0 / AS-R1 — Auditoría SSSnaker y prototipo geométrico seguro (2026-11-03)
+- Plan maestro contrastado con fuente adjunta de análisis SSSnaker, fuentes públicas y el estado real del código de Assault: `docs/NEXUS_ASSAULT_RESONANCIA_PLAN_MAESTRO.md`. Define invariantes de esencia ORBI, mapeo de mecánicas, riesgos, 9 energías / 8 slots, diseño de cerco, árboles/fusiones, progresión, director de encuentros, balance y puertas QA.
+- Añadido `src/gameplay/assault/resonanceGeometry.ts`: geometría **pura** de cruce de segmentos, área/perímetro y caja de polígono, contención de puntos, autointersecciones y previsualización de cerco con filtros de área, longitud y contacto antiguo.
+- Añadidas 17 pruebas deterministas en `src/gameplay/assault/resonanceGeometry.test.ts`; expuestas como `npm run qa:assault-geometry`, integradas en `npm run qa:gate` y en el job bloqueante de compilación de GitHub Actions.
+- GitHub Actions sobre `e54eb0c`: **geometría, TypeScript y Vite aprobados**.
+- **NO ACTIVADO**: la geometría de cerco todavía no se conecta al bucle de juego; no hay nuevos daños, armas, eventos, colecciones, mutaciones ni cambios de IA. El actual Assault y los otros 3 modos permanecen tal como estaban.
+- Siguiente puerta: AS-R1 visual/preview con flag solo Assault, pruebas de detección sobre trayectorias reales y FPS; luego AS-R2 daño y apuntado por posición de módulo.
+
 ### QA-AS16 — Nexus Assault: mundo grande panorámico 16:9 (2026-11-03)
 - **Alcance**: `nexus_assault` adopta la superficie navegable `5066,67 × 2850` que ya utilizan `demo` (Red Vital) e `infinite` (Supervivencia Nexus). El perímetro de **todas las salas** de Assault es `WIDE_RECTANGLE` panorámico; los tipos de sala, oleadas, módulos, mejoras, jefes y transiciones siguen presentes. Se deshabilita intencionalmente la rotación de contornos circulares/octagonales/diamante en Assault.
 - **Cámara y mundo físico**: cámara de seguimiento basada en posición del jugador y ventana real, sin autoajuste permanente a la antigua arena de radio 949. Reinicio y cuenta regresiva centrados en X = 2533,33. Las colisiones de jugador/enemigos, reposicionamiento, puntos de energía y limpieza de proyectiles usan los límites rectangulares reales en ambos ejes para evitar paredes invisibles.

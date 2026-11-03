@@ -320,6 +320,10 @@ export interface NexusAssaultRun {
   roomIndex: number;
   roomType: AssaultRoomType;
   roomCleared: boolean;
+  /** ORBI-REVIVE-01: per-run revival counter, not a paid entitlement. */
+  reviveCount?: number;
+  /** Invulnerability grace after an earned/free revival. */
+  reviveShieldSec?: number;
   enemies: AssaultEnemy[];
   projectiles: AssaultProjectile[];
   modules: OrbiCombatModule[];

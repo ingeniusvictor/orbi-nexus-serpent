@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-03  
 **Punto de referencia:** rama `develop`, commit `1dc73fe` (QA-AS16, arena panorámica 16:9)  
-**Estado:** plan y auditoría formalizados. La **base geométrica pura AS-R1** ya existe y tiene 17 pruebas automatizadas aprobadas; **la detección visual y el daño de cerco no están conectados a las partidas**. El resto de las propuestas sigue sin implementar.  
+**Estado:** AS-R0 (análisis) y AS-R1A (geometría pura) completadas. **AS-R1B (previsualización de cerco sin daño) integrada solo en Assault**, con 28 pruebas deterministas y 10 verificaciones de aislamiento aprobadas en CI. **Pendiente la validación manual de cierres reales y FPS**. AS-R2 (daño de cerco) y las fases siguientes no están implementadas.  
 **Alcance:** exclusivamente `nexus_assault`; proteger `demo`, `infinite`, `vital_flow`, `main` y todas las acciones existentes.
 
 ## 1. Propósito y límite de inspiración
@@ -244,10 +244,11 @@ Meta-progresión original y opcional por logros/recursos ganados jugando, no gac
 - Asegurar que GAIA no se anuncie como obtenible; documentar 8 slots y nine-resonances proposal.
 - **Salida:** TypeScript, Vite, QA-AS16 y smoke de las 4 modalidades, sin regresión.
 
-**AS-R1 — Trayectoria y cerco sin daño**
-- Añadir librería geométrica pura, tests de cruces, polígonos cóncavos, tolerancias y casos degenerados.
-- Primera integración solo `LOOP_PREVIEW`: efecto de cierre y telemetría local; módulos y daño históricos intactos.
-- **Salida:** 100% tests geometría, estabilidad FPS y no cierres falsos.
+**AS-R1 — Trayectoria y cerco sin daño (AS-R1A y AS-R1B integrados en `develop`)**
+- Geometría pura de cruce, polígonos cóncavos, tolerancias y degenerados: completada.
+- `LOOP_PREVIEW`: conectado al movimiento actual solo en Assault, con polígono luminoso, contador de enemigos, aviso en HUD, enfriamiento y reinicio por sala; daño/módulos históricos intactos.
+- **Pruebas automatizadas:** 28 casos de geometría/estado + 10 guardas de aislamiento en CI, aprobadas. **Salida pendiente:** inspección manual de cierres, falsos positivos y FPS a diferentes escalas.
+- **Documento operativo:** `docs/NEXUS_ASSAULT_AS_R1B_VALIDACION.md`.
 
 **AS-R2 — Cerco ofensivo y apuntado por segmento**
 - Daño AoE por eventos con cooldowns, límites en jefes; autoblancos desde cada segmento con fallback.
@@ -281,6 +282,6 @@ Meta-progresión original y opcional por logros/recursos ganados jugando, no gac
 
 ## 17. Decisión recomendada
 
-**Primer desarrollo efectivo: AS-R1 «Cerco de Resonancia» sin daño**, después de GATE 0. Es la diferencia mecánica con mayor valor potencial de toda la comparación. Mantener intacto el render de serpiente y el ciclo de armas existente; construirlo como módulo puro, feature flag y test. En paralelo, reparar las tres fallas de progresión que contaminarían cualquier balance (temporizador de sala, rareza legendaria y garantía boss).
+**AS-R1A y AS-R1B ya están integrados en `develop`** como módulo puro y previsualización visual de cero daño. El próximo paso es **validar manualmente los cercos en la arena 16:9**, en particular el seguimiento elástico existente y los falsos cierres; después habilitar AS-R2 gradualmente con límites a daño y targeting por posición de módulo. Antes de profundizar en recompensas corregir el temporizador de sala, rareza legendaria y garantía de recompensa de jefe.
 
-**No confundir:** este documento es un plan de implementación y auditoría, no la afirmación de que estas mecánicas ya se encuentren integradas.
+**No confundir:** las comprobaciones automatizadas validan geometría, aislamiento y build; no prueban todavía toda la jugabilidad ni el rendimiento visual. El cerco **solo se previsualiza**, no causa daño.

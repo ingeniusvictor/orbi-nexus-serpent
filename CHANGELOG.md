@@ -6,6 +6,16 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### ORBI-ECO-01 / ASSAULT-RV-01 — Prismas ORBI y reconexión gratuita (2026-11-03)
+- Nuevo catálogo reutilizable `src/economy/orbiEconomy.ts`: **Prismas ORBI (OPR)**, moneda virtual del universo ORBI, identificador compartible entre juegos, contratos tipados para ledger/billetera futura y oferta de reconexión de referencia **30 OPR**, deshabilitada. **No hay compras, pagos reales, balances ni sincronización entre juegos.**
+- `src/gameplay/assault/assaultRevive.ts`: una reconexión gratis por partida de Assault con **60 % de HP** y **escudo de 3 s**, seguida de opción premium futura **deshabilitada**.
+- `NexusSerpentDemo.tsx`: intercepta derrota de Assault por HP, ofrece botón efectivo «REVIVIR GRATIS» en `GAMEOVER`, mantiene estado actual de sala/armas/módulos/jefes/mejoras, limpia proyectiles enemigos en vuelo y muestra halo de protección; el contador se reinicia solo en partida nueva.
+- Corrección de aislamiento: energía vital a 0 **no activa** `GAMEOVER` en Assault (allí manda `assaultRun.hp`), preservando las reglas de Red Vital / Supervivencia. Pantalla de derrota adaptada con scroll para mostrar reconexión sin recortar en 16:9.
+- Accesibilidad a AS-R1B: «FILAMENTO ORBI» aumenta **+1 de longitud objetivo cada cinco enemigos normales/élite** derrotados, hasta el límite existente; no genera armas ni moneda ni afecta los otros tres modos.
+- Pruebas `qa:assault-revive` (8 casos) + `qa:assault-revive-scope` (12 invariantes) integradas en `qa:gate` y en GitHub Actions.
+- Especificación del futuro monedero multiproyecto, modelo transaccional, requisitos de tiendas, antifraude y política de compras desactivadas: `docs/ORBI_ECONOMY_PRISMAS_V1.md`. Nombre/símbolo todavía provisionales, pendientes verificación de marca y diseño gráfico final.
+- **Pendiente:** QA visual/funcional de GAMEOVER → REVIVIR → combate, escudo/reinicio y dificultades en navegador. No fusionar `main` aún.
+
 ### AS-R1B — Cerco de Resonancia: previsualización activa sin daño (2026-11-03)
 - `src/gameplay/assault/resonancePreview.ts` implementa una máquina de estado puramente visual: memoria de cabeza, detección de cierre, conteo de enemigos contenidos, enfriamiento de 2,2 s, efecto durante 1,7 s, filtrado de santuarios y reinicio por sala.
 - Integración exclusiva en la simulación `nexus_assault` de `NexusSerpentDemo.tsx`, solo con combate activo y fuera de cinemáticas. Se conserva exactamente el movimiento original de segmentos, las habilidades, `Tail Strike`, el disparo automático, los HP, la energía, la progresión y los otros tres modos.

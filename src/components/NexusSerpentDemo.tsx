@@ -1576,94 +1576,56 @@ function AssaultRadarMinimap({ stateRef }: { stateRef: any }) {
       }
 
       const enemies = core.assaultRun.enemies || [];
-      const room = core.assaultRun.room || {};
-      const shape = room.shape || 'RECTANGLE';
-
       const w = canvas.width;
       const h = canvas.height;
       const cx = w / 2;
       const cy = h / 2;
+      const radarRadius = cx - 4;
+      const mapW = radarRadius * 1.64;
+      const mapH = mapW * (ASSAULT_WORLD_HEIGHT / ASSAULT_WORLD_WIDTH);
+      const left = cx - mapW / 2;
+      const top = cy - mapH / 2;
+      const mapX = (x: number) => left + x / ASSAULT_WORLD_WIDTH * mapW;
+      const mapY = (y: number) => top + y / ASSAULT_WORLD_HEIGHT * mapH;
 
       ctx.clearRect(0, 0, w, h);
-
-      // Draw background disk
       ctx.fillStyle = 'rgba(3, 7, 18, 0.85)';
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.25)';
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.3)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(cx, cy, cx - 3, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radarRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Draw radar sweep
       const sweepAngle = (Date.now() / 800) * Math.PI;
       ctx.strokeStyle = 'rgba(34, 211, 238, 0.12)';
-      ctx.lineWidth = 1.0;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(sweepAngle) * (cx - 4), cy + Math.sin(sweepAngle) * (cy - 4));
+      ctx.lineTo(cx + Math.cos(sweepAngle) * radarRadius, cy + Math.sin(sweepAngle) * radarRadius);
       ctx.stroke();
-
-      // Range rings
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.beginPath();
-      ctx.arc(cx, cy, (cx - 3) * 0.5, 0, Math.PI * 2);
-      ctx.stroke();
-
-      const baseR = (core.gameMode === 'nexus_assault') ? NEXUS_ASSAULT_ARENA_RADIUS : 730;
-      const scale = (cx - 5) / baseR;
-
-      // Arena center offset relative to player
-      const acx = cx + (1425 - player.x) * scale;
-      const acy = cy + (1425 - player.y) * scale;
-      const ar = baseR * scale;
 
       ctx.save();
       ctx.beginPath();
-      ctx.arc(cx, cy, cx - 4, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radarRadius, 0, Math.PI * 2);
       ctx.clip();
 
-      // Draw arena boundary
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
+      // The displayed map, player and enemy dots use the same world-space
+      // dimensions as the collision rectangle and the scrolling main camera.
+      ctx.fillStyle = 'rgba(8, 22, 40, 0.65)';
+      ctx.fillRect(left, top, mapW, mapH);
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.58)';
       ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      if (shape === 'CIRCLE') {
-        ctx.arc(acx, acy, ar, 0, Math.PI * 2);
-      } else if (shape === 'OCTAGON') {
-        for (let j = 0; j < 8; j++) {
-          const ang = (j / 8) * Math.PI * 2 + Math.PI / 8;
-          const px = acx + Math.cos(ang) * ar;
-          const py = acy + Math.sin(ang) * ar;
-          if (j === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-      } else if (shape === 'WIDE_RECTANGLE') {
-        const rx = ar * 1.25;
-        const ry = ar * 0.8;
-        ctx.rect(acx - rx, acy - ry, rx * 2, ry * 2);
-      } else {
-        ctx.rect(acx - ar, acy - ar, ar * 2, ar * 2);
-      }
-      ctx.stroke();
+      ctx.strokeRect(left, top, mapW, mapH);
 
-      // Draw grid lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      const boxMin = 1425 - 750;
-      const boxMax = 1425 + 750;
-      for (let x = boxMin; x <= boxMax; x += 200) {
-        const rx = cx + (x - player.x) * scale;
-        ctx.beginPath();
-        ctx.moveTo(rx, cy - cx);
-        ctx.lineTo(rx, cy + cx);
-        ctx.stroke();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+      ctx.lineWidth = 0.7;
+      for (let x = 500; x < ASSAULT_WORLD_WIDTH; x += 500) {
+        const px = mapX(x);
+        ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(px, top + mapH); ctx.stroke();
       }
-      for (let y = boxMin; y <= boxMax; y += 200) {
-        const ry = cy + (y - player.y) * scale;
-        ctx.beginPath();
-        ctx.moveTo(cx - cx, ry);
-        ctx.lineTo(cx + cx, ry);
-        ctx.stroke();
+      for (let y = 500; y < ASSAULT_WORLD_HEIGHT; y += 500) {
+        const py = mapY(y);
+        ctx.beginPath(); ctx.moveTo(left, py); ctx.lineTo(left + mapW, py); ctx.stroke();
       }
 
       // Check room and enemy states
@@ -1689,8 +1651,8 @@ function AssaultRadarMinimap({ stateRef }: { stateRef: any }) {
       // Draw enemies
       enemies.forEach((enemy: any) => {
         if (enemy.health <= 0) return;
-        const ex = cx + (enemy.x - player.x) * scale;
-        const ey = cy + (enemy.y - player.y) * scale;
+        const ex = mapX(enemy.x);
+        const ey = mapY(enemy.y);
 
         const distFromCenter = Math.hypot(ex - cx, ey - cy);
         if (distFromCenter < cx - 5) {
@@ -1845,17 +1807,19 @@ function AssaultRadarMinimap({ stateRef }: { stateRef: any }) {
 
       ctx.restore();
 
-      // Pulse ring around player
+      // The marker follows the player's actual position across the entire map.
+      const px = mapX(player.x);
+      const py = mapY(player.y);
       const pulseRadius = 5 + Math.sin(Date.now() / 150) * 1.5;
       ctx.strokeStyle = 'rgba(34, 211, 238, 0.5)';
       ctx.lineWidth = 1.0;
       ctx.beginPath();
-      ctx.arc(cx, cy, pulseRadius, 0, Math.PI * 2);
+      ctx.arc(px, py, pulseRadius, 0, Math.PI * 2);
       ctx.stroke();
 
       ctx.fillStyle = '#22d3ee';
       ctx.beginPath();
-      ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
       ctx.fill();
 
       requestAnimationFrame(render);

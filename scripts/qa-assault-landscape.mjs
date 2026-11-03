@@ -19,7 +19,7 @@ const rules = [
   ['Encounter spawning stays near current player', section('const getAssaultSpawnPos', 'const getOrbiCorePalette').includes('core.player.x + Math.cos(angle) * distance')],
   ['All room transitions keep panoramic shape', src.includes("nexusAssaultState.room.shape = 'WIDE_RECTANGLE';") && src.includes("core.assaultRun.room.shape = 'WIDE_RECTANGLE';")],
   ['Projectiles and enemies use distinct X and Y boundaries', section('const updateNexusAssault', 'const drawAssaultLivingBackdrop').includes('boxMaxX + 100') && section('const updateNexusAssault', 'const drawAssaultLivingBackdrop').includes('boxMaxY + 100')],
-  ['Assault radar plots full world map', section('function AssaultRadarMinimap', 'interface OrbiHeroInfoPanelProps').includes('ASSAULT_WORLD_WIDTH /') && section('function AssaultRadarMinimap', 'interface OrbiHeroInfoPanelProps').includes('mapX(enemy.x)')],
+  ['Assault radar plots full world map', section('function AssaultRadarMinimap', 'interface OrbiHeroInfoPanelProps').includes('x / ASSAULT_WORLD_WIDTH * mapW') && section('function AssaultRadarMinimap', 'interface OrbiHeroInfoPanelProps').includes('mapX(enemy.x)')],
   ['Boss movement follows its new encounter anchor', src.includes('boss.homeX ?? ASSAULT_WORLD_CENTER_X') && src.includes('boss.homeY ?? ASSAULT_WORLD_CENTER_Y')],
 ];
 let failures = 0;

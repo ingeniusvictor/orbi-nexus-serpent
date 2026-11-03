@@ -850,6 +850,9 @@ function validateNoActiveTerraReferences() {
     GUARDIAN_THEMES.TERMO.name,
     GUARDIAN_THEMES.MAGNE.name,
     GUARDIAN_THEMES.ATON.name,
+    GUARDIAN_THEMES.KINETRIX.name,
+    GUARDIAN_THEMES.H2NOVA.name,
+    GUARDIAN_THEMES.QUANTUM.name,
   ];
   if (activeLabels.some((label: string) => label.toLowerCase().includes("terra"))) {
     console.warn("[ORBI ENERGY REGISTRY] Visible Terra label detected. Replace with Termo.");
@@ -1283,6 +1286,96 @@ const GUARDIAN_THEMES: Record<GuardianId, GuardianTheme> = {
     resistanceModifier: 0.95,
     visualMotif: 'solar', // reuse solar graphics styled as green/yellow nuclear energy
     orbStyle: 'atomic_particle'
+  },
+  KINETRIX: {
+    id: 'KINETRIX',
+    name: 'Orbi Kinetrix',
+    element: 'Energía Cinética',
+    description: 'Guardián de impulso y movimiento. Convierte la inercia en ataques veloces y ondas que apartan amenazas.',
+    primaryColor: '#ffb84d',
+    secondaryColor: '#ff7a1a',
+    textColor: 'text-amber-300',
+    auraColor: 'rgba(255,184,77,0.45)',
+    particleColor: '#ffe0a3',
+    trailColor: 'rgba(255,184,77,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#ffb84d',
+    evolutionNames: {
+      SPARK: 'Kinetic Spark',
+      SOLAR_STREAM: 'Momentum Stream',
+      GUARDIAN_SERPENT: 'Nexus Striker',
+      TITAN_SERPENT: 'Titan Kinetrix Flow'
+    },
+    abilityName: 'Impacto Vectorial',
+    abilityDescription: 'Descarga cinética que aparta enemigos cercanos y despeja fragmentos Blackout.',
+    passiveName: 'Impulso Persistente',
+    passiveDescription: '+12% velocidad inicial con resistencia ligeramente reducida.',
+    speedModifier: 1.12,
+    energyModifier: 0.95,
+    growthModifier: 1.00,
+    resistanceModifier: 0.94,
+    visualMotif: 'wind',
+    orbStyle: 'kinetic_streak'
+  },
+  H2NOVA: {
+    id: 'H2NOVA',
+    name: 'Orbi H2Nova',
+    element: 'Hidrógeno Verde',
+    description: 'Guardián de plasma limpio. Canaliza hidrógeno verde para sostener la Red Vital y purificar el entorno.',
+    primaryColor: '#7cffb2',
+    secondaryColor: '#00ffc8',
+    textColor: 'text-emerald-300',
+    auraColor: 'rgba(124,255,178,0.45)',
+    particleColor: '#c9ffe8',
+    trailColor: 'rgba(0,255,200,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#7cffb2',
+    evolutionNames: {
+      SPARK: 'Nova Spark',
+      SOLAR_STREAM: 'Hydrogen Stream',
+      GUARDIAN_SERPENT: 'Nexus Catalyst',
+      TITAN_SERPENT: 'Titan H2Nova Flow'
+    },
+    abilityName: 'Nova Regenerativa',
+    abilityDescription: 'Pulso de energía limpia que recupera vida en Assault y neutraliza proyectiles y corrupción cercanos.',
+    passiveName: 'Ciclo Limpio',
+    passiveDescription: '+10% absorción de energía, con movimiento equilibrado.',
+    speedModifier: 1.00,
+    energyModifier: 1.10,
+    growthModifier: 1.00,
+    resistanceModifier: 1.00,
+    visualMotif: 'water',
+    orbStyle: 'clean_energy'
+  },
+  QUANTUM: {
+    id: 'QUANTUM',
+    name: 'Orbi Quantum',
+    element: 'Energía Cuántica',
+    description: 'Guardián del espectro cuántico. Su resonancia altera brevemente el movimiento de las amenazas y abre nuevas rutas.',
+    primaryColor: '#ff8ff3',
+    secondaryColor: '#b14cff',
+    textColor: 'text-fuchsia-300',
+    auraColor: 'rgba(255,143,243,0.45)',
+    particleColor: '#ffe3fb',
+    trailColor: 'rgba(177,76,255,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#ff8ff3',
+    evolutionNames: {
+      SPARK: 'Quantum Spark',
+      SOLAR_STREAM: 'Phase Stream',
+      GUARDIAN_SERPENT: 'Nexus Paradox',
+      TITAN_SERPENT: 'Titan Quantum Flow'
+    },
+    abilityName: 'Colapso de Fase',
+    abilityDescription: 'Pulso cuántico que daña y ralentiza enemigos de Assault y suprime fragmentos de corrupción.',
+    passiveName: 'Resonancia de Fase',
+    passiveDescription: '+8% capacidad energética, con resistencia moderadamente reducida.',
+    speedModifier: 1.03,
+    energyModifier: 1.08,
+    growthModifier: 1.00,
+    resistanceModifier: 0.96,
+    visualMotif: 'solar',
+    orbStyle: 'quantum_glitch'
   }
 };
 
@@ -6982,6 +7075,53 @@ export default function NexusSerpentDemo() {
           }
         });
       }
+    } else if (core.activeGuardian === 'KINETRIX') {
+      triggerAbilityParticleBurst(p.x, p.y, '#ffb84d', 42);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 2000;
+        }
+      });
+      if (core.assaultRun) {
+        core.assaultRun.enemies.forEach(enemy => {
+          const d = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+          if (d > 0 && d < maxRadius) {
+            const knock = Math.min(45, (maxRadius - d) * 0.18);
+            enemy.x += ((enemy.x - p.x) / d) * knock;
+            enemy.y += ((enemy.y - p.y) / d) * knock;
+            applyAssaultDamageToEnemy(enemy, 16, { element: 'kinetrix', source: 'ability_pulse' });
+          }
+        });
+      }
+    } else if (core.activeGuardian === 'H2NOVA') {
+      triggerAbilityParticleBurst(p.x, p.y, '#7cffb2', 42);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 3000;
+        }
+      });
+      if (core.assaultRun) {
+        const run = core.assaultRun;
+        run.hp = Math.min(run.maxHp, run.hp + Math.round(run.maxHp * 0.12));
+        setAssaultRunHp(run.hp);
+        run.projectiles = run.projectiles.filter(proj => !proj.isEnemy ||
+          Math.hypot(proj.x - p.x, proj.y - p.y) >= maxRadius);
+      }
+    } else if (core.activeGuardian === 'QUANTUM') {
+      triggerAbilityParticleBurst(p.x, p.y, '#ff8ff3', 45);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 3500;
+        }
+      });
+      if (core.assaultRun) {
+        core.assaultRun.enemies.forEach(enemy => {
+          if (Math.hypot(enemy.x - p.x, enemy.y - p.y) < maxRadius) {
+            applyAssaultDamageToEnemy(enemy, 22, { element: 'quantum', source: 'ability_pulse' });
+            enemy.slowedUntil = Date.now() + 2400;
+          }
+        });
+      }
     }
 
     // General Corruption Zone purification check for other guardians
@@ -11884,11 +12024,15 @@ export default function NexusSerpentDemo() {
     };
   };
 
+  // RV-02: discovery persists through the run, independent of eight physical core slots.
+  const getAssaultDiscoveredEnergies = (run: any): Set<string> => new Set([
+    ...(run?.modules ?? []).map((m: any) => m.element === 'terra' ? 'termo' : m.element),
+    ...(run?.gaiaSeals ?? [])
+  ]);
+
   const hasAllGaiaEnergies = (run: any): boolean => {
     if (!run) return false;
-    const elements = new Set(
-      (run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element)
-    );
+    const elements = getAssaultDiscoveredEnergies(run);
     const hasAll = GAIA_EVOLUTION_LOCK.requiredEnergies.every(e =>
       elements.has(e)
     );
@@ -11900,7 +12044,7 @@ export default function NexusSerpentDemo() {
 
   const getGaiaEnergyProgress = (run: any): number => {
     if (!run) return 0;
-    const elements = new Set((run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element));
+    const elements = getAssaultDiscoveredEnergies(run);
     return GAIA_EVOLUTION_LOCK.requiredEnergies.filter(e => elements.has(e)).length;
   };
 
@@ -11948,6 +12092,21 @@ export default function NexusSerpentDemo() {
         range = 560;
         speed = 5.2;
         statusEffect = "knockback";
+        break;
+      case "magne":
+        name = "Magne Core"; damage = 10; cooldownSec = 0.95; range = 690; speed = 6.5;
+        statusEffect = "slow"; break;
+      case "aton":
+        name = "Aton Core"; damage = 17; cooldownSec = 1.35; range = 590; speed = 5.8;
+        break;
+      case "kinetrix":
+        name = "Kinetrix Core"; damage = 11; cooldownSec = 0.65; range = 750; speed = 9.0;
+        statusEffect = "knockback"; break;
+      case "h2nova":
+        name = "H2Nova Core"; damage = 12; cooldownSec = 1.1; range = 650; speed = 6.4;
+        break;
+      case "quantum":
+        name = "Quantum Core"; damage = 19; cooldownSec = 1.55; range = 710; speed = 8.0;
         break;
       default:
         name = "Energy Core";
@@ -12177,6 +12336,20 @@ export default function NexusSerpentDemo() {
     );
   };
 
+  // RV-03: bounded work for Assault only; other gameplay modes retain their budgets.
+  const enforceAssaultLateGameBudget = () => {
+    const core = stateRef.current;
+    if (core.gameMode !== 'nexus_assault' || !core.assaultRun) return;
+    const run = core.assaultRun;
+    let hostile = 0, friendly = 0;
+    run.projectiles = run.projectiles.filter((p: any) =>
+      p.isEnemy ? ++hostile <= 135 : ++friendly <= 105
+    );
+    if (core.particles.length > 380) core.particles.splice(0, core.particles.length - 380);
+    if (core.floatingTexts.length > 65) core.floatingTexts.splice(0, core.floatingTexts.length - 65);
+    if (core.orbs.length > 80) core.orbs.splice(0, core.orbs.length - 80);
+  };
+
   const generateAssaultUpgrades = () => {
     const run = stateRef.current.assaultRun;
     if (!run) return;
@@ -12187,6 +12360,7 @@ export default function NexusSerpentDemo() {
     const hasHydro = run.modules.some((m: any) => m.element === 'hydro');
     const hasAero = run.modules.some((m: any) => m.element === 'aero');
     const hasTermo = run.modules.some((m: any) => m.element === 'termo' || m.element === 'terra');
+    const knownEnergies = getAssaultDiscoveredEnergies(run);
 
     const fotonLvl3 = run.modules.some((m: any) => m.element === 'foton' && m.level >= 3 && !m.mutation);
     const hydroLvl3 = run.modules.some((m: any) => m.element === 'hydro' && m.level >= 3 && !m.mutation);
@@ -12257,6 +12431,83 @@ export default function NexusSerpentDemo() {
             const idx = getNextAvailableModuleBodyIndex(r);
             const mod = createOrbiCombatModule('termo', idx, rar);
             r.modules.push(mod);
+            return r;
+          }
+        });
+      }
+    }
+
+    // RV-02: complete the nine-energy roster with real core profiles, keeping room 1 familiar.
+    const advancedEnergies: { id: OrbiEnergyId; label: string; room: number }[] = [
+      { id: 'magne', label: 'MAGNE', room: 2 },
+      { id: 'aton', label: 'ATON', room: 3 },
+      { id: 'kinetrix', label: 'KINETRIX', room: 3 },
+      { id: 'h2nova', label: 'H2NOVA', room: 4 },
+      { id: 'quantum', label: 'QUANTUM', room: 5 }
+    ];
+    for (const energy of advancedEnergies) {
+      if (currentRoom < energy.room) continue;
+      const owned = run.modules.some((m: any) => m.element === energy.id);
+      const discovered = knownEnergies.has(energy.id);
+      if (!discovered && totalModules < 8) {
+        const rarity = getRarity();
+        availableOptions.push({
+          id: 'add_' + energy.id,
+          title: 'AÑADIR NÚCLEO ' + energy.label,
+          description: 'Nueva energía ORBI: ' + energy.label + '. Acopla un núcleo con identidad de ataque y progresión propias.',
+          rarity, element: energy.id,
+          apply: (r) => {
+            r.modules.push(createOrbiCombatModule(energy.id, getNextAvailableModuleBodyIndex(r), rarity));
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      } else if (!discovered && totalModules >= 8) {
+        availableOptions.push({
+          id: 'seal_' + energy.id,
+          title: 'SELLO GAIA · ' + energy.label,
+          description: 'Sincroniza ' + energy.label + ' para GAIA sin exceder los 8 núcleos físicos.',
+          rarity: 'epic', element: energy.id,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      }
+      if (owned && run.modules.some((m: any) => m.element === energy.id && m.level < 5)) {
+        availableOptions.push({
+          id: 'upg_' + energy.id,
+          title: 'MEJORAR NÚCLEO ' + energy.label,
+          description: 'Mejora el núcleo ' + energy.label + ': daño, rango, velocidad y cadencia.',
+          rarity: getRarity(), element: energy.id,
+          apply: (r) => upgradeExistingCore(r, energy.id)
+        });
+      }
+    }
+    // Core acquisition remains optional; a dedicated choice allows deliberate body growth.
+    availableOptions.push({
+      id: 'body_resonance_filament',
+      title: 'FILAMENTO DE RESONANCIA · CUERPO +5',
+      description: 'Aumenta la longitud objetivo de la serpiente en 5 segmentos para facilitar el Cerco de Resonancia.',
+      rarity: 'rare',
+      apply: (r) => {
+        // A non-core selection additionally grants 0.5 growth in the selection handler.
+        growAssaultOrbiBodyProgress(4.5);
+        return r;
+      }
+    });
+    // When all core slots are occupied, the remaining base energies can be synchronized
+    // by seals (including Termo/Aero/Hydro if not acquired). Foton is initially equipped.
+    if (totalModules >= 8) {
+      for (const energy of GAIA_EVOLUTION_LOCK.requiredEnergies) {
+        if (knownEnergies.has(energy) || advancedEnergies.some(e => e.id === energy)) continue;
+        availableOptions.push({
+          id: 'seal_' + energy,
+          title: 'SELLO GAIA · ' + energy.toUpperCase(),
+          description: 'Registra esta energía para la sincronización GAIA sin ocupar un núcleo.',
+          rarity: 'epic', element: energy,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy]));
             return r;
           }
         });
@@ -12469,6 +12720,16 @@ export default function NexusSerpentDemo() {
       return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
     });
 
+    // Avoid the 8/9 GAIA dead end: force an available discovery seal into the next panel.
+    if (totalModules >= 8 && knownEnergies.size < GAIA_EVOLUTION_LOCK.requiredEnergies.length) {
+      const sealIndex = copy.findIndex(card => card.id.startsWith('seal_'));
+      if (sealIndex >= 0) finalSelection.push(copy.splice(sealIndex, 1)[0]);
+    }
+    // Every third room guarantees a selectable body-growth card when length is below cap.
+    if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60 && finalSelection.length < 3) {
+      const growthIndex = copy.findIndex(card => card.id === 'body_resonance_filament');
+      if (growthIndex >= 0) finalSelection.push(copy.splice(growthIndex, 1)[0]);
+    }
     while (finalSelection.length < 3 && copy.length > 0) {
       const idx = Math.floor(Math.random() * Math.min(copy.length, 5));
       finalSelection.push(copy.splice(idx, 1)[0]);
@@ -12505,10 +12766,21 @@ export default function NexusSerpentDemo() {
 
     if (run.status !== 'upgrade_selection') return;
 
+    const gaiaBefore = getGaiaEnergyProgress(core.assaultRun);
     if (upgrade.apply) {
       core.assaultRun = upgrade.apply(core.assaultRun);
     } else if (upgrade.action) {
       upgrade.action(core);
+    }
+    const gaiaAfter = getGaiaEnergyProgress(core.assaultRun);
+    if (gaiaAfter > gaiaBefore) {
+      showTemporaryMessage(gaiaAfter === 9
+        ? 'GAIA LOCK 9/9 · SINCRONIZACIÓN COMPLETA'
+        : `SELLO GAIA · ${gaiaAfter}/9 ENERGÍAS`);
+      if (gaiaAfter === 9) {
+        triggerAudioSign('Red Vital Conectada', 'evolve');
+        triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'NEXUS_SPARK', 30);
+      }
     }
 
     // Serpent Growth and Slot Sync
@@ -14462,6 +14734,7 @@ export default function NexusSerpentDemo() {
       }
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.modules.forEach((mod: any) => {
       if (mod.lastFireTime === undefined) mod.lastFireTime = 0;
       mod.lastFireTime += 1 * dt;
@@ -14899,6 +15172,7 @@ export default function NexusSerpentDemo() {
       return p.x > 0;
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.enemies = core.assaultRun.enemies.filter((enemy: any) => enemy.health > 0);
 
     // Call high-precision wave progression logic and failsafe checks
@@ -21035,7 +21309,7 @@ export default function NexusSerpentDemo() {
             </p>
           </div>
 
-          {/* UI-AAA-02C: visual-only six-guardian cinematic gallery. */}
+          {/* ASSAULT-RV-02H: nine-guardian cinematic gallery. */}
           <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-4 my-4">
             <div
               className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-2xl border border-white/20 overflow-hidden min-h-[300px] sm:min-h-[390px] flex items-center justify-center'}
@@ -21082,7 +21356,7 @@ export default function NexusSerpentDemo() {
             </div>
           </div>
           <div
-            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 mb-5"
+            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-2 sm:gap-3 mb-5"
             role="group"
             aria-label="Elegir guardián energético"
           >

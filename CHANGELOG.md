@@ -6,6 +6,15 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### AS-R1B — Cerco de Resonancia: previsualización activa sin daño (2026-11-03)
+- `src/gameplay/assault/resonancePreview.ts` implementa una máquina de estado puramente visual: memoria de cabeza, detección de cierre, conteo de enemigos contenidos, enfriamiento de 2,2 s, efecto durante 1,7 s, filtrado de santuarios y reinicio por sala.
+- Integración exclusiva en la simulación `nexus_assault` de `NexusSerpentDemo.tsx`, solo con combate activo y fuera de cinemáticas. Se conserva exactamente el movimiento original de segmentos, las habilidades, `Tail Strike`, el disparo automático, los HP, la energía, la progresión y los otros tres modos.
+- Render del polígono en coordenadas de mundo con borde/halo elemental, cruce luminoso y contador de objetivos; HUD compacto con «CERCO DE RESONANCIA» / «SIN DAÑO · PROTOTIPO», más aviso si la serpiente aún no tiene los 16 segmentos mínimos.
+- `src/gameplay/assault/resonancePreview.test.ts` aporta 11 pruebas (primer frame, cierre, objetivos vivos, cero daño, cooldown, expiración, cambios de sala, pausa, entradas inválidas, no reactivación, dt), sumadas a 17 pruebas geométricas existentes = **28 casos**.
+- `scripts/qa-assault-preview-scope.mjs`: 10 invariantes estáticas para evitar que el preview salga de Assault o toque salud/energía/daño; `qa:assault-geometry`, `qa:gate` y GitHub Actions incluyen las verificaciones.
+- **Manual pendiente**: confirmar cierres reales con movimiento elástico en Chrome (100% y 25%), falsos positivos, legibilidad en pantalla, FPS, enemigos dentro/fuera, reinicio/pausa, jefes y smoke de los otros tres modos. Guía en `docs/NEXUS_ASSAULT_AS_R1B_VALIDACION.md`.
+- AS-R2 (daño del cerco y apuntado por segmento) **no implementado**; `main` sin cambios.
+
 ### AS-R0 / AS-R1 — Auditoría SSSnaker y prototipo geométrico seguro (2026-11-03)
 - Plan maestro contrastado con fuente adjunta de análisis SSSnaker, fuentes públicas y el estado real del código de Assault: `docs/NEXUS_ASSAULT_RESONANCIA_PLAN_MAESTRO.md`. Define invariantes de esencia ORBI, mapeo de mecánicas, riesgos, 9 energías / 8 slots, diseño de cerco, árboles/fusiones, progresión, director de encuentros, balance y puertas QA.
 - Añadido `src/gameplay/assault/resonanceGeometry.ts`: geometría **pura** de cruce de segmentos, área/perímetro y caja de polígono, contención de puntos, autointersecciones y previsualización de cerco con filtros de área, longitud y contacto antiguo.

@@ -6,6 +6,15 @@ Formato: fecha ISO, identificador, tipo (Añadido / Modificado / Corregido / Ren
 
 ## [Sin publicar] — rama develop
 
+### QA-AS16 — Nexus Assault: mundo grande panorámico 16:9 (2026-11-03)
+- **Alcance**: `nexus_assault` adopta la superficie navegable `5066,67 × 2850` que ya utilizan `demo` (Red Vital) e `infinite` (Supervivencia Nexus). El perímetro de **todas las salas** de Assault es `WIDE_RECTANGLE` panorámico; los tipos de sala, oleadas, módulos, mejoras, jefes y transiciones siguen presentes. Se deshabilita intencionalmente la rotación de contornos circulares/octagonales/diamante en Assault.
+- **Cámara y mundo físico**: cámara de seguimiento basada en posición del jugador y ventana real, sin autoajuste permanente a la antigua arena de radio 949. Reinicio y cuenta regresiva centrados en X = 2533,33. Las colisiones de jugador/enemigos, reposicionamiento, puntos de energía y limpieza de proyectiles usan los límites rectangulares reales en ambos ejes para evitar paredes invisibles.
+- **Combate**: enemigos por sala aparecen a una distancia útil del jugador dentro del nuevo mundo; jefes y sus patrones mantienen un anclaje cercano a la posición en que comienza cada sala, sin quedar atrapados en las coordenadas del antiguo centro (1425,1425). Balances de daño, cadencia, habilidades y progresión no modificados.
+- **Representación**: rejilla, atmósfera, polvo, corrientes, límite luminoso, sombreado exterior y transiciones ocupan toda la superficie 16:9. El radar detector de Assault representa el nuevo mundo completo e indica posiciones reales de enemigos, jefes y jugador.
+- **QA añadido**: `npm run qa:assault-landscape` realiza 12 comprobaciones estáticas de invariantes del escenario. Se integra en `npm run qa:gate` y como paso bloqueante del trabajo `Vite build` en GitHub Actions.
+- **Evidencia**: GitHub Actions sobre el commit de validación `ef09a30`: comprobaciones del mundo panorámico y compilación Vite satisfactorias. El trabajo TypeScript sigue siendo no bloqueante; no equivale a validar todos los comportamientos en el navegador.
+- **Validación manual pendiente**: Chrome 1920×1080 a 100 % y 25 %, cuatro bordes del escenario, seguimiento de cámara, puntero/mouse, radar, inicio de sala, oleadas, salas de descanso, jefes, transición y mejoras. Ejecutar `npm run qa:gate` en el equipo local antes de promover a `main`. No se modifica `main`.
+
 ### UI-AAA-02C — Seis serpientes con identidad energética (2026-11-03)
 - Introducido `src/components/GuardianShowcaseArt.tsx`: arte SVG encapsulado con seis trayectorias corporales, cabezas, firmas y motivos elementales distintos para FOTON, HYDRO, AERO, TERMO, MAGNE y ATON. Es arte de selección, no un modelo 3D jugable.
 - `CHOOSE`: escenario cinematográfico con vista artística protagonista por personaje; selector de seis Guardianes con símbolos individuales y accesibilidad `aria-pressed`. Se mantienen el modo seleccionado y los handlers originales para volver/iniciar.

@@ -19658,6 +19658,27 @@ export default function NexusSerpentDemo() {
                   </div>
                 )}
 
+                {/* AS-R1B: unobtrusive HUD cue; informational, no attack or reward. */}
+                {gameMode === 'nexus_assault' && ASSAULT_RESONANCE_PREVIEW_ENABLED && (
+                  <div
+                    className="w-44 sm:w-48 rounded-lg border border-cyan-400/25 bg-[#03111d]/90 px-2.5 py-2 backdrop-blur-sm shadow-lg"
+                    aria-label="Estado de prueba visual del Cerco de Resonancia"
+                  >
+                    <div className="flex items-center justify-between gap-1 font-mono text-[8px] font-black tracking-wide text-cyan-300">
+                      <span>CERCO DE RESONANCIA</span>
+                      <span className="text-[7px] rounded border border-cyan-400/25 px-1 text-cyan-200">AS-R1B</span>
+                    </div>
+                    <div className="font-mono text-[8px] mt-1 leading-snug text-slate-300">
+                      {assaultResonancePreviewRef.current.active
+                        ? `${assaultResonancePreviewRef.current.active.targetsInside} OBJETIVOS · PREVISUALIZACIÓN`
+                        : stateRef.current.player.segments.length < 16
+                          ? 'DESARROLLA EL CUERPO PARA FORMAR CERCOS'
+                          : 'RODEA ENEMIGOS Y CIERRA UN LAZO'}
+                    </div>
+                    <div className="text-[7px] font-mono text-amber-300/90 mt-0.5">SIN DAÑO · PROTOTIPO</div>
+                  </div>
+                )}
+
                 {/* Debug HUD Compact Mode */}
                 {gameMode === 'nexus_assault' && debugHudMode === "compact" && (
                   <div className="flex items-center gap-2.5 bg-[#030712]/92 border border-cyan-500/20 px-3 py-1 rounded-full backdrop-blur-md text-[8.5px] font-mono text-cyan-400 shadow-xl animate-fade-in mt-1">

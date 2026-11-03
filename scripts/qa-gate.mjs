@@ -21,6 +21,7 @@ const run = (label, args) => {
 run('Panorama Nexus Assault 16:9', ['run', 'qa:assault-landscape']);
 run('Geometría de Resonancia Assault (AS-R1)', ['run', 'qa:assault-geometry']);
 run('Aislamiento de preview AS-R1B', ['run', 'qa:assault-preview-scope']);
+run('Reconexión gratuita y moneda ORBI', ['run', 'qa:assault-revive']);
 run('TypeScript', ['run', 'check:types']);
 run('Compilación de producción', ['run', 'build']);
 

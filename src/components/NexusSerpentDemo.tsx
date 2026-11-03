@@ -34,6 +34,12 @@ import {
 } from 'lucide-react';
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
 import {
+  ASSAULT_RESONANCE_PREVIEW_ENABLED,
+  advanceAssaultResonancePreview,
+  createAssaultResonancePreviewState,
+  drawAssaultResonancePreview,
+} from '../gameplay/assault/resonancePreview';
+import {
   Point,
   Segment,
   EvolutionName,
@@ -4261,6 +4267,8 @@ const createInitialSurvivalState = () => ({
 export default function NexusSerpentDemo() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // AS-R1B: isolated zero-damage Assault preview (not part of combat state).
+  const assaultResonancePreviewRef = useRef(createAssaultResonancePreviewState());
 
   // REBOOT 0.9 — Performance/FPS Tracking Ref (Part 12)
   const fpsRef = useRef<{
@@ -5368,6 +5376,8 @@ export default function NexusSerpentDemo() {
   // Level Reset game logic
   const initiateReset = () => {
     const core = stateRef.current;
+    // Do not reuse an earlier run's loop trajectory.
+    assaultResonancePreviewRef.current = createAssaultResonancePreviewState();
     
     // Position player in exact middle and initialize segments
     core.player.x = (gameMode === 'demo' || gameMode === 'infinite' || gameMode === 'nexus_assault') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;
@@ -16251,6 +16261,39 @@ export default function NexusSerpentDemo() {
           joint.size = baseJointSize * (0.35 + ratio * 0.65);
         }
 
+        // AS-R1B: read-only loop preview built from the existing segment chain.
+        // No movement, collision, damage, auto-fire, drops or rewards are modified.
+        if (ASSAULT_RESONANCE_PREVIEW_ENABLED &&
+            core.gameMode === 'nexus_assault' && core.assaultRun) {
+          const assaultRun = core.assaultRun;
+          const outcome = advanceAssaultResonancePreview(
+            assaultResonancePreviewRef.current,
+            {
+              head: { x: p.x, y: p.y },
+              body: p.segments,
+              targets: assaultRun.enemies || [],
+              roomIndex: assaultRun.roomIndex || 1,
+              dtSec: dt / 60,
+              combatActive: assaultRun.run?.status === 'combat' &&
+                !cinematicActiveRef.current &&
+                !assaultRun.bossIntroActive &&
+                assaultRun.combatStarted !== false,
+            }
+          );
+          assaultResonancePreviewRef.current = outcome.state;
+          if (outcome.closedNow) {
+            core.floatingTexts.push({
+              id: 'resonance_preview_' + outcome.state.totalClosures,
+              x: p.x,
+              y: p.y - 55,
+              text: 'CERCO DE RESONANCIA · ' + outcome.targetsInside + ' OBJETIVOS',
+              color: '#67e8f9',
+              life: 1.4,
+              size: 17,
+            });
+          }
+        }
+
         // Periodically spawn minimal elegant tail particles (flujo de plasma vivo)
         if (Math.random() < 0.28) {
           if (p.segments.length > 5) {
@@ -17110,6 +17153,14 @@ export default function NexusSerpentDemo() {
           drawNexusAssaultRoom(ctx, dt);
           // Render Player Avatar (Orbi Foton Flow - Ribbon + reactor core + stage wings)
           drawPremiumOrbiSerpent(ctx);
+
+          // AS-R1B: visual overlay only, painted in native 16:9 world coordinates.
+          if (ASSAULT_RESONANCE_PREVIEW_ENABLED) {
+            drawAssaultResonancePreview(
+              ctx, assaultResonancePreviewRef.current,
+              theme.primaryColor, core.lowEffectsMode === true
+            );
+          }
 
           // Active Ability ripple ring waves
           drawActiveAbilityRipples(ctx);

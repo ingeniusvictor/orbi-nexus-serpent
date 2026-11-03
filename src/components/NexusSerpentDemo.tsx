@@ -32,6 +32,7 @@ import {
   Lock,
   Skull
 } from 'lucide-react';
+import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
 import {
   Point,
   Segment,
@@ -20993,38 +20994,67 @@ export default function NexusSerpentDemo() {
             </p>
           </div>
 
-          {/* UI-AAA-02B: independent cinematic showcase, existing guardian data and handlers retained. */}
-          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-4 my-5">
-            <div className={`orbi-guardian-stage orbi-guardian-${selectedGuardian.toLowerCase()} rounded-2xl border border-cyan-400/30 relative overflow-hidden min-h-[270px] sm:min-h-[355px] flex items-center justify-center`}>
-              <svg className="orbi-serpent-silhouette" viewBox="0 0 600 360" role="img" aria-label={`Serpiente energética de ${GUARDIAN_THEMES[selectedGuardian].name}`}>
-                <defs><filter id="guardianGlow"><feGaussianBlur stdDeviation="11" /></filter></defs>
-                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="currentColor" strokeWidth="46" opacity=".45" filter="url(#guardianGlow)" strokeLinecap="round"/>
-                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round"/>
-                <path d="M75 286 C60 193 180 210 184 114 S340 58 321 172 465 282 507 127" fill="none" stroke="#fff" strokeOpacity=".68" strokeWidth="3" strokeLinecap="round"/>
-                <path d="M475 108 L529 104 L515 140 L487 151 Z" fill="currentColor" stroke="#fff" strokeOpacity=".65" strokeWidth="2"/>
-                <circle cx="514" cy="119" r="4" fill="white"/>
-              </svg>
-              <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end gap-3">
-                <span className="font-mono text-[10px] tracking-widest text-white/75 uppercase">Previsualización energética</span>
-                <span className="font-mono text-xs font-bold text-white">{GUARDIAN_THEMES[selectedGuardian].element}</span>
+          {/* UI-AAA-02C: visual-only six-guardian cinematic gallery. */}
+          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-4 my-4">
+            <div
+              className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-2xl border border-white/20 overflow-hidden min-h-[300px] sm:min-h-[390px] flex items-center justify-center'}
+            >
+              <div className="orbi-guardian-stage-bg" aria-hidden="true" />
+              <div className="orbi-guardian-stage-rings" aria-hidden="true" />
+              <div className="orbi-guardian-stage-top absolute top-4 left-4 right-4 z-10 flex items-center justify-between gap-2">
+                <span className="text-[10px] font-mono uppercase tracking-[0.19em] text-white/75">NÚCLEO ENERGÉTICO · VISTA ARTÍSTICA</span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-white/80">{GUARDIAN_THEMES[selectedGuardian].element}</span>
+              </div>
+              <GuardianShowcaseArt guardianId={selectedGuardian} />
+              <div className="orbi-guardian-stage-bottom absolute bottom-3 left-4 right-4 z-10 flex items-center justify-between gap-2">
+                <span className="font-display tracking-[0.2em] text-sm font-black text-white">{selectedGuardian}</span>
+                <span className="text-[10px] font-mono tracking-wide text-slate-300">ORBI · ENLACE LISTO</span>
               </div>
             </div>
             <div className="orbi-guardian-dossier rounded-2xl border border-cyan-400/25 p-5 sm:p-7 flex flex-col justify-center min-w-0">
               <span className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
               <h3 className="font-display text-3xl sm:text-4xl font-black text-white mt-2">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mt-3">{GUARDIAN_THEMES[selectedGuardian].description}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 font-mono text-xs">
-                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-3"><span className="block text-amber-300 text-[10px] mb-1">HABILIDAD PASIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong></div>
-                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3"><span className="block text-cyan-300 text-[10px] mb-1">HABILIDAD ACTIVA</span><strong className="text-white">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong></div>
+              <p className={'font-mono uppercase text-xs tracking-[0.16em] mt-1 ' + GUARDIAN_THEMES[selectedGuardian].textColor}>
+                {GUARDIAN_THEMES[selectedGuardian].element}
+              </p>
+              <p className="text-slate-200 text-sm leading-relaxed mt-4">{GUARDIAN_THEMES[selectedGuardian].description}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-3.5">
+                  <span className="block text-amber-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD PASIVA</span>
+                  <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong>
+                  <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].passiveDescription}</p>
+                </div>
+                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3.5">
+                  <span className="block text-cyan-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD ACTIVA</span>
+                  <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong>
+                  <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].abilityDescription}</p>
+                </div>
+              </div>
+              <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3.5">
+                <span className="font-mono uppercase tracking-widest text-[10px] text-slate-400">MODIFICADORES BASE DE ESTE GUARDIÁN</span>
+                <div className="grid grid-cols-3 gap-2 text-center mt-2 font-mono">
+                  <div><span className="text-[10px] text-slate-400 block">VELOCIDAD</span><strong className="text-white text-sm">x{GUARDIAN_THEMES[selectedGuardian].speedModifier.toFixed(2)}</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block">ENERGÍA</span><strong className="text-white text-sm">x{GUARDIAN_THEMES[selectedGuardian].energyModifier.toFixed(2)}</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block">RESISTENCIA</span><strong className="text-white text-sm">x{GUARDIAN_THEMES[selectedGuardian].resistanceModifier.toFixed(2)}</strong></div>
+                </div>
               </div>
             </div>
           </div>
-          <div className="relative z-10 w-full max-w-[1440px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 mb-5" role="group" aria-label="Elegir guardián">
+          <div
+            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 mb-5"
+            role="group"
+            aria-label="Elegir guardián energético"
+          >
             {Object.values(GUARDIAN_THEMES).map(theme => (
-              <button type="button" key={theme.id} aria-pressed={selectedGuardian === theme.id}
+              <button
+                type="button"
+                key={theme.id}
+                aria-pressed={selectedGuardian === theme.id}
                 onClick={() => setSelectedGuardian(theme.id)}
-                className={`orbi-guardian-choice orbi-guardian-${theme.id.toLowerCase()} rounded-xl border p-3 flex flex-col items-center gap-2 cursor-pointer transition-all ${selectedGuardian === theme.id ? 'border-cyan-300 bg-cyan-950/60 shadow-[0_0_22px_rgba(34,211,238,.26)]' : 'border-white/15 bg-slate-950/75 hover:border-cyan-400/50'}`}>
-                <span className="orbi-guardian-token" aria-hidden="true">✦</span>
+                className={'orbi-guardian-choice orbi-guardian-' + theme.id.toLowerCase() + ' rounded-xl border p-3 flex flex-col items-center gap-1.5 cursor-pointer transition-all ' +
+                  (selectedGuardian === theme.id ? 'orbi-guardian-choice-selected border-cyan-300 bg-cyan-950/60' : 'border-white/15 bg-slate-950/75 hover:border-cyan-400/50')}
+              >
+                <span className="orbi-guardian-token" aria-hidden="true">{GUARDIAN_SIGILS[theme.id]}</span>
                 <strong className="text-white text-xs sm:text-sm">{theme.name}</strong>
                 <span className="text-slate-300 text-[9px] uppercase font-mono text-center">{theme.element}</span>
               </button>

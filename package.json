@@ -13,7 +13,7 @@
     "check:types": "tsc --noEmit",
     "qa:gate": "node scripts/qa-gate.mjs",
     "qa:assault-landscape": "node scripts/qa-assault-landscape.mjs",
-    "qa:assault-geometry": "node --import tsx --test src/gameplay/assault/resonanceGeometry.test.ts"
+    "qa:assault-geometry": "node --import tsx --test src/gameplay/assault/resonanceGeometry.test.ts src/gameplay/assault/resonancePreview.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

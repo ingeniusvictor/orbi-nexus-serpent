@@ -27,6 +27,8 @@ jobs:
         run: bun run qa:assault-preview-scope
       - name: Test free Assault revival and inactive ORBI currency
         run: bun run qa:assault-revive
+      - name: Audit revival scope and wallet invariants
+        run: bun run qa:assault-revive-scope
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

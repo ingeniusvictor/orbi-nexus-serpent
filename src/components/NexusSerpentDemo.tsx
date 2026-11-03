@@ -16177,8 +16177,11 @@ export default function NexusSerpentDemo() {
                 });
               }
 
+              // Assault's actual life is run.hp; spent Vital Energy must not
+              // bypass its dedicated revival and shared-room progression.
+              // Red Vital and Supervivencia retain their prior collapse rules.
               // Check Game Over (Energy Collapse)
-              if (p.energy <= 0) {
+              if (p.energy <= 0 && core.gameMode !== 'nexus_assault') {
                 setGameState('GAMEOVER');
                 triggerAudioSign('Red vital purgada', 'reset');
                 // Save HighScore
@@ -16696,7 +16699,7 @@ export default function NexusSerpentDemo() {
                 size: 15
               });
 
-              if (p.energy <= 0) {
+              if (p.energy <= 0 && core.gameMode !== 'nexus_assault') {
                 setGameState('GAMEOVER');
                 triggerAudioSign('Red vital purgada', 'reset');
 
@@ -21476,12 +21479,12 @@ export default function NexusSerpentDemo() {
             </div>
           </div>
         ) : (
-          <div className="absolute inset-0 z-40 bg-red-950/20 backdrop-blur-2xl flex flex-col justify-center items-center p-6 text-center animate-fade-in">
+          <div className="absolute inset-0 z-40 bg-red-950/20 backdrop-blur-2xl flex flex-col items-center p-4 sm:p-6 text-center animate-fade-in overflow-y-auto overscroll-contain">
             
             {/* Centered glow spot */}
             <div className="absolute w-[360px] h-[360px] rounded-full bg-red-650/10 blur-[90px] pointer-events-none" />
 
-            <div className="relative max-w-sm bg-[#0a0709]/95 border border-red-500/20 px-8 py-8 rounded-2xl shadow-2xl flex flex-col items-center">
+            <div className="relative w-full max-w-sm my-auto bg-[#0a0709]/95 border border-red-500/20 px-5 sm:px-8 py-6 sm:py-8 rounded-2xl shadow-2xl flex flex-col items-center">
               
               {/* Hurt spark skull design placeholder */}
               <div className="w-11 h-11 rounded-full bg-red-950/45 border border-red-500/30 text-red-400 flex items-center justify-center mb-4 shadow-[0_0_12px_rgba(239,68,68,0.2)]">
@@ -21512,7 +21515,8 @@ export default function NexusSerpentDemo() {
                   <p className="font-mono text-[10px] leading-relaxed text-slate-300">
                     Reconecta tu Guardián en esta misma sala con sus núcleos, mejoras y progreso intactos.
                   </p>
-                  {getAssaultReviveOffer(stateRef.current.assaultRun.reviveCount ?? 0).kind === 'free' ? (
+                  {getAssaultReviveOffer(stateRef.current.assaultRun.reviveCount ?? 0).kind === 'free' &&
+                    stateRef.current.assaultRun.hp <= 0 ? (
                     <button
                       type="button"
                       onClick={handleFreeAssaultRevive}

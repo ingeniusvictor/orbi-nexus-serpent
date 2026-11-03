@@ -31,6 +31,8 @@ jobs:
         run: bun run qa:assault-revive-scope
       - name: Validate nine-energy Assault progression and GAIA isolation
         run: bun run qa:assault-nine-energies
+      - name: Audit Assault RV-03 GAIA and late-game effect limits
+        run: bun run qa:assault-rv03
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

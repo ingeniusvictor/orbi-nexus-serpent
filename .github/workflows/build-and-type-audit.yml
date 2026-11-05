@@ -33,6 +33,8 @@ jobs:
         run: bun run qa:assault-nine-energies
       - name: Audit Assault RV-03 GAIA and late-game effect limits
         run: bun run qa:assault-rv03
+      - name: Validate node-local targeting and resonance damage
+        run: bun run qa:assault-rv04
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

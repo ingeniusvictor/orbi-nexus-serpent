@@ -15135,19 +15135,15 @@ export default function NexusSerpentDemo() {
               const moduleLevel = 1;
               const element = proj.element || (proj.type ? proj.type.toLowerCase() : "");
 
-              // Centralized damage application with modifiers
-              applyAssaultDamageToEnemy(enemy, proj.damage, {
-                element: element,
-                source: "projectile"
-              });
-
-              // E3 advanced mutation events: one bounded effect per actual projectile hit.
+              // Resolve a mutation from the pre-hit target snapshot so that
+              // a finishing blow can still trigger a chain, fission or repair.
+              let mutationEffect: ReturnType<typeof calculateAdvancedMutationImpact> | null = null;
               if (proj.mutation && proj.sourceModuleId) {
                 const counts = core.assaultRun.mutationHitCounts ??
                   (core.assaultRun.mutationHitCounts = {});
                 const hitNumber = (counts[proj.sourceModuleId] ?? 0) + 1;
                 counts[proj.sourceModuleId] = hitNumber;
-                const mutationEffect = calculateAdvancedMutationImpact({
+                mutationEffect = calculateAdvancedMutationImpact({
                   mutation: proj.mutation,
                   damage: proj.damage,
                   target: enemy,
@@ -15155,6 +15151,16 @@ export default function NexusSerpentDemo() {
                   roll: Math.random(),
                   impactNumber: hitNumber,
                 });
+              }
+
+              // Centralized direct damage (may destroy the primary target).
+              applyAssaultDamageToEnemy(enemy, proj.damage, {
+                element: element,
+                source: "projectile"
+              });
+
+              // E3 advanced events never recurse into projectile mutation procs.
+              if (mutationEffect) {
                 for (const extra of mutationEffect.secondaryHits) {
                   const other = core.assaultRun.enemies.find((candidate: any) =>
                     candidate.id === extra.id && candidate.health > 0);

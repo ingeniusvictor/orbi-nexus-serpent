@@ -12,6 +12,10 @@ const must=[
  ['E5 HUD visible independently',src.includes('FUSIONES E5')&&src.includes('SINERGIAS ACTIVAS')],
  ['Attack uses snapshotted mutation and source',src.includes('mutation: mod.mutation')&&src.includes('sourceModuleId: mod.id')],
  ['E3 mutation resolution only on direct projectile contact',src.includes('calculateAdvancedMutationImpact({')],
+ ['Finishing blows can still trigger E3 effects',
+  src.indexOf('mutationEffect = calculateAdvancedMutationImpact({') >= 0 &&
+  src.indexOf('mutationEffect = calculateAdvancedMutationImpact({') <
+  src.indexOf('applyAssaultDamageToEnemy(enemy, proj.damage, {')],
  ['Splash cannot recursively proc mutation',src.includes("source: 'advanced_mutation'")],
  ['Healing limited by max HP',src.includes('core.assaultRun.hp < core.assaultRun.maxHp')],
  ['One physical projectile can strike each target once',src.includes('proj.hasPierced?.includes(enemy.id)')],

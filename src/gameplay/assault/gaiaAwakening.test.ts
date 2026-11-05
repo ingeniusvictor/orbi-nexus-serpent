@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { unlockGaiaByBoss,activateGaiaInNextRoom,tickGaiaAwakening,applyGaiaDamageBonus } from './gaiaAwakening.ts';
+import { unlockGaiaByBoss,activateGaiaInNextRoom,tickGaiaAwakening,applyGaiaDamageBonus, type GaiaAwakeningState } from './gaiaAwakening.ts';
 test('GAIA requires nine seals and a defeated boss, never skins alone',()=>{
- const run={};assert.equal(unlockGaiaByBoss(run,8,25),false);
+ const run: GaiaAwakeningState = {};assert.equal(unlockGaiaByBoss(run,8,25),false);
  assert.equal(unlockGaiaByBoss(run,9,25),true);
  assert.equal(unlockGaiaByBoss(run,9,30),false);
 });
 test('awakening starts only in the next playable room once',()=>{
- const run={};unlockGaiaByBoss(run,9,25);
+ const run: GaiaAwakeningState = {};unlockGaiaByBoss(run,9,25);
  assert.equal(activateGaiaInNextRoom(run,25,true),false);
  assert.equal(activateGaiaInNextRoom(run,26,false),false);
  assert.equal(activateGaiaInNextRoom(run,26,true),true);

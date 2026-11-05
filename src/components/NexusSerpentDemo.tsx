@@ -14890,7 +14890,10 @@ export default function NexusSerpentDemo() {
       if (!proj.isEnemy && proj.element) {
         const el = proj.element;
         const sig = ORBI_ATTACK_SIGNATURES[el];
-        if (sig && Math.random() < 0.45) {
+        // Adaptive trail sampling reduces late-game allocations without removing shots.
+        const trailChance = core.particles.length > 300 ? 0.07
+          : core.particles.length > 220 ? 0.17 : 0.45;
+        if (sig && Math.random() < trailChance) {
           let trailColor = sig.secondaryColor;
           if (core.gameMode === 'nexus_assault' && el === 'foton') {
             trailColor = "#8DFF00";

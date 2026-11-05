@@ -36,6 +36,7 @@ import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
 import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
 import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { rollAssaultRarity } from '../gameplay/assault/rarity';
+import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -10552,6 +10553,9 @@ export default function NexusSerpentDemo() {
       else if (enemy.isElite) finalDamage *= 0.70;
     }
 
+    const gaiaSeconds = stateRef.current.gameMode === 'nexus_assault'
+      ? (stateRef.current.assaultRun?.gaiaAwakenedSec ?? 0) : 0;
+    finalDamage = applyGaiaDamageBonus(finalDamage, gaiaSeconds, Boolean(enemy.isBoss));
     const finalDamageInt = Math.round(finalDamage);
     enemy.health = Math.max(0, enemy.health - finalDamageInt);
     if (enemy.hp !== undefined) {
@@ -13063,6 +13067,15 @@ export default function NexusSerpentDemo() {
     setAssaultRunHp(core.assaultRun.hp);
 
     core.assaultRun.guaranteedRareUpgrade = true;
+    // The ninth seal unlocks a challenge, not instant power: defeat a boss to earn GAIA.
+    const gaiaUnlocked = unlockGaiaByBoss(
+      core.assaultRun,
+      getGaiaEnergyProgress(core.assaultRun),
+      core.assaultRun.roomIndex,
+    );
+    if (gaiaUnlocked) {
+      showTemporaryMessage('GAIA · DESAFÍO SUPERADO · CONVERGENCIA EN LA SIGUIENTE SALA');
+    }
 
     triggerBurstSparks(boss.x, boss.y, boss.color, 'EVOLUTION_EXPLOSION', 35);
     triggerAudioSign('Red Vital Estabilizada', 'evolve');
@@ -14239,6 +14252,17 @@ export default function NexusSerpentDemo() {
     const status = core.assaultRun.run?.status || 'combat';
     if (status === 'upgrade_selection' || status === 'transition_next_room') {
       return;
+    }
+    // GAIA: after the qualifying boss, grant a single timed convergence in the next room.
+    const combatReady = status === 'combat' && !core.assaultRun.bossIntroActive &&
+      core.assaultRun.combatStarted !== false;
+    if (activateGaiaInNextRoom(core.assaultRun, core.assaultRun.roomIndex, combatReady)) {
+      showTemporaryMessage('GAIA · CONVERGENCIA VITAL ACTIVADA');
+      triggerAudioSign('Red Vital Conectada', 'evolve');
+      triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'EVOLUTION_EXPLOSION', 24);
+    }
+    if (combatReady && (core.assaultRun.gaiaAwakenedSec ?? 0) > 0) {
+      core.assaultRun.gaiaAwakenedSec = tickGaiaAwakening(core.assaultRun.gaiaAwakenedSec ?? 0, dt / 60);
     }
     // AS-R3: grade/leaderboard time counts real combat, never upgrade menus.
     if (status === 'combat' && !core.assaultRun.bossIntroActive) {
@@ -20025,7 +20049,7 @@ export default function NexusSerpentDemo() {
                   <div className="flex flex-col gap-1 w-44 sm:w-48 bg-[#030712]/90 border border-emerald-500/20 p-2 rounded-xl backdrop-blur-md shadow-xl">
                     <div className="flex justify-between items-center text-[8.5px] font-mono text-slate-350 gap-2 leading-none">
                       <span className="font-bold flex items-center gap-1 text-emerald-400">
-                        <Sparkles className="w-3 h-3 text-emerald-400" /> GAIA LOCK
+                        <Sparkles className="w-3 h-3 text-emerald-400" /> {(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0) > 0 ? 'GAIA · CONVERGENCIA' : 'GAIA LOCK'}
                       </span>
                       <span className="font-bold text-emerald-400">
                         {getGaiaEnergyProgress(stateRef.current.assaultRun)} / 9

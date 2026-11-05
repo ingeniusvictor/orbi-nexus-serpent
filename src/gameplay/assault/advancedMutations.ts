@@ -55,7 +55,7 @@ export function calculateAdvancedMutationImpact(input:{
   const damage=Math.max(0,Number.isFinite(input.damage)?input.damage:0);
   const roll=Math.max(0,Math.min(.999999,Number.isFinite(input.roll)?input.roll:1));
   const result:MutationImpact={secondaryHits:[],echoDamage:0,pushDistance:0,heal:0};
-  if(!validEnemy({...target,id:'self'},'nonexistent') || damage===0) return result;
+  if(!validEnemy(target,'__never_equal__') || damage===0) return result;
   if(mutation==='magnetic_chain' && roll<0.35) {
     let closest:MutationEnemy|null=null;
     let minDistSq=155*155;
@@ -64,7 +64,7 @@ export function calculateAdvancedMutationImpact(input:{
       const dx=e.x-target.x,dy=e.y-target.y,d2=dx*dx+dy*dy;
       if(d2<minDistSq){minDistSq=d2;closest=e;}
     }
-    if(closest) result.secondaryHits.push({id:closest.id,damage:Math.max(1,Math.round(damage*(closest.isBoss?.20:.42)))});
+    if(closest) result.secondaryHits.push({id:closest.id,damage:Math.max(1,Math.round(damage*(closest.isBoss ? 0.20 : 0.42)))});
   } else if(mutation==='aton_fission') {
     const nearby=enemies.filter(e=>validEnemy(e,target.id))
       .map(e=>({enemy:e,distSq:(e.x-target.x)**2+(e.y-target.y)**2}))
@@ -72,14 +72,14 @@ export function calculateAdvancedMutationImpact(input:{
       .sort((a,b)=>a.distSq-b.distSq || a.enemy.id.localeCompare(b.enemy.id))
       .slice(0,2);
     result.secondaryHits=nearby.map(({enemy})=>({
-      id:enemy.id,damage:Math.max(1,Math.round(damage*(enemy.isBoss?.15:.28)))
+      id:enemy.id,damage:Math.max(1,Math.round(damage*(enemy.isBoss ? 0.15 : 0.28)))
     }));
   } else if(mutation==='kinetrix_impulse') {
     result.pushDistance=target.isBoss?0:38;
   } else if(mutation==='h2nova_repair') {
     if(Number.isInteger(input.impactNumber) && input.impactNumber>0 && input.impactNumber%8===0)result.heal=1;
   } else if(mutation==='quantum_echo' && roll<.25) {
-    result.echoDamage=Math.max(1,Math.round(damage*(target.isBoss?.18:.40)));
+    result.echoDamage=Math.max(1,Math.round(damage*(target.isBoss ? 0.18 : 0.40)));
   }
   return result;
 }

@@ -687,7 +687,7 @@ const GAIA_EVOLUTION_LOCK = {
     "kinetrix",
     "h2nova",
     "quantum",
-  ],
+  ] as OrbiEnergyId[],
   description:
     "Gaia no se selecciona. Gaia despierta cuando las 9 energías ORBI se sincronizan en una misma serpiente.",
 };
@@ -14315,8 +14315,8 @@ export default function NexusSerpentDemo() {
       return;
     }
     // GAIA: after the qualifying boss, grant a single timed convergence in the next room.
-    const combatReady = status === 'combat' && !core.assaultRun.bossIntroActive &&
-      core.assaultRun.combatStarted !== false;
+    // The guard above already returned when combatStarted is false.
+    const combatReady = status === 'combat' && !core.assaultRun.bossIntroActive;
     if (activateGaiaInNextRoom(core.assaultRun, core.assaultRun.roomIndex, combatReady)) {
       showTemporaryMessage('GAIA · CONVERGENCIA VITAL ACTIVADA');
       triggerAudioSign('Red Vital Conectada', 'evolve');

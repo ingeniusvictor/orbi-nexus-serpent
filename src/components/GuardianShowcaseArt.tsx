@@ -40,6 +40,18 @@ const GUARDIAN_ART: Record<GuardianId, GuardianArt> = {
     body: 'M 76 311 C 88 220 205 266 233 154 C 257 70 387 85 392 180 C 396 269 497 269 553 151',
     x: 553, y: 151, angle: -42, energy: '#d9ff5a', highlight: '#faffcb', background: '#4b6207', symbol: '⚛',
   },
+  KINETRIX: {
+    body: 'M 70 300 C 148 314 127 164 245 168 C 340 171 332 277 445 230 C 498 207 509 120 548 123',
+    x: 548, y: 123, angle: -24, energy: '#ffb84d', highlight: '#fff2d3', background: '#6d3207', symbol: '➶',
+  },
+  H2NOVA: {
+    body: 'M 70 292 C 145 334 152 185 242 170 C 338 149 326 302 442 224 C 479 192 496 116 540 130',
+    x: 540, y: 130, angle: -22, energy: '#7cffb2', highlight: '#f2fff8', background: '#075247', symbol: 'H₂',
+  },
+  QUANTUM: {
+    body: 'M 79 306 C 112 228 222 263 232 167 C 238 68 389 75 404 182 C 414 277 498 237 537 143',
+    x: 537, y: 143, angle: -46, energy: '#ff8ff3', highlight: '#fff1fc', background: '#4f176a', symbol: 'Ψ',
+  },
 };
 
 export const GUARDIAN_SIGILS: Record<GuardianId, string> = {
@@ -49,6 +61,9 @@ export const GUARDIAN_SIGILS: Record<GuardianId, string> = {
   TERMO: '✦',
   MAGNE: '⟡',
   ATON: '⚛',
+  KINETRIX: '➶',
+  H2NOVA: 'H₂',
+  QUANTUM: 'Ψ',
 };
 
 export function GuardianShowcaseArt({ guardianId }: { guardianId: GuardianId }) {
@@ -128,6 +143,27 @@ export function GuardianShowcaseArt({ guardianId }: { guardianId: GuardianId }) 
           <ellipse cx="325" cy="185" rx="75" ry="33" transform="rotate(28 325 185)" />
           <ellipse cx="325" cy="185" rx="75" ry="33" transform="rotate(-28 325 185)" />
           <circle cx="325" cy="185" r="12" fill={art.energy} />
+        </g>
+      )}
+      {guardianId === 'KINETRIX' && (
+        <g fill="none" stroke={art.highlight} strokeWidth="3" opacity=".75" strokeLinecap="round">
+          <path d="M74 172L182 150 M99 203L224 175 M395 108L516 75" />
+          <path d="M170 136L184 150 170 164 M501 63L518 75 502 87" />
+        </g>
+      )}
+      {guardianId === 'H2NOVA' && (
+        <g fill="none" stroke={art.highlight} strokeWidth="2" opacity=".75">
+          <circle cx="322" cy="184" r="63" strokeDasharray="9 12" />
+          <circle cx="322" cy="184" r="25" />
+          <circle cx="384" cy="185" r="9" fill={art.energy} />
+          <circle cx="260" cy="185" r="9" fill={art.energy} />
+        </g>
+      )}
+      {guardianId === 'QUANTUM' && (
+        <g fill="none" stroke={art.highlight} strokeWidth="2" opacity=".75">
+          <path d="M224 107L307 73 373 111 439 82 M217 274L307 315 392 273 468 302" strokeDasharray="9 6" />
+          <ellipse cx="322" cy="188" rx="103" ry="49" transform="rotate(40 322 188)" />
+          <ellipse cx="322" cy="188" rx="103" ry="49" transform="rotate(-40 322 188)" />
         </g>
       )}
       <g className="orbi-guardian-art__body">

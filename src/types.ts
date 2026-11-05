@@ -192,7 +192,8 @@ export interface OrbiCombatModule {
   projectileCount: number;
   autoFire: boolean;
   statusEffect?: "slow" | "knockback";
-  mutation?: "solar_lance" | "tidal_siphon" | "wind_split" | "terra_pulse" | "termo_pulse";
+  mutation?: "solar_lance" | "tidal_siphon" | "wind_split" | "terra_pulse" | "termo_pulse" |
+    "magnetic_chain" | "aton_fission" | "kinetrix_impulse" | "h2nova_repair" | "quantum_echo";
   attackType?: string;
   
   // Backwards compatibility properties
@@ -285,6 +286,9 @@ export interface AssaultProjectile {
   isWindSplit?: boolean;
   attackType?: string;
   element?: string;
+  /** RV-08: mutation travels with the projectile from its source core. */
+  mutation?: OrbiCombatModule['mutation'];
+  sourceModuleId?: string;
   coreColor?: string;
   glowColor?: string;
   trailColor?: string;
@@ -337,7 +341,11 @@ export interface NexusAssaultRun {
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;
-  synergiesActive?: string[]; // track active synergies
+  synergiesActive?: string[]; // passive resonances, independent from chosen fusions
+  /** RV-08: chosen E5 recipes, never purchases; max two. */
+  selectedFusions?: string[];
+  /** RV-08: successful mutation impacts counted per module for bounded healing. */
+  mutationHitCounts?: Record<string, number>;
   waveClearTimer?: number;
   roomClearDuration?: number;
   tailHitsThisRoom?: number;

@@ -33,6 +33,11 @@ import {
   Skull
 } from 'lucide-react';
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
+import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
+import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
+import { rollAssaultRarity } from '../gameplay/assault/rarity';
+import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
+import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -850,6 +855,9 @@ function validateNoActiveTerraReferences() {
     GUARDIAN_THEMES.TERMO.name,
     GUARDIAN_THEMES.MAGNE.name,
     GUARDIAN_THEMES.ATON.name,
+    GUARDIAN_THEMES.KINETRIX.name,
+    GUARDIAN_THEMES.H2NOVA.name,
+    GUARDIAN_THEMES.QUANTUM.name,
   ];
   if (activeLabels.some((label: string) => label.toLowerCase().includes("terra"))) {
     console.warn("[ORBI ENERGY REGISTRY] Visible Terra label detected. Replace with Termo.");
@@ -1283,6 +1291,96 @@ const GUARDIAN_THEMES: Record<GuardianId, GuardianTheme> = {
     resistanceModifier: 0.95,
     visualMotif: 'solar', // reuse solar graphics styled as green/yellow nuclear energy
     orbStyle: 'atomic_particle'
+  },
+  KINETRIX: {
+    id: 'KINETRIX',
+    name: 'Orbi Kinetrix',
+    element: 'Energía Cinética',
+    description: 'Guardián de impulso y movimiento. Convierte la inercia en ataques veloces y ondas que apartan amenazas.',
+    primaryColor: '#ffb84d',
+    secondaryColor: '#ff7a1a',
+    textColor: 'text-amber-300',
+    auraColor: 'rgba(255,184,77,0.45)',
+    particleColor: '#ffe0a3',
+    trailColor: 'rgba(255,184,77,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#ffb84d',
+    evolutionNames: {
+      SPARK: 'Kinetic Spark',
+      SOLAR_STREAM: 'Momentum Stream',
+      GUARDIAN_SERPENT: 'Nexus Striker',
+      TITAN_SERPENT: 'Titan Kinetrix Flow'
+    },
+    abilityName: 'Impacto Vectorial',
+    abilityDescription: 'Descarga cinética que aparta enemigos cercanos y despeja fragmentos Blackout.',
+    passiveName: 'Impulso Persistente',
+    passiveDescription: '+12% velocidad inicial con resistencia ligeramente reducida.',
+    speedModifier: 1.12,
+    energyModifier: 0.95,
+    growthModifier: 1.00,
+    resistanceModifier: 0.94,
+    visualMotif: 'wind',
+    orbStyle: 'kinetic_streak'
+  },
+  H2NOVA: {
+    id: 'H2NOVA',
+    name: 'Orbi H2Nova',
+    element: 'Hidrógeno Verde',
+    description: 'Guardián de plasma limpio. Canaliza hidrógeno verde para sostener la Red Vital y purificar el entorno.',
+    primaryColor: '#7cffb2',
+    secondaryColor: '#00ffc8',
+    textColor: 'text-emerald-300',
+    auraColor: 'rgba(124,255,178,0.45)',
+    particleColor: '#c9ffe8',
+    trailColor: 'rgba(0,255,200,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#7cffb2',
+    evolutionNames: {
+      SPARK: 'Nova Spark',
+      SOLAR_STREAM: 'Hydrogen Stream',
+      GUARDIAN_SERPENT: 'Nexus Catalyst',
+      TITAN_SERPENT: 'Titan H2Nova Flow'
+    },
+    abilityName: 'Nova Regenerativa',
+    abilityDescription: 'Pulso de energía limpia que recupera vida en Assault y neutraliza proyectiles y corrupción cercanos.',
+    passiveName: 'Ciclo Limpio',
+    passiveDescription: '+10% absorción de energía, con movimiento equilibrado.',
+    speedModifier: 1.00,
+    energyModifier: 1.10,
+    growthModifier: 1.00,
+    resistanceModifier: 1.00,
+    visualMotif: 'water',
+    orbStyle: 'clean_energy'
+  },
+  QUANTUM: {
+    id: 'QUANTUM',
+    name: 'Orbi Quantum',
+    element: 'Energía Cuántica',
+    description: 'Guardián del espectro cuántico. Su resonancia altera brevemente el movimiento de las amenazas y abre nuevas rutas.',
+    primaryColor: '#ff8ff3',
+    secondaryColor: '#b14cff',
+    textColor: 'text-fuchsia-300',
+    auraColor: 'rgba(255,143,243,0.45)',
+    particleColor: '#ffe3fb',
+    trailColor: 'rgba(177,76,255,0.22)',
+    eyeColor: '#ffffff',
+    blackoutContrastColor: '#ff8ff3',
+    evolutionNames: {
+      SPARK: 'Quantum Spark',
+      SOLAR_STREAM: 'Phase Stream',
+      GUARDIAN_SERPENT: 'Nexus Paradox',
+      TITAN_SERPENT: 'Titan Quantum Flow'
+    },
+    abilityName: 'Colapso de Fase',
+    abilityDescription: 'Pulso cuántico que daña y ralentiza enemigos de Assault y suprime fragmentos de corrupción.',
+    passiveName: 'Resonancia de Fase',
+    passiveDescription: '+8% capacidad energética, con resistencia moderadamente reducida.',
+    speedModifier: 1.03,
+    energyModifier: 1.08,
+    growthModifier: 1.00,
+    resistanceModifier: 0.96,
+    visualMotif: 'solar',
+    orbStyle: 'quantum_glitch'
   }
 };
 
@@ -2424,7 +2522,8 @@ const OrbiSynergyPanel: React.FC<OrbiSynergyPanelProps> = ({ stateRef, hudMode }
             const rarityBg: Record<string, string> = {
               common: 'border-slate-800 bg-slate-950/40 text-slate-400',
               rare: 'border-cyan-500/20 bg-cyan-950/20 text-cyan-400',
-              epic: 'border-purple-500/30 bg-purple-950/20 text-purple-400'
+              epic: 'border-purple-500/30 bg-purple-950/20 text-purple-400',
+              legendary: 'border-amber-400/40 bg-amber-950/25 text-amber-300'
             };
             return (
               <div key={mod.id} className="flex flex-col gap-0.5 p-1 rounded bg-slate-950/50 border border-white/5">
@@ -6982,6 +7081,53 @@ export default function NexusSerpentDemo() {
           }
         });
       }
+    } else if (core.activeGuardian === 'KINETRIX') {
+      triggerAbilityParticleBurst(p.x, p.y, '#ffb84d', 42);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 2000;
+        }
+      });
+      if (core.assaultRun) {
+        core.assaultRun.enemies.forEach(enemy => {
+          const d = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+          if (d > 0 && d < maxRadius) {
+            const knock = Math.min(45, (maxRadius - d) * 0.18);
+            enemy.x += ((enemy.x - p.x) / d) * knock;
+            enemy.y += ((enemy.y - p.y) / d) * knock;
+            applyAssaultDamageToEnemy(enemy, 16, { element: 'kinetrix', source: 'ability_pulse' });
+          }
+        });
+      }
+    } else if (core.activeGuardian === 'H2NOVA') {
+      triggerAbilityParticleBurst(p.x, p.y, '#7cffb2', 42);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 3000;
+        }
+      });
+      if (core.assaultRun) {
+        const run = core.assaultRun;
+        run.hp = Math.min(run.maxHp, run.hp + Math.round(run.maxHp * 0.12));
+        setAssaultRunHp(run.hp);
+        run.projectiles = run.projectiles.filter(proj => !proj.isEnemy ||
+          Math.hypot(proj.x - p.x, proj.y - p.y) >= maxRadius);
+      }
+    } else if (core.activeGuardian === 'QUANTUM') {
+      triggerAbilityParticleBurst(p.x, p.y, '#ff8ff3', 45);
+      core.obstacles.forEach(obs => {
+        if (Math.hypot(obs.x - p.x, obs.y - p.y) < maxRadius) {
+          obs.suppressedUntil = performance.now() + 3500;
+        }
+      });
+      if (core.assaultRun) {
+        core.assaultRun.enemies.forEach(enemy => {
+          if (Math.hypot(enemy.x - p.x, enemy.y - p.y) < maxRadius) {
+            applyAssaultDamageToEnemy(enemy, 22, { element: 'quantum', source: 'ability_pulse' });
+            enemy.slowedUntil = Date.now() + 2400;
+          }
+        });
+      }
     }
 
     // General Corruption Zone purification check for other guardians
@@ -10408,6 +10554,9 @@ export default function NexusSerpentDemo() {
       else if (enemy.isElite) finalDamage *= 0.70;
     }
 
+    const gaiaSeconds = stateRef.current.gameMode === 'nexus_assault'
+      ? (stateRef.current.assaultRun?.gaiaAwakenedSec ?? 0) : 0;
+    finalDamage = applyGaiaDamageBonus(finalDamage, gaiaSeconds, Boolean(enemy.isBoss));
     const finalDamageInt = Math.round(finalDamage);
     enemy.health = Math.max(0, enemy.health - finalDamageInt);
     if (enemy.hp !== undefined) {
@@ -11696,11 +11845,9 @@ export default function NexusSerpentDemo() {
   };
 
   const chooseNexusAssaultRoomType = (roomIndex: number): AssaultRoomType => {
-    if (roomIndex <= 2) return "normal";
-    if (roomIndex % 5 === 0) return "boss";
-    if (roomIndex % 4 === 0) return "swarm";
-    if (roomIndex % 7 === 0) return "rest";
-    return "normal";
+    // AS-R5: deterministic encounter schedule keeps bosses/sanctuaries/swarm,
+    // and makes pre-boss and elite chamber types available without new arena rules.
+    return selectAssaultEncounterType(roomIndex);
   };
 
   const getNexusAssaultRoomDifficulty = (roomIndex: number) => {
@@ -11884,11 +12031,15 @@ export default function NexusSerpentDemo() {
     };
   };
 
+  // RV-02: discovery persists through the run, independent of eight physical core slots.
+  const getAssaultDiscoveredEnergies = (run: any): Set<string> => new Set([
+    ...(run?.modules ?? []).map((m: any) => m.element === 'terra' ? 'termo' : m.element),
+    ...(run?.gaiaSeals ?? [])
+  ]);
+
   const hasAllGaiaEnergies = (run: any): boolean => {
     if (!run) return false;
-    const elements = new Set(
-      (run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element)
-    );
+    const elements = getAssaultDiscoveredEnergies(run);
     const hasAll = GAIA_EVOLUTION_LOCK.requiredEnergies.every(e =>
       elements.has(e)
     );
@@ -11900,7 +12051,7 @@ export default function NexusSerpentDemo() {
 
   const getGaiaEnergyProgress = (run: any): number => {
     if (!run) return 0;
-    const elements = new Set((run.modules ?? []).map((m: any) => m.element === "terra" ? "termo" : m.element));
+    const elements = getAssaultDiscoveredEnergies(run);
     return GAIA_EVOLUTION_LOCK.requiredEnergies.filter(e => elements.has(e)).length;
   };
 
@@ -11949,6 +12100,21 @@ export default function NexusSerpentDemo() {
         speed = 5.2;
         statusEffect = "knockback";
         break;
+      case "magne":
+        name = "Magne Core"; damage = 10; cooldownSec = 0.95; range = 690; speed = 6.5;
+        statusEffect = "slow"; break;
+      case "aton":
+        name = "Aton Core"; damage = 17; cooldownSec = 1.35; range = 590; speed = 5.8;
+        break;
+      case "kinetrix":
+        name = "Kinetrix Core"; damage = 11; cooldownSec = 0.65; range = 750; speed = 9.0;
+        statusEffect = "knockback"; break;
+      case "h2nova":
+        name = "H2Nova Core"; damage = 12; cooldownSec = 1.1; range = 650; speed = 6.4;
+        break;
+      case "quantum":
+        name = "Quantum Core"; damage = 19; cooldownSec = 1.55; range = 710; speed = 8.0;
+        break;
       default:
         name = "Energy Core";
         damage = 10;
@@ -11958,8 +12124,8 @@ export default function NexusSerpentDemo() {
         break;
     }
 
-    const mult = rarity === "epic" ? 1.35 : rarity === "rare" ? 1.15 : 1.0;
-    const cdMult = rarity === "epic" ? 0.82 : rarity === "rare" ? 0.91 : 1.0;
+    const mult = rarity === "legendary" ? 1.55 : rarity === "epic" ? 1.35 : rarity === "rare" ? 1.15 : 1.0;
+    const cdMult = rarity === "legendary" ? 0.75 : rarity === "epic" ? 0.82 : rarity === "rare" ? 0.91 : 1.0;
 
     damage = Math.round(damage * mult);
     cooldownSec = cooldownSec * cdMult;
@@ -12177,6 +12343,20 @@ export default function NexusSerpentDemo() {
     );
   };
 
+  // RV-03: bounded work for Assault only; other gameplay modes retain their budgets.
+  const enforceAssaultLateGameBudget = () => {
+    const core = stateRef.current;
+    if (core.gameMode !== 'nexus_assault' || !core.assaultRun) return;
+    const run = core.assaultRun;
+    let hostile = 0, friendly = 0;
+    run.projectiles = run.projectiles.filter((p: any) =>
+      p.isEnemy ? ++hostile <= 135 : ++friendly <= 105
+    );
+    if (core.particles.length > 380) core.particles.splice(0, core.particles.length - 380);
+    if (core.floatingTexts.length > 65) core.floatingTexts.splice(0, core.floatingTexts.length - 65);
+    if (core.orbs.length > 80) core.orbs.splice(0, core.orbs.length - 80);
+  };
+
   const generateAssaultUpgrades = () => {
     const run = stateRef.current.assaultRun;
     if (!run) return;
@@ -12187,6 +12367,7 @@ export default function NexusSerpentDemo() {
     const hasHydro = run.modules.some((m: any) => m.element === 'hydro');
     const hasAero = run.modules.some((m: any) => m.element === 'aero');
     const hasTermo = run.modules.some((m: any) => m.element === 'termo' || m.element === 'terra');
+    const knownEnergies = getAssaultDiscoveredEnergies(run);
 
     const fotonLvl3 = run.modules.some((m: any) => m.element === 'foton' && m.level >= 3 && !m.mutation);
     const hydroLvl3 = run.modules.some((m: any) => m.element === 'hydro' && m.level >= 3 && !m.mutation);
@@ -12203,13 +12384,7 @@ export default function NexusSerpentDemo() {
     const weights = getUpgradeRarityWeightsForGrade(lastGrade);
 
     const getRarity = (): UpgradeRarity => {
-      const rand = Math.random() * 100;
-      const epicChance = weights.epic + (weights.legendary || 0);
-      const rareChance = weights.rare;
-      
-      if (rand < epicChance) return 'epic';
-      if (rand < epicChance + rareChance) return 'rare';
-      return 'common';
+      return rollAssaultRarity(weights, Math.random());
     };
 
     if (totalModules < 8) {
@@ -12257,6 +12432,83 @@ export default function NexusSerpentDemo() {
             const idx = getNextAvailableModuleBodyIndex(r);
             const mod = createOrbiCombatModule('termo', idx, rar);
             r.modules.push(mod);
+            return r;
+          }
+        });
+      }
+    }
+
+    // RV-02: complete the nine-energy roster with real core profiles, keeping room 1 familiar.
+    const advancedEnergies: { id: OrbiEnergyId; label: string; room: number }[] = [
+      { id: 'magne', label: 'MAGNE', room: 2 },
+      { id: 'aton', label: 'ATON', room: 3 },
+      { id: 'kinetrix', label: 'KINETRIX', room: 3 },
+      { id: 'h2nova', label: 'H2NOVA', room: 4 },
+      { id: 'quantum', label: 'QUANTUM', room: 5 }
+    ];
+    for (const energy of advancedEnergies) {
+      if (currentRoom < energy.room) continue;
+      const owned = run.modules.some((m: any) => m.element === energy.id);
+      const discovered = knownEnergies.has(energy.id);
+      if (!discovered && totalModules < 8) {
+        const rarity = getRarity();
+        availableOptions.push({
+          id: 'add_' + energy.id,
+          title: 'AÑADIR NÚCLEO ' + energy.label,
+          description: 'Nueva energía ORBI: ' + energy.label + '. Acopla un núcleo con identidad de ataque y progresión propias.',
+          rarity, element: energy.id,
+          apply: (r) => {
+            r.modules.push(createOrbiCombatModule(energy.id, getNextAvailableModuleBodyIndex(r), rarity));
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      } else if (!discovered && totalModules >= 8) {
+        availableOptions.push({
+          id: 'seal_' + energy.id,
+          title: 'SELLO GAIA · ' + energy.label,
+          description: 'Sincroniza ' + energy.label + ' para GAIA sin exceder los 8 núcleos físicos.',
+          rarity: 'epic', element: energy.id,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy.id]));
+            return r;
+          }
+        });
+      }
+      if (owned && run.modules.some((m: any) => m.element === energy.id && m.level < 5)) {
+        availableOptions.push({
+          id: 'upg_' + energy.id,
+          title: 'MEJORAR NÚCLEO ' + energy.label,
+          description: 'Mejora el núcleo ' + energy.label + ': daño, rango, velocidad y cadencia.',
+          rarity: getRarity(), element: energy.id,
+          apply: (r) => upgradeExistingCore(r, energy.id)
+        });
+      }
+    }
+    // Core acquisition remains optional; a dedicated choice allows deliberate body growth.
+    availableOptions.push({
+      id: 'body_resonance_filament',
+      title: 'FILAMENTO DE RESONANCIA · CUERPO +5',
+      description: 'Aumenta la longitud objetivo de la serpiente en 5 segmentos para facilitar el Cerco de Resonancia.',
+      rarity: 'rare',
+      apply: (r) => {
+        // A non-core selection additionally grants 0.5 growth in the selection handler.
+        growAssaultOrbiBodyProgress(4.5);
+        return r;
+      }
+    });
+    // When all core slots are occupied, the remaining base energies can be synchronized
+    // by seals (including Termo/Aero/Hydro if not acquired). Foton is initially equipped.
+    if (totalModules >= 8) {
+      for (const energy of GAIA_EVOLUTION_LOCK.requiredEnergies) {
+        if (knownEnergies.has(energy) || advancedEnergies.some(e => e.id === energy)) continue;
+        availableOptions.push({
+          id: 'seal_' + energy,
+          title: 'SELLO GAIA · ' + energy.toUpperCase(),
+          description: 'Registra esta energía para la sincronización GAIA sin ocupar un núcleo.',
+          rarity: 'epic', element: energy,
+          apply: (r) => {
+            r.gaiaSeals = Array.from(new Set([...(r.gaiaSeals ?? []), energy]));
             return r;
           }
         });
@@ -12469,6 +12721,36 @@ export default function NexusSerpentDemo() {
       return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
     });
 
+    // AS-R3: consume the boss reward once; never duplicate recovery or add paid loot.
+    if (run.guaranteedRareUpgrade) {
+      const rareIndex = copy.findIndex(card => card.rarity === 'rare' || card.rarity === 'epic' || card.rarity === 'legendary');
+      if (rareIndex >= 0) {
+        finalSelection.push(copy.splice(rareIndex, 1)[0]);
+      } else {
+        finalSelection.push({
+          id: 'boss_rare_plating',
+          title: 'RECOMPENSA DEL JEFE · CORAZA VITAL',
+          description: '+25 HP máximo y restaura 25 HP.',
+          rarity: 'rare',
+          apply: (r) => {
+            r.maxHp += 25;
+            r.hp = Math.min(r.maxHp, r.hp + 25);
+            return r;
+          }
+        });
+      }
+      run.guaranteedRareUpgrade = false;
+    }
+    // Avoid the 8/9 GAIA dead end: force an available discovery seal into the next panel.
+    if (totalModules >= 8 && knownEnergies.size < GAIA_EVOLUTION_LOCK.requiredEnergies.length) {
+      const sealIndex = copy.findIndex(card => card.id.startsWith('seal_'));
+      if (sealIndex >= 0 && finalSelection.length < 3) finalSelection.push(copy.splice(sealIndex, 1)[0]);
+    }
+    // Every third room guarantees a selectable body-growth card when length is below cap.
+    if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60 && finalSelection.length < 3) {
+      const growthIndex = copy.findIndex(card => card.id === 'body_resonance_filament');
+      if (growthIndex >= 0) finalSelection.push(copy.splice(growthIndex, 1)[0]);
+    }
     while (finalSelection.length < 3 && copy.length > 0) {
       const idx = Math.floor(Math.random() * Math.min(copy.length, 5));
       finalSelection.push(copy.splice(idx, 1)[0]);
@@ -12505,10 +12787,31 @@ export default function NexusSerpentDemo() {
 
     if (run.status !== 'upgrade_selection') return;
 
+    const gaiaBefore = getGaiaEnergyProgress(core.assaultRun);
     if (upgrade.apply) {
       core.assaultRun = upgrade.apply(core.assaultRun);
     } else if (upgrade.action) {
       upgrade.action(core);
+    }
+    // AS-R3: legendary cards always provide a genuine combat advantage on top of their base action.
+    // Paid currency and wallet are not involved.
+    if (upgrade.rarity === 'legendary' && core.assaultRun.modules) {
+      for (const module of core.assaultRun.modules) {
+        module.damage = Math.max(1, Math.round(module.damage * 1.08));
+        module.cooldown = Math.max(10, Math.round(module.cooldown * 0.96));
+        module.fireCooldown = module.cooldown;
+      }
+      showTemporaryMessage('RESONANCIA LEGENDARIA · PODER +8%');
+    }
+    const gaiaAfter = getGaiaEnergyProgress(core.assaultRun);
+    if (gaiaAfter > gaiaBefore) {
+      showTemporaryMessage(gaiaAfter === 9
+        ? 'GAIA LOCK 9/9 · SINCRONIZACIÓN COMPLETA'
+        : `SELLO GAIA · ${gaiaAfter}/9 ENERGÍAS`);
+      if (gaiaAfter === 9) {
+        triggerAudioSign('Red Vital Conectada', 'evolve');
+        triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'NEXUS_SPARK', 30);
+      }
     }
 
     // Serpent Growth and Slot Sync
@@ -12763,6 +13066,15 @@ export default function NexusSerpentDemo() {
     setAssaultRunHp(core.assaultRun.hp);
 
     core.assaultRun.guaranteedRareUpgrade = true;
+    // The ninth seal unlocks a challenge, not instant power: defeat a boss to earn GAIA.
+    const gaiaUnlocked = unlockGaiaByBoss(
+      core.assaultRun,
+      getGaiaEnergyProgress(core.assaultRun),
+      core.assaultRun.roomIndex,
+    );
+    if (gaiaUnlocked) {
+      showTemporaryMessage('GAIA · DESAFÍO SUPERADO · CONVERGENCIA EN LA SIGUIENTE SALA');
+    }
 
     triggerBurstSparks(boss.x, boss.y, boss.color, 'EVOLUTION_EXPLOSION', 35);
     triggerAudioSign('Red Vital Estabilizada', 'evolve');
@@ -13940,6 +14252,23 @@ export default function NexusSerpentDemo() {
     if (status === 'upgrade_selection' || status === 'transition_next_room') {
       return;
     }
+    // GAIA: after the qualifying boss, grant a single timed convergence in the next room.
+    const combatReady = status === 'combat' && !core.assaultRun.bossIntroActive &&
+      core.assaultRun.combatStarted !== false;
+    if (activateGaiaInNextRoom(core.assaultRun, core.assaultRun.roomIndex, combatReady)) {
+      showTemporaryMessage('GAIA · CONVERGENCIA VITAL ACTIVADA');
+      triggerAudioSign('Red Vital Conectada', 'evolve');
+      triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'EVOLUTION_EXPLOSION', 24);
+    }
+    if (combatReady && (core.assaultRun.gaiaAwakenedSec ?? 0) > 0) {
+      core.assaultRun.gaiaAwakenedSec = tickGaiaAwakening(core.assaultRun.gaiaAwakenedSec ?? 0, dt / 60);
+    }
+    // AS-R3: grade/leaderboard time counts real combat, never upgrade menus.
+    if (status === 'combat' && !core.assaultRun.bossIntroActive) {
+      core.assaultRun.roomClearDuration = Math.min(
+        3600, (core.assaultRun.roomClearDuration ?? 0) + Math.max(0, dt) / 60
+      );
+    }
 
     updateAssaultEnergyPickups(dt);
     updateAssaultStatusEffects(dt);
@@ -14462,6 +14791,7 @@ export default function NexusSerpentDemo() {
       }
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.modules.forEach((mod: any) => {
       if (mod.lastFireTime === undefined) mod.lastFireTime = 0;
       mod.lastFireTime += 1 * dt;
@@ -14469,26 +14799,13 @@ export default function NexusSerpentDemo() {
       const fireCooldownValue = mod.fireCooldown !== undefined ? mod.fireCooldown : mod.cooldown;
 
       if (mod.lastFireTime >= fireCooldownValue) {
-        let nearestEnemy: any = null;
-        let nearestDist = Infinity;
-        core.assaultRun.enemies.forEach((enemy: any) => {
-          if (enemy.health > 0 && !(enemy.spawnPortalTimer && enemy.spawnPortalTimer > 0)) {
-            const dist = Math.hypot(core.player.x - enemy.x, core.player.y - enemy.y);
-            if (dist < nearestDist) {
-              nearestDist = dist;
-              nearestEnemy = enemy;
-            }
-          }
-        });
-
+        // AS-R2: every core independently aims from its own physical segment.
+        const index = mod.bodyIndex !== undefined ? mod.bodyIndex : (mod.segmentIndex !== undefined ? mod.segmentIndex : 3);
+        const seg = core.player.segments[index] || core.player;
         const maxRange = mod.range !== undefined ? mod.range : 550;
-
-        if (nearestEnemy && nearestDist < maxRange) {
+        const nearestEnemy = selectNearestAssaultTarget(seg, core.assaultRun.enemies, maxRange);
+        if (nearestEnemy) {
           mod.lastFireTime = 0;
-          
-          const index = mod.bodyIndex !== undefined ? mod.bodyIndex : (mod.segmentIndex !== undefined ? mod.segmentIndex : 3);
-          const seg = core.player.segments[index] || core.player;
-          
           const dx = nearestEnemy.x - seg.x;
           const dy = nearestEnemy.y - seg.y;
           const dist = Math.hypot(dx, dy);
@@ -14602,7 +14919,10 @@ export default function NexusSerpentDemo() {
       if (!proj.isEnemy && proj.element) {
         const el = proj.element;
         const sig = ORBI_ATTACK_SIGNATURES[el];
-        if (sig && Math.random() < 0.45) {
+        // Adaptive trail sampling reduces late-game allocations without removing shots.
+        const trailChance = core.particles.length > 300 ? 0.07
+          : core.particles.length > 220 ? 0.17 : 0.45;
+        if (sig && Math.random() < trailChance) {
           let trailColor = sig.secondaryColor;
           if (core.gameMode === 'nexus_assault' && el === 'foton') {
             trailColor = "#8DFF00";
@@ -14899,6 +15219,7 @@ export default function NexusSerpentDemo() {
       return p.x > 0;
     });
 
+    enforceAssaultLateGameBudget();
     core.assaultRun.enemies = core.assaultRun.enemies.filter((enemy: any) => enemy.health > 0);
 
     // Call high-precision wave progression logic and failsafe checks
@@ -16313,8 +16634,8 @@ export default function NexusSerpentDemo() {
           joint.size = baseJointSize * (0.35 + ratio * 0.65);
         }
 
-        // AS-R1B: read-only loop preview built from the existing segment chain.
-        // No movement, collision, damage, auto-fire, drops or rewards are modified.
+        // AS-R2: existing loop detector now triggers one bounded impact per valid closure.
+        // Movement, collision, auto-fire, and other game modes remain untouched.
         if (ASSAULT_RESONANCE_PREVIEW_ENABLED &&
             core.gameMode === 'nexus_assault' && core.assaultRun) {
           const assaultRun = core.assaultRun;
@@ -16333,12 +16654,27 @@ export default function NexusSerpentDemo() {
             }
           );
           assaultResonancePreviewRef.current = outcome.state;
-          if (outcome.closedNow) {
+          if (outcome.closedNow && outcome.state.active) {
+            // AS-R2: damage is applied only on a valid new closure, never each frame.
+            const hits = calculateResonanceHits(
+              outcome.state.active.loop,
+              assaultRun.enemies,
+              assaultRun.modules.length,
+            );
+            for (const hit of hits) {
+              const enemy = assaultRun.enemies.find((target: any) => target.id === hit.id);
+              if (enemy && enemy.health > 0) {
+                applyAssaultDamageToEnemy(enemy, hit.damage, {
+                  element: 'foton',
+                  source: 'resonance_loop',
+                });
+              }
+            }
             core.floatingTexts.push({
-              id: 'resonance_preview_' + outcome.state.totalClosures,
+              id: 'resonance_hit_' + outcome.state.totalClosures,
               x: p.x,
               y: p.y - 55,
-              text: 'CERCO DE RESONANCIA · ' + outcome.targetsInside + ' OBJETIVOS',
+              text: 'CERCO DE RESONANCIA · ' + hits.length + ' IMPACTOS',
               color: '#67e8f9',
               life: 1.4,
               size: 17,
@@ -19712,7 +20048,7 @@ export default function NexusSerpentDemo() {
                   <div className="flex flex-col gap-1 w-44 sm:w-48 bg-[#030712]/90 border border-emerald-500/20 p-2 rounded-xl backdrop-blur-md shadow-xl">
                     <div className="flex justify-between items-center text-[8.5px] font-mono text-slate-350 gap-2 leading-none">
                       <span className="font-bold flex items-center gap-1 text-emerald-400">
-                        <Sparkles className="w-3 h-3 text-emerald-400" /> GAIA LOCK
+                        <Sparkles className="w-3 h-3 text-emerald-400" /> {(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0) > 0 ? 'GAIA · CONVERGENCIA' : 'GAIA LOCK'}
                       </span>
                       <span className="font-bold text-emerald-400">
                         {getGaiaEnergyProgress(stateRef.current.assaultRun)} / 9
@@ -19747,7 +20083,7 @@ export default function NexusSerpentDemo() {
                           ? 'DESARROLLA EL CUERPO PARA FORMAR CERCOS'
                           : 'RODEA ENEMIGOS Y CIERRA UN LAZO'}
                     </div>
-                    <div className="text-[7px] font-mono text-amber-300/90 mt-0.5">SIN DAÑO · PROTOTIPO</div>
+                    <div className="text-[7px] font-mono text-amber-300/90 mt-0.5">DAÑO DE ÁREA · AS-R2</div>
                   </div>
                 )}
 
@@ -20261,12 +20597,14 @@ export default function NexusSerpentDemo() {
                     const rarityColors: Record<string, string> = {
                       common: 'border-slate-800 bg-slate-950/60 hover:border-slate-500 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] text-slate-300',
                       rare: 'border-cyan-500/20 bg-cyan-950/15 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-300',
-                      epic: 'border-purple-500/30 bg-purple-950/15 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] text-purple-300'
+                      epic: 'border-purple-500/30 bg-purple-950/15 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] text-purple-300',
+                      legendary: 'border-amber-400/50 bg-amber-950/25 hover:border-amber-300 hover:shadow-[0_0_24px_rgba(251,191,36,0.28)] text-amber-200'
                     };
                     const badgeColors: Record<string, string> = {
                       common: 'bg-slate-900 border-slate-700 text-slate-400',
                       rare: 'bg-cyan-950/50 border-cyan-500/30 text-cyan-400',
-                      epic: 'bg-purple-950/50 border-purple-500/30 text-purple-400'
+                      epic: 'bg-purple-950/50 border-purple-500/30 text-purple-400',
+                      legendary: 'bg-amber-950/50 border-amber-400/50 text-amber-200'
                     };
                     return (
                       <button
@@ -21017,28 +21355,28 @@ export default function NexusSerpentDemo() {
           SCREEN OVERLAY: GUARDIAN CHOICE SELECTION SCREEN
           ======================================================== */}
       {gameState === 'CHOOSE' && (
-        <div className="orbi-guardian-choose absolute inset-0 z-45 p-4 sm:p-8 flex flex-col justify-between overflow-y-auto animate-fade-in">
+        <div className="orbi-guardian-choose orbi-guardian-choose-compact absolute inset-0 z-45 p-3 sm:p-4 flex flex-col justify-center gap-2 overflow-y-auto animate-fade-in">
           
           <div className="absolute w-[400px] h-[400px] -top-20 -left-20 rounded-full bg-cyan-600/5 blur-[100px] pointer-events-none" />
           <div className="absolute w-[400px] h-[400px] -bottom-20 -right-20 rounded-full bg-indigo-600/5 blur-[100px] pointer-events-none" />
 
           {/* Header */}
-          <div className="relative z-10 text-center max-w-3xl mx-auto mt-2 sm:mt-4">
+          <div className="relative z-10 text-center max-w-3xl mx-auto">
             <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest bg-cyan-950/30 px-2.5 py-1 border border-cyan-505/20 rounded">
               SALA DE ENLACE · GUARDIANES ENERGÉTICOS
             </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-wider mt-3">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-white tracking-wider mt-1">
               ELIGE TU SERPIENTE
             </h2>
-            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+            <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
               Cada energía transforma tu estrategia. Examina los poderes pasivos y activos antes de despertar tu núcleo.
             </p>
           </div>
 
-          {/* UI-AAA-02C: visual-only six-guardian cinematic gallery. */}
-          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-4 my-4">
+          {/* ASSAULT-RV-02H: nine-guardian cinematic gallery. */}
+          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-2 my-1">
             <div
-              className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-2xl border border-white/20 overflow-hidden min-h-[300px] sm:min-h-[390px] flex items-center justify-center'}
+              className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-xl border border-white/20 overflow-hidden min-h-[190px] sm:min-h-[250px] flex items-center justify-center'}
             >
               <div className="orbi-guardian-stage-bg" aria-hidden="true" />
               <div className="orbi-guardian-stage-rings" aria-hidden="true" />
@@ -21052,26 +21390,26 @@ export default function NexusSerpentDemo() {
                 <span className="text-[10px] font-mono tracking-wide text-slate-300">ORBI · ENLACE LISTO</span>
               </div>
             </div>
-            <div className="orbi-guardian-dossier rounded-2xl border border-cyan-400/25 p-5 sm:p-7 flex flex-col justify-center min-w-0">
+            <div className="orbi-guardian-dossier rounded-xl border border-cyan-400/25 p-3 sm:p-4 flex flex-col justify-center min-w-0">
               <span className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
-              <h3 className="font-display text-3xl sm:text-4xl font-black text-white mt-2">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
+              <h3 className="font-display text-xl sm:text-2xl font-black text-white mt-1">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
               <p className={'font-mono uppercase text-xs tracking-[0.16em] mt-1 ' + GUARDIAN_THEMES[selectedGuardian].textColor}>
                 {GUARDIAN_THEMES[selectedGuardian].element}
               </p>
-              <p className="text-slate-200 text-sm leading-relaxed mt-4">{GUARDIAN_THEMES[selectedGuardian].description}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-3.5">
+              <p className="text-slate-200 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].description}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-2">
                   <span className="block text-amber-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD PASIVA</span>
                   <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong>
-                  <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].passiveDescription}</p>
+                  <p className="text-slate-300 text-[10px] leading-relaxed mt-1">{GUARDIAN_THEMES[selectedGuardian].passiveDescription}</p>
                 </div>
-                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3.5">
+                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-2">
                   <span className="block text-cyan-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD ACTIVA</span>
                   <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong>
                   <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].abilityDescription}</p>
                 </div>
               </div>
-              <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3.5">
+              <div className="mt-2 rounded-lg border border-white/10 bg-white/5 p-2">
                 <span className="font-mono uppercase tracking-widest text-[10px] text-slate-400">MODIFICADORES BASE DE ESTE GUARDIÁN</span>
                 <div className="grid grid-cols-3 gap-2 text-center mt-2 font-mono">
                   <div><span className="text-[10px] text-slate-400 block">VELOCIDAD</span><strong className="text-white text-sm">x{GUARDIAN_THEMES[selectedGuardian].speedModifier.toFixed(2)}</strong></div>
@@ -21082,7 +21420,7 @@ export default function NexusSerpentDemo() {
             </div>
           </div>
           <div
-            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 mb-5"
+            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-3 gap-1.5 sm:gap-2 my-1"
             role="group"
             aria-label="Elegir guardián energético"
           >
@@ -21092,27 +21430,27 @@ export default function NexusSerpentDemo() {
                 key={theme.id}
                 aria-pressed={selectedGuardian === theme.id}
                 onClick={() => setSelectedGuardian(theme.id)}
-                className={'orbi-guardian-choice orbi-guardian-' + theme.id.toLowerCase() + ' rounded-xl border p-3 flex flex-col items-center gap-1.5 cursor-pointer transition-all ' +
+                className={'orbi-guardian-choice orbi-guardian-' + theme.id.toLowerCase() + ' rounded-lg border px-2 py-1 flex flex-row items-center justify-center gap-1.5 cursor-pointer transition-all ' +
                   (selectedGuardian === theme.id ? 'orbi-guardian-choice-selected border-cyan-300 bg-cyan-950/60' : 'border-white/15 bg-slate-950/75 hover:border-cyan-400/50')}
               >
                 <span className="orbi-guardian-token" aria-hidden="true">{GUARDIAN_SIGILS[theme.id]}</span>
-                <strong className="text-white text-xs sm:text-sm">{theme.name}</strong>
-                <span className="text-slate-300 text-[9px] uppercase font-mono text-center">{theme.element}</span>
+                <strong className="text-white text-[10px] sm:text-xs truncate">{theme.name}</strong>
+                <span className="sr-only">{theme.element}</span>
               </button>
             ))}
           </div>
 
           {/* Footer Navigation */}
-          <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center justify-between max-w-4xl mx-auto w-full mb-4 border-t border-cyan-400/20 pt-4">
+          <div className="relative z-10 flex flex-row gap-2 items-center justify-between max-w-4xl mx-auto w-full border-t border-cyan-400/20 pt-2">
             <button
               onClick={handleReturnToMain}
-              className="px-6 py-2.5 bg-transparent border border-white/10 rounded-xl text-slate-400 text-xs font-mono tracking-widest uppercase hover:text-white hover:bg-white/5 duration-150 cursor-pointer w-full sm:w-auto"
+              className="px-4 py-2 bg-transparent border border-white/10 rounded-xl text-slate-400 text-xs font-mono tracking-widest uppercase hover:text-white hover:bg-white/5 duration-150 cursor-pointer w-full sm:w-auto"
             >
               VOLVER AL INICIO
             </button>
             <button
               onClick={() => handleStartPlaying(selectedGuardian)}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-indigo-600 border border-cyan-400/20 rounded-xl text-white text-xs font-mono tracking-widest font-bold uppercase hover:from-cyan-500 hover:to-indigo-500 active:scale-95 cursor-pointer duration-150 w-full sm:w-auto"
+              className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 border border-cyan-400/20 rounded-xl text-white text-xs font-mono tracking-widest font-bold uppercase hover:from-cyan-500 hover:to-indigo-500 active:scale-95 cursor-pointer duration-150 w-full sm:w-auto"
             >
               CONFIRMAR GUARDIÁN · DESPERTAR NÚCLEO
             </button>

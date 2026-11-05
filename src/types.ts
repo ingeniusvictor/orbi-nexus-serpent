@@ -174,7 +174,7 @@ export type OrbiCoreElement = OrbiEnergyId;
 
 export type OrbiElementType = OrbiEnergyId | "terra";
 
-export type UpgradeRarity = "common" | "rare" | "epic";
+export type UpgradeRarity = "common" | "rare" | "epic" | "legendary";
 
 export interface OrbiCombatModule {
   id: string;

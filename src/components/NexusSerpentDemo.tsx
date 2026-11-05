@@ -35,6 +35,7 @@ import {
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
 import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
 import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
+import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -2519,7 +2520,8 @@ const OrbiSynergyPanel: React.FC<OrbiSynergyPanelProps> = ({ stateRef, hudMode }
             const rarityBg: Record<string, string> = {
               common: 'border-slate-800 bg-slate-950/40 text-slate-400',
               rare: 'border-cyan-500/20 bg-cyan-950/20 text-cyan-400',
-              epic: 'border-purple-500/30 bg-purple-950/20 text-purple-400'
+              epic: 'border-purple-500/30 bg-purple-950/20 text-purple-400',
+              legendary: 'border-amber-400/40 bg-amber-950/25 text-amber-300'
             };
             return (
               <div key={mod.id} className="flex flex-col gap-0.5 p-1 rounded bg-slate-950/50 border border-white/5">
@@ -12119,8 +12121,8 @@ export default function NexusSerpentDemo() {
         break;
     }
 
-    const mult = rarity === "epic" ? 1.35 : rarity === "rare" ? 1.15 : 1.0;
-    const cdMult = rarity === "epic" ? 0.82 : rarity === "rare" ? 0.91 : 1.0;
+    const mult = rarity === "legendary" ? 1.55 : rarity === "epic" ? 1.35 : rarity === "rare" ? 1.15 : 1.0;
+    const cdMult = rarity === "legendary" ? 0.75 : rarity === "epic" ? 0.82 : rarity === "rare" ? 0.91 : 1.0;
 
     damage = Math.round(damage * mult);
     cooldownSec = cooldownSec * cdMult;
@@ -12379,13 +12381,7 @@ export default function NexusSerpentDemo() {
     const weights = getUpgradeRarityWeightsForGrade(lastGrade);
 
     const getRarity = (): UpgradeRarity => {
-      const rand = Math.random() * 100;
-      const epicChance = weights.epic + (weights.legendary || 0);
-      const rareChance = weights.rare;
-      
-      if (rand < epicChance) return 'epic';
-      if (rand < epicChance + rareChance) return 'rare';
-      return 'common';
+      return rollAssaultRarity(weights, Math.random());
     };
 
     if (totalModules < 8) {
@@ -12724,7 +12720,7 @@ export default function NexusSerpentDemo() {
 
     // AS-R3: consume the boss reward once; never duplicate recovery or add paid loot.
     if (run.guaranteedRareUpgrade) {
-      const rareIndex = copy.findIndex(card => card.rarity === 'rare' || card.rarity === 'epic');
+      const rareIndex = copy.findIndex(card => card.rarity === 'rare' || card.rarity === 'epic' || card.rarity === 'legendary');
       if (rareIndex >= 0) {
         finalSelection.push(copy.splice(rareIndex, 1)[0]);
       } else {
@@ -12793,6 +12789,16 @@ export default function NexusSerpentDemo() {
       core.assaultRun = upgrade.apply(core.assaultRun);
     } else if (upgrade.action) {
       upgrade.action(core);
+    }
+    // AS-R3: legendary cards always provide a genuine combat advantage on top of their base action.
+    // Paid currency and wallet are not involved.
+    if (upgrade.rarity === 'legendary' && core.assaultRun.modules) {
+      for (const module of core.assaultRun.modules) {
+        module.damage = Math.max(1, Math.round(module.damage * 1.08));
+        module.cooldown = Math.max(10, Math.round(module.cooldown * 0.96));
+        module.fireCooldown = module.cooldown;
+      }
+      showTemporaryMessage('RESONANCIA LEGENDARIA · PODER +8%');
     }
     const gaiaAfter = getGaiaEnergyProgress(core.assaultRun);
     if (gaiaAfter > gaiaBefore) {
@@ -20568,12 +20574,14 @@ export default function NexusSerpentDemo() {
                     const rarityColors: Record<string, string> = {
                       common: 'border-slate-800 bg-slate-950/60 hover:border-slate-500 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] text-slate-300',
                       rare: 'border-cyan-500/20 bg-cyan-950/15 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-300',
-                      epic: 'border-purple-500/30 bg-purple-950/15 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] text-purple-300'
+                      epic: 'border-purple-500/30 bg-purple-950/15 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] text-purple-300',
+                      legendary: 'border-amber-400/50 bg-amber-950/25 hover:border-amber-300 hover:shadow-[0_0_24px_rgba(251,191,36,0.28)] text-amber-200'
                     };
                     const badgeColors: Record<string, string> = {
                       common: 'bg-slate-900 border-slate-700 text-slate-400',
                       rare: 'bg-cyan-950/50 border-cyan-500/30 text-cyan-400',
-                      epic: 'bg-purple-950/50 border-purple-500/30 text-purple-400'
+                      epic: 'bg-purple-950/50 border-purple-500/30 text-purple-400',
+                      legendary: 'bg-amber-950/50 border-amber-400/50 text-amber-200'
                     };
                     return (
                       <button

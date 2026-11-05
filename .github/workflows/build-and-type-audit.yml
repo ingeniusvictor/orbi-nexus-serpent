@@ -69,6 +69,8 @@ jobs:
           status=$?
           echo "TypeScript exit status: $status"
           grep -c 'error TS[0-9]*:' typescript-diagnostics.txt || true
+          # Keep the precise failing locations visible to the RV-08 audit.
+          sed -n '1,90p' typescript-diagnostics.txt
           exit "$status"
       - name: Upload diagnostics even if type check fails
         if: always()

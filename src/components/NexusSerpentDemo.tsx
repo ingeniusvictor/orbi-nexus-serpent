@@ -21291,28 +21291,28 @@ export default function NexusSerpentDemo() {
           SCREEN OVERLAY: GUARDIAN CHOICE SELECTION SCREEN
           ======================================================== */}
       {gameState === 'CHOOSE' && (
-        <div className="orbi-guardian-choose absolute inset-0 z-45 p-4 sm:p-8 flex flex-col justify-between overflow-y-auto animate-fade-in">
+        <div className="orbi-guardian-choose orbi-guardian-choose-compact absolute inset-0 z-45 p-3 sm:p-4 flex flex-col justify-center gap-2 overflow-y-auto animate-fade-in">
           
           <div className="absolute w-[400px] h-[400px] -top-20 -left-20 rounded-full bg-cyan-600/5 blur-[100px] pointer-events-none" />
           <div className="absolute w-[400px] h-[400px] -bottom-20 -right-20 rounded-full bg-indigo-600/5 blur-[100px] pointer-events-none" />
 
           {/* Header */}
-          <div className="relative z-10 text-center max-w-3xl mx-auto mt-2 sm:mt-4">
+          <div className="relative z-10 text-center max-w-3xl mx-auto">
             <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest bg-cyan-950/30 px-2.5 py-1 border border-cyan-505/20 rounded">
               SALA DE ENLACE · GUARDIANES ENERGÉTICOS
             </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-wider mt-3">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-white tracking-wider mt-1">
               ELIGE TU SERPIENTE
             </h2>
-            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+            <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
               Cada energía transforma tu estrategia. Examina los poderes pasivos y activos antes de despertar tu núcleo.
             </p>
           </div>
 
           {/* ASSAULT-RV-02H: nine-guardian cinematic gallery. */}
-          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-4 my-4">
+          <div className="orbi-guardian-showcase relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)] gap-2 my-1">
             <div
-              className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-2xl border border-white/20 overflow-hidden min-h-[300px] sm:min-h-[390px] flex items-center justify-center'}
+              className={'orbi-guardian-stage orbi-guardian-' + selectedGuardian.toLowerCase() + ' relative rounded-xl border border-white/20 overflow-hidden min-h-[190px] sm:min-h-[250px] flex items-center justify-center'}
             >
               <div className="orbi-guardian-stage-bg" aria-hidden="true" />
               <div className="orbi-guardian-stage-rings" aria-hidden="true" />
@@ -21326,26 +21326,26 @@ export default function NexusSerpentDemo() {
                 <span className="text-[10px] font-mono tracking-wide text-slate-300">ORBI · ENLACE LISTO</span>
               </div>
             </div>
-            <div className="orbi-guardian-dossier rounded-2xl border border-cyan-400/25 p-5 sm:p-7 flex flex-col justify-center min-w-0">
+            <div className="orbi-guardian-dossier rounded-xl border border-cyan-400/25 p-3 sm:p-4 flex flex-col justify-center min-w-0">
               <span className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">GUARDIÁN SELECCIONADO</span>
-              <h3 className="font-display text-3xl sm:text-4xl font-black text-white mt-2">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
+              <h3 className="font-display text-xl sm:text-2xl font-black text-white mt-1">{GUARDIAN_THEMES[selectedGuardian].name}</h3>
               <p className={'font-mono uppercase text-xs tracking-[0.16em] mt-1 ' + GUARDIAN_THEMES[selectedGuardian].textColor}>
                 {GUARDIAN_THEMES[selectedGuardian].element}
               </p>
-              <p className="text-slate-200 text-sm leading-relaxed mt-4">{GUARDIAN_THEMES[selectedGuardian].description}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-3.5">
+              <p className="text-slate-200 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].description}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                <div className="rounded-xl border border-amber-400/25 bg-amber-950/20 p-2">
                   <span className="block text-amber-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD PASIVA</span>
                   <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].passiveName}</strong>
-                  <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].passiveDescription}</p>
+                  <p className="text-slate-300 text-[10px] leading-relaxed mt-1">{GUARDIAN_THEMES[selectedGuardian].passiveDescription}</p>
                 </div>
-                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-3.5">
+                <div className="rounded-xl border border-cyan-400/25 bg-cyan-950/20 p-2">
                   <span className="block text-cyan-300 font-mono text-[10px] tracking-wider mb-1">HABILIDAD ACTIVA</span>
                   <strong className="text-white text-sm">{GUARDIAN_THEMES[selectedGuardian].abilityName}</strong>
                   <p className="text-slate-300 text-xs leading-relaxed mt-2">{GUARDIAN_THEMES[selectedGuardian].abilityDescription}</p>
                 </div>
               </div>
-              <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3.5">
+              <div className="mt-2 rounded-lg border border-white/10 bg-white/5 p-2">
                 <span className="font-mono uppercase tracking-widest text-[10px] text-slate-400">MODIFICADORES BASE DE ESTE GUARDIÁN</span>
                 <div className="grid grid-cols-3 gap-2 text-center mt-2 font-mono">
                   <div><span className="text-[10px] text-slate-400 block">VELOCIDAD</span><strong className="text-white text-sm">x{GUARDIAN_THEMES[selectedGuardian].speedModifier.toFixed(2)}</strong></div>
@@ -21356,7 +21356,7 @@ export default function NexusSerpentDemo() {
             </div>
           </div>
           <div
-            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-2 sm:gap-3 mb-5"
+            className="relative z-10 w-full max-w-[1450px] mx-auto grid grid-cols-3 gap-1.5 sm:gap-2 my-1"
             role="group"
             aria-label="Elegir guardián energético"
           >
@@ -21366,27 +21366,27 @@ export default function NexusSerpentDemo() {
                 key={theme.id}
                 aria-pressed={selectedGuardian === theme.id}
                 onClick={() => setSelectedGuardian(theme.id)}
-                className={'orbi-guardian-choice orbi-guardian-' + theme.id.toLowerCase() + ' rounded-xl border p-3 flex flex-col items-center gap-1.5 cursor-pointer transition-all ' +
+                className={'orbi-guardian-choice orbi-guardian-' + theme.id.toLowerCase() + ' rounded-lg border px-2 py-1 flex flex-row items-center justify-center gap-1.5 cursor-pointer transition-all ' +
                   (selectedGuardian === theme.id ? 'orbi-guardian-choice-selected border-cyan-300 bg-cyan-950/60' : 'border-white/15 bg-slate-950/75 hover:border-cyan-400/50')}
               >
                 <span className="orbi-guardian-token" aria-hidden="true">{GUARDIAN_SIGILS[theme.id]}</span>
-                <strong className="text-white text-xs sm:text-sm">{theme.name}</strong>
-                <span className="text-slate-300 text-[9px] uppercase font-mono text-center">{theme.element}</span>
+                <strong className="text-white text-[10px] sm:text-xs truncate">{theme.name}</strong>
+                <span className="sr-only">{theme.element}</span>
               </button>
             ))}
           </div>
 
           {/* Footer Navigation */}
-          <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center justify-between max-w-4xl mx-auto w-full mb-4 border-t border-cyan-400/20 pt-4">
+          <div className="relative z-10 flex flex-row gap-2 items-center justify-between max-w-4xl mx-auto w-full border-t border-cyan-400/20 pt-2">
             <button
               onClick={handleReturnToMain}
-              className="px-6 py-2.5 bg-transparent border border-white/10 rounded-xl text-slate-400 text-xs font-mono tracking-widest uppercase hover:text-white hover:bg-white/5 duration-150 cursor-pointer w-full sm:w-auto"
+              className="px-4 py-2 bg-transparent border border-white/10 rounded-xl text-slate-400 text-xs font-mono tracking-widest uppercase hover:text-white hover:bg-white/5 duration-150 cursor-pointer w-full sm:w-auto"
             >
               VOLVER AL INICIO
             </button>
             <button
               onClick={() => handleStartPlaying(selectedGuardian)}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-indigo-600 border border-cyan-400/20 rounded-xl text-white text-xs font-mono tracking-widest font-bold uppercase hover:from-cyan-500 hover:to-indigo-500 active:scale-95 cursor-pointer duration-150 w-full sm:w-auto"
+              className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 border border-cyan-400/20 rounded-xl text-white text-xs font-mono tracking-widest font-bold uppercase hover:from-cyan-500 hover:to-indigo-500 active:scale-95 cursor-pointer duration-150 w-full sm:w-auto"
             >
               CONFIRMAR GUARDIÁN · DESPERTAR NÚCLEO
             </button>

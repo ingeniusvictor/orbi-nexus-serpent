@@ -12722,10 +12722,30 @@ export default function NexusSerpentDemo() {
       return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
     });
 
+    // AS-R3: consume the boss reward once; never duplicate recovery or add paid loot.
+    if (run.guaranteedRareUpgrade) {
+      const rareIndex = copy.findIndex(card => card.rarity === 'rare' || card.rarity === 'epic');
+      if (rareIndex >= 0) {
+        finalSelection.push(copy.splice(rareIndex, 1)[0]);
+      } else {
+        finalSelection.push({
+          id: 'boss_rare_plating',
+          title: 'RECOMPENSA DEL JEFE · CORAZA VITAL',
+          description: '+25 HP máximo y restaura 25 HP.',
+          rarity: 'rare',
+          apply: (r) => {
+            r.maxHp += 25;
+            r.hp = Math.min(r.maxHp, r.hp + 25);
+            return r;
+          }
+        });
+      }
+      run.guaranteedRareUpgrade = false;
+    }
     // Avoid the 8/9 GAIA dead end: force an available discovery seal into the next panel.
     if (totalModules >= 8 && knownEnergies.size < GAIA_EVOLUTION_LOCK.requiredEnergies.length) {
       const sealIndex = copy.findIndex(card => card.id.startsWith('seal_'));
-      if (sealIndex >= 0) finalSelection.push(copy.splice(sealIndex, 1)[0]);
+      if (sealIndex >= 0 && finalSelection.length < 3) finalSelection.push(copy.splice(sealIndex, 1)[0]);
     }
     // Every third room guarantees a selectable body-growth card when length is below cap.
     if (currentRoom % 3 === 0 && stateRef.current.player.targetLength < 60 && finalSelection.length < 3) {
@@ -14213,6 +14233,12 @@ export default function NexusSerpentDemo() {
     const status = core.assaultRun.run?.status || 'combat';
     if (status === 'upgrade_selection' || status === 'transition_next_room') {
       return;
+    }
+    // AS-R3: grade/leaderboard time counts real combat, never upgrade menus.
+    if (status === 'combat' && !core.assaultRun.bossIntroActive) {
+      core.assaultRun.roomClearDuration = Math.min(
+        3600, (core.assaultRun.roomClearDuration ?? 0) + Math.max(0, dt) / 60
+      );
     }
 
     updateAssaultEnergyPickups(dt);

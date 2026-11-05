@@ -20,8 +20,11 @@ const checks = [
    src.includes('drawNexusAssaultRoom(ctx, dt);') &&
    src.includes('drawAssaultResonancePreview(') &&
    src.indexOf('drawAssaultResonancePreview(') > src.indexOf('drawNexusAssaultRoom(ctx, dt);')],
-  ['HUD is explicitly labeled visual / no damage',
-   src.includes('CERCO DE RESONANCIA') && src.includes('SIN DAÑO · PROTOTIPO')],
+  ['HUD identifies active resonance damage',
+   src.includes('CERCO DE RESONANCIA') && src.includes('DAÑO DE ÁREA · AS-R2')],
+  ['Damage applies only on new valid closures in Assault',
+   src.includes('if (outcome.closedNow && outcome.state.active)') &&
+   src.includes('calculateResonanceHits(') && src.includes("source: 'resonance_loop'")],
   ['Preview module has no direct gameplay state',
    !/stateRef|setAssaultRunHp|core\.assaultRun|localStorage|requestAnimationFrame/.test(preview)],
   ['Preview module cannot directly mutate HP, health, or energy',

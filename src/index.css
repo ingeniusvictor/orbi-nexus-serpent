@@ -286,3 +286,32 @@
     animation: none !important;
   }
 }
+
+/* ASSAULT-RV-04: nine-guardian compact selector. Desktop fits without routine scrolling. */
+.orbi-guardian-choose-compact .orbi-guardian-choice {
+  min-height: 43px;
+  max-height: 47px;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+.orbi-guardian-choose-compact .orbi-guardian-token {font-size:17px;flex:0 0 auto}
+.orbi-guardian-choose-compact .orbi-guardian-art {max-height:250px;width:min(94%,590px)}
+.orbi-guardian-choose-compact .orbi-guardian-dossier {min-height:0}
+.orbi-guardian-choose-compact .orbi-guardian-choice:hover {transform:translateY(-1px)}
+.orbi-guardian-kinetrix {--energy:#ffb84d}
+.orbi-guardian-h2nova {--energy:#7cffb2}
+.orbi-guardian-quantum {--energy:#ff8ff3}
+@media (min-width:1024px) and (min-height:700px) {
+  .orbi-guardian-choose-compact {gap:8px;justify-content:center}
+  .orbi-guardian-choose-compact .orbi-guardian-stage {min-height:250px;max-height:32vh}
+  .orbi-guardian-choose-compact .orbi-guardian-art {max-height:29vh}
+}
+@media(max-width:700px) {
+  .orbi-guardian-choose-compact .orbi-guardian-choice {min-height:43px;max-height:50px}
+  .orbi-guardian-choose-compact .orbi-guardian-stage {min-height:195px}
+}
+@media(max-height:690px) and (min-width:1024px) {
+  .orbi-guardian-choose-compact {justify-content:flex-start}
+  .orbi-guardian-choose-compact .orbi-guardian-stage {min-height:180px}
+  .orbi-guardian-choose-compact .orbi-guardian-art {max-height:180px}
+}

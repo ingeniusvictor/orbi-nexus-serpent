@@ -14,6 +14,8 @@ La base de desarrollo es `develop`; todas las funcionalidades nuevas están **so
 - ASSAULT-RV-03: prioridad sello GAIA 9/9, límites de efectos (PR #3); jugador reportó congelación en sala 25 ANTES de este ajuste, aún no revalidado.
 - **ASSAULT-RV-04 / AS-R2, en PR #4:** selector compacto, apuntado desde nodo, daño limitado del Cerco por evento, cronómetro de combate, recompensa rara única tras jefe y partículas adaptativas. Pruebas automáticas ≠ QA manual.
 - **ASSAULT-RV-05 / AS-R3 parcial, en PR #5:** categoría legendaria separada de épica, probabilidad independiente, arte de carta y bonificación real; quedan pendientes catálogo de mutaciones, fusiones y convergencia. PR #5 contiene acumulativamente los cambios anteriores.
+- **ASSAULT-RV-06 / GAIA parcial, PR #6:** tras 9/9 sellos, derrotar jefe habilita una sola Convergencia GAIA temporal (14 s) en sala posterior con bonos de daño; falta transformación artística definitiva y un desafío jefe específico.
+- **ASSAULT-RV-07 / AS-R5 parcial, PR #7:** director determinista habilita habitaciones élite y antesalas de jefe; faltan IA de nuevos arquetipos, obstáculos y director dinámico completo. PR #7 incluye acumulativamente los cambios anteriores.
 
 ## Próximos gates (orden obligatorio)
 ### AS-R2 QA de combate / rendimiento (inmediato)

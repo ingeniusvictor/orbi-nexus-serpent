@@ -174,7 +174,7 @@ export type OrbiCoreElement = OrbiEnergyId;
 
 export type OrbiElementType = OrbiEnergyId | "terra";
 
-export type UpgradeRarity = "common" | "rare" | "epic";
+export type UpgradeRarity = "common" | "rare" | "epic" | "legendary";
 
 export interface OrbiCombatModule {
   id: string;
@@ -327,6 +327,8 @@ export interface NexusAssaultRun {
   enemies: AssaultEnemy[];
   projectiles: AssaultProjectile[];
   modules: OrbiCombatModule[];
+  /** RV-02: nine GAIA energy discoveries independent of eight physical module slots. */
+  gaiaSeals?: OrbiEnergyId[];
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;
@@ -473,7 +475,7 @@ export interface Camera {
   smoothAngle?: number;
 }
 
-export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON';
+export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON' | 'KINETRIX' | 'H2NOVA' | 'QUANTUM';
 
 export interface GuardianTheme {
   id: GuardianId;

@@ -1,7 +1,7 @@
 /**
- * AS-R1B / Nexus Assault — zero-damage preview for the Cerco de Resonancia.
+ * AS-R2 / Nexus Assault — loop geometry preview with closure events for the Cerco de Resonancia.
  *
- * Does not touch player movement, enemies, HP, projectiles, modules, or other
+ * This module does not directly mutate movement, enemies, HP, projectiles, modules, or other
  * modes. One caller owns the simulation tick and renders its returned state.
  */
 import {
@@ -199,7 +199,7 @@ export function drawAssaultResonancePreview(
   ctx.fillText('CERCO DE RESONANCIA', labelX, labelY);
   ctx.font = '12px monospace';
   ctx.fillStyle = energyColor;
-  ctx.fillText('PREVISUALIZACIÓN · ' + active.targetsInside + ' OBJETIVOS · SIN DAÑO',
+  ctx.fillText('CERCO ACTIVO · ' + active.targetsInside + ' OBJETIVOS',
     labelX, labelY + 18);
   ctx.restore();
 }

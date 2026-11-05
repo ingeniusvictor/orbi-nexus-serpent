@@ -38,7 +38,7 @@ import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
 import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
-import { ADVANCED_MUTATION_SPECS, eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
+import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';

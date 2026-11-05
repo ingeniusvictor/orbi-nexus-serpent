@@ -35,6 +35,8 @@ jobs:
         run: bun run qa:assault-rv03
       - name: Validate node-local targeting and resonance damage
         run: bun run qa:assault-rv04
+      - name: Validate four-tier legendary card odds
+        run: bun run qa:assault-rv05
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

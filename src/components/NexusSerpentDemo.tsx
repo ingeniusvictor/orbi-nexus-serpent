@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
 import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
+import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -16575,8 +16576,8 @@ export default function NexusSerpentDemo() {
           joint.size = baseJointSize * (0.35 + ratio * 0.65);
         }
 
-        // AS-R1B: read-only loop preview built from the existing segment chain.
-        // No movement, collision, damage, auto-fire, drops or rewards are modified.
+        // AS-R2: existing loop detector now triggers one bounded impact per valid closure.
+        // Movement, collision, auto-fire, and other game modes remain untouched.
         if (ASSAULT_RESONANCE_PREVIEW_ENABLED &&
             core.gameMode === 'nexus_assault' && core.assaultRun) {
           const assaultRun = core.assaultRun;
@@ -16595,12 +16596,27 @@ export default function NexusSerpentDemo() {
             }
           );
           assaultResonancePreviewRef.current = outcome.state;
-          if (outcome.closedNow) {
+          if (outcome.closedNow && outcome.state.active) {
+            // AS-R2: damage is applied only on a valid new closure, never each frame.
+            const hits = calculateResonanceHits(
+              outcome.state.active.loop,
+              assaultRun.enemies,
+              assaultRun.modules.length,
+            );
+            for (const hit of hits) {
+              const enemy = assaultRun.enemies.find((target: any) => target.id === hit.id);
+              if (enemy && enemy.health > 0) {
+                applyAssaultDamageToEnemy(enemy, hit.damage, {
+                  element: 'foton',
+                  source: 'resonance_loop',
+                });
+              }
+            }
             core.floatingTexts.push({
-              id: 'resonance_preview_' + outcome.state.totalClosures,
+              id: 'resonance_hit_' + outcome.state.totalClosures,
               x: p.x,
               y: p.y - 55,
-              text: 'CERCO DE RESONANCIA · ' + outcome.targetsInside + ' OBJETIVOS',
+              text: 'CERCO DE RESONANCIA · ' + hits.length + ' IMPACTOS',
               color: '#67e8f9',
               life: 1.4,
               size: 17,
@@ -20009,7 +20025,7 @@ export default function NexusSerpentDemo() {
                           ? 'DESARROLLA EL CUERPO PARA FORMAR CERCOS'
                           : 'RODEA ENEMIGOS Y CIERRA UN LAZO'}
                     </div>
-                    <div className="text-[7px] font-mono text-amber-300/90 mt-0.5">SIN DAÑO · PROTOTIPO</div>
+                    <div className="text-[7px] font-mono text-amber-300/90 mt-0.5">DAÑO DE ÁREA · AS-R2</div>
                   </div>
                 )}
 

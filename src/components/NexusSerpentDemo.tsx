@@ -37,6 +37,7 @@ import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
 import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
+import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -11844,11 +11845,9 @@ export default function NexusSerpentDemo() {
   };
 
   const chooseNexusAssaultRoomType = (roomIndex: number): AssaultRoomType => {
-    if (roomIndex <= 2) return "normal";
-    if (roomIndex % 5 === 0) return "boss";
-    if (roomIndex % 4 === 0) return "swarm";
-    if (roomIndex % 7 === 0) return "rest";
-    return "normal";
+    // AS-R5: deterministic encounter schedule keeps bosses/sanctuaries/swarm,
+    // and makes pre-boss and elite chamber types available without new arena rules.
+    return selectAssaultEncounterType(roomIndex);
   };
 
   const getNexusAssaultRoomDifficulty = (roomIndex: number) => {

@@ -329,6 +329,11 @@ export interface NexusAssaultRun {
   modules: OrbiCombatModule[];
   /** RV-02: nine GAIA energy discoveries independent of eight physical module slots. */
   gaiaSeals?: OrbiEnergyId[];
+  /** One-time GAIA challenge unlocked by a boss after collecting all seals. */
+  gaiaChallengeComplete?: boolean;
+  gaiaChallengeRoom?: number;
+  gaiaAwakeningPending?: boolean;
+  gaiaAwakenedSec?: number;
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;

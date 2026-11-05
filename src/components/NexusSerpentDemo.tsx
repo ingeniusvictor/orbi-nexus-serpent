@@ -2573,6 +2573,21 @@ const OrbiSynergyPanel: React.FC<OrbiSynergyPanelProps> = ({ stateRef, hudMode }
           </div>
         )}
       </div>
+      {(assaultRun.selectedFusions?.length ?? 0) > 0 && (
+        <div className="flex flex-col gap-1 mt-1 pt-1 border-t border-amber-400/20">
+          <span className="text-[8px] font-mono text-amber-300 font-bold uppercase tracking-widest">
+            FUSIONES E5 · {assaultRun.selectedFusions?.length}/2
+          </span>
+          <div className="flex flex-wrap gap-0.5">
+            {assaultRun.selectedFusions?.map((fusionId: string) => (
+              <span key={fusionId}
+                className="text-[7px] font-mono font-bold text-amber-200 bg-amber-950/40 border border-amber-500/30 rounded px-1 py-0.5">
+                {FUSION_RECIPES.find(x => x.id === fusionId)?.title ?? fusionId}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

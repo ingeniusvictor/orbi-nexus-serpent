@@ -37,6 +37,8 @@ jobs:
         run: bun run qa:assault-rv04
       - name: Validate four-tier legendary card odds
         run: bun run qa:assault-rv05
+      - name: Validate boss-gated GAIA awakening and lifetime
+        run: bun run qa:assault-rv06
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

@@ -33,6 +33,7 @@ import {
   Skull
 } from 'lucide-react';
 import { GuardianShowcaseArt, GUARDIAN_SIGILS } from './GuardianShowcaseArt';
+import { selectNearestAssaultTarget } from '../gameplay/assault/targeting';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -14742,26 +14743,13 @@ export default function NexusSerpentDemo() {
       const fireCooldownValue = mod.fireCooldown !== undefined ? mod.fireCooldown : mod.cooldown;
 
       if (mod.lastFireTime >= fireCooldownValue) {
-        let nearestEnemy: any = null;
-        let nearestDist = Infinity;
-        core.assaultRun.enemies.forEach((enemy: any) => {
-          if (enemy.health > 0 && !(enemy.spawnPortalTimer && enemy.spawnPortalTimer > 0)) {
-            const dist = Math.hypot(core.player.x - enemy.x, core.player.y - enemy.y);
-            if (dist < nearestDist) {
-              nearestDist = dist;
-              nearestEnemy = enemy;
-            }
-          }
-        });
-
+        // AS-R2: every core independently aims from its own physical segment.
+        const index = mod.bodyIndex !== undefined ? mod.bodyIndex : (mod.segmentIndex !== undefined ? mod.segmentIndex : 3);
+        const seg = core.player.segments[index] || core.player;
         const maxRange = mod.range !== undefined ? mod.range : 550;
-
-        if (nearestEnemy && nearestDist < maxRange) {
+        const nearestEnemy = selectNearestAssaultTarget(seg, core.assaultRun.enemies, maxRange);
+        if (nearestEnemy) {
           mod.lastFireTime = 0;
-          
-          const index = mod.bodyIndex !== undefined ? mod.bodyIndex : (mod.segmentIndex !== undefined ? mod.segmentIndex : 3);
-          const seg = core.player.segments[index] || core.player;
-          
           const dx = nearestEnemy.x - seg.x;
           const dy = nearestEnemy.y - seg.y;
           const dist = Math.hypot(dx, dy);

@@ -19,7 +19,8 @@
     "qa:assault-revive-scope": "node scripts/qa-assault-revive-scope.mjs",
     "qa:assault-nine-energies": "node scripts/qa-assault-nine-energies.mjs",
     "qa:assault-rv03": "node scripts/qa-assault-rv03.mjs",
-    "qa:assault-rv04": "node --import tsx --test src/gameplay/assault/targeting.test.ts src/gameplay/assault/resonanceCombat.test.ts && node scripts/qa-assault-rv04-scope.mjs"
+    "qa:assault-rv04": "node --import tsx --test src/gameplay/assault/targeting.test.ts src/gameplay/assault/resonanceCombat.test.ts && node scripts/qa-assault-rv04-scope.mjs",
+    "qa:assault-rv05": "node --import tsx --test src/gameplay/assault/rarity.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -38,6 +38,8 @@ import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
 import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
+import { ADVANCED_MUTATION_SPECS, eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
+import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
 import { ASSAULT_RECONNECT_POLICY, canUseFreeAssaultRevive, computeAssaultRevivalHp, getAssaultReviveOffer, tickAssaultReviveShield } from '../gameplay/assault/assaultRevive';
 import {
@@ -10553,6 +10555,14 @@ export default function NexusSerpentDemo() {
       if (enemy.isBoss) finalDamage *= 0.45;
       else if (enemy.isElite) finalDamage *= 0.70;
     }
+    // E5 selected fusions apply only to direct module impacts; no recursion from AoE.
+    if (context?.source === 'projectile' && context.element) {
+      finalDamage *= fusionImpactMultiplier(
+        stateRef.current.assaultRun?.selectedFusions ?? [],
+        context.element,
+        enemy
+      );
+    }
 
     const gaiaSeconds = stateRef.current.gameMode === 'nexus_assault'
       ? (stateRef.current.assaultRun?.gaiaAwakenedSec ?? 0) : 0;
@@ -12629,6 +12639,39 @@ export default function NexusSerpentDemo() {
       });
     }
 
+    // RV-08 / E3: each advanced energy now offers a functional mutation at level 3.
+    for (const spec of eligibleAdvancedMutations(run.modules)) {
+      availableOptions.push({
+        id: 'mut_' + spec.id,
+        title: 'MUTACIÓN: ' + spec.title,
+        description: 'Requiere ' + spec.element.toUpperCase() + ' Nivel 3. ' + spec.description,
+        rarity: 'epic',
+        element: spec.element,
+        apply: (r) => {
+          const mod = r.modules.find(m => m.element === spec.element && m.level >= 3 && !m.mutation);
+          if (mod) mod.mutation = spec.id;
+          return r;
+        }
+      });
+    }
+    // E5 fusions require two mastered/mutated cores and a player-chosen card.
+    // Existing passive synergies remain independent; max two fusions per run.
+    for (const recipe of eligibleFusionRecipes(run.modules, run.selectedFusions ?? [])) {
+      availableOptions.push({
+        id: 'fusion_' + recipe.id,
+        title: 'FUSIÓN DUAL: ' + recipe.title,
+        description: recipe.description,
+        rarity: 'legendary',
+        element: recipe.elements[0],
+        apply: (r) => {
+          if (eligibleFusionRecipes(r.modules, r.selectedFusions ?? []).some(x => x.id === recipe.id)) {
+            r.selectedFusions = [...(r.selectedFusions ?? []), recipe.id];
+          }
+          return r;
+        }
+      });
+    }
+
     // IMPLEMENTACIÓN 9 — MEJORAS DEFENSIVAS BÁSICAS
     availableOptions.push({
       id: 'def_vital_plating',
@@ -12715,11 +12758,15 @@ export default function NexusSerpentDemo() {
     const finalSelection: AssaultUpgrade[] = [];
     const copy = [...availableOptions];
     
-    copy.sort((a, b) => {
-      const scoreA = a.id.startsWith('add') ? 3 : a.id.startsWith('mut') ? 2 : a.id.startsWith('upg') ? 1 : 0;
-      const scoreB = b.id.startsWith('add') ? 3 : b.id.startsWith('mut') ? 2 : b.id.startsWith('upg') ? 1 : 0;
-      return scoreB - scoreA + (Math.random() - 0.5) * 1.5;
-    });
+    // Fisher–Yates prevents the inconsistent random comparator from biasing cards.
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    const priority = (id: string) => id.startsWith('add_') ? 4 :
+      id.startsWith('fusion_') ? 3 : id.startsWith('mut_') ? 2 :
+      id.startsWith('upg_') ? 1 : 0;
+    copy.sort((a,b) => priority(b.id) - priority(a.id));
 
     // AS-R3: consume the boss reward once; never duplicate recovery or add paid loot.
     if (run.guaranteedRareUpgrade) {
@@ -14842,6 +14889,8 @@ export default function NexusSerpentDemo() {
               isEnemy: false,
               type: projType as any,
               statusEffect: statusEffect,
+              mutation: mod.mutation,
+              sourceModuleId: mod.id,
               piercing: piercing,
               hasPierced: [],
               element: elementNormalized,
@@ -15059,6 +15108,7 @@ export default function NexusSerpentDemo() {
         }
       } else {
         core.assaultRun.enemies.forEach((enemy: any) => {
+          if (proj.x === -9999 || proj.hasPierced?.includes(enemy.id)) return;
           if (enemy.health > 0 && !(enemy.spawnPortalTimer && enemy.spawnPortalTimer > 0)) {
             const dist = Math.hypot(proj.x - enemy.x, proj.y - enemy.y);
             if (dist < proj.radius + enemy.radius) {
@@ -15075,6 +15125,49 @@ export default function NexusSerpentDemo() {
                 element: element,
                 source: "projectile"
               });
+
+              // E3 advanced mutation events: one bounded effect per actual projectile hit.
+              if (proj.mutation && proj.sourceModuleId) {
+                const counts = core.assaultRun.mutationHitCounts ??
+                  (core.assaultRun.mutationHitCounts = {});
+                const hitNumber = (counts[proj.sourceModuleId] ?? 0) + 1;
+                counts[proj.sourceModuleId] = hitNumber;
+                const mutationEffect = calculateAdvancedMutationImpact({
+                  mutation: proj.mutation,
+                  damage: proj.damage,
+                  target: enemy,
+                  enemies: core.assaultRun.enemies,
+                  roll: Math.random(),
+                  impactNumber: hitNumber,
+                });
+                for (const extra of mutationEffect.secondaryHits) {
+                  const other = core.assaultRun.enemies.find((candidate: any) =>
+                    candidate.id === extra.id && candidate.health > 0);
+                  if (other) applyAssaultDamageToEnemy(other, extra.damage, {
+                    element,
+                    source: 'advanced_mutation'
+                  });
+                }
+                if (mutationEffect.echoDamage && enemy.health > 0) {
+                  applyAssaultDamageToEnemy(enemy, mutationEffect.echoDamage, {
+                    element, source: 'advanced_mutation'
+                  });
+                }
+                if (mutationEffect.pushDistance && enemy.health > 0) {
+                  const magnitude = Math.hypot(proj.vx, proj.vy) || 1;
+                  enemy.x += proj.vx / magnitude * mutationEffect.pushDistance;
+                  enemy.y += proj.vy / magnitude * mutationEffect.pushDistance;
+                }
+                if (mutationEffect.heal && core.assaultRun.hp < core.assaultRun.maxHp) {
+                  core.assaultRun.hp = Math.min(core.assaultRun.maxHp,
+                    core.assaultRun.hp + mutationEffect.heal);
+                  setAssaultRunHp(core.assaultRun.hp);
+                }
+                if (mutationEffect.secondaryHits.length || mutationEffect.echoDamage ||
+                    mutationEffect.pushDistance || mutationEffect.heal) {
+                  triggerBurstSparks(enemy.x, enemy.y, proj.color, 'NEXUS_SPARK', 3);
+                }
+              }
 
               if (element) {
                 triggerElementalAssaultImpact(enemy.x, enemy.y, element, proj.color);
@@ -15196,16 +15289,11 @@ export default function NexusSerpentDemo() {
                 setLastSynergyProc("prisma_solar");
               }
 
-              // Pierce logic
-              if (proj.piercing) {
-                if (!proj.hasPierced) proj.hasPierced = [];
-                if (!proj.hasPierced.includes(enemy.id)) {
-                  proj.hasPierced.push(enemy.id);
-                  if (proj.hasPierced.length >= 2) {
-                    proj.x = -9999;
-                  }
-                }
-              } else if (element !== 'foton') {
+              // Record impact IDs. Only Solar Lance may hit two distinct targets.
+              // Unmutated Foton no longer re-damages the same enemy on every frame.
+              if (!proj.hasPierced) proj.hasPierced = [];
+              proj.hasPierced.push(enemy.id);
+              if (!proj.piercing || proj.hasPierced.length >= 2) {
                 proj.x = -9999;
               }
             }

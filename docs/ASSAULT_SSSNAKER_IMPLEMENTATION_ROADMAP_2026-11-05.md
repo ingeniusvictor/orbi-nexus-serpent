@@ -16,6 +16,8 @@ La base de desarrollo es `develop`; todas las funcionalidades nuevas están **so
 - **ASSAULT-RV-05 / AS-R3 parcial, en PR #5:** categoría legendaria separada de épica, probabilidad independiente, arte de carta y bonificación real; quedan pendientes catálogo de mutaciones, fusiones y convergencia. PR #5 contiene acumulativamente los cambios anteriores.
 - **ASSAULT-RV-06 / GAIA parcial, PR #6:** tras 9/9 sellos, derrotar jefe habilita una sola Convergencia GAIA temporal (14 s) en sala posterior con bonos de daño; falta transformación artística definitiva y un desafío jefe específico.
 - **ASSAULT-RV-07 / AS-R5 parcial, PR #7:** director determinista habilita habitaciones élite y antesalas de jefe; faltan IA de nuevos arquetipos, obstáculos y director dinámico completo. PR #7 incluye acumulativamente los cambios anteriores.
+- **ASSAULT-RV-08 / AS-R3 parcial, PR #8:** cinco mutaciones E3 avanzadas de impacto acotado (MAGNE, ATON, KINETRIX, H2NOVA, QUANTUM), tres fusiones E5 elegibles con dos núcleos mutados nivel 3, indicadores HUD independientes, protección de impacto único de Fotón y shuffle estable de cartas. QA unitario y tipo sin error en la ejecución revisada. Pendiente QA manual y balance.
+
 
 ## Próximos gates (orden obligatorio)
 ### AS-R2 QA de combate / rendimiento (inmediato)
@@ -26,10 +28,10 @@ La base de desarrollo es `develop`; todas las funcionalidades nuevas están **so
 5. Reparar diagnósticos TypeScript no bloqueantes; no aceptar `qa:gate` como aprobado si falla.
 6. Evitar desbordamiento tras repetidas transiciones, reinicios y renacimiento gratuito.
 
-### AS-R3 progresión roguelite y rarezas (pendiente)
+### AS-R3 progresión roguelite y rarezas (parcial; E4 y E6 pendientes)
 - Separar rarezas comunes, raras, épicas y legendarias con efectos reales y catálogo validado; no convertir legendaria en sinónimo de épica.
 - Garantía de jefe consumida exactamente una vez, tres cartas diversas, elecciones sin duplicados e imposibles excluidos; pruebas basadas en semillas.
-- Cartas E1–E6: niveles de núcleo, mutaciones de nueve elementos, sobrecarga, fusión seleccionada y convergencia; prerequisitos y límites.
+- Cartas E1–E6: niveles y nueve mutaciones E3 disponibles; tres fusiones duales E5 implementadas. **Pendiente** sobrecarga E4, convergencia E6 y ampliación progresiva de recetas con límites.
 - Filamento de crecimiento y ranuras físicas desacoplados; E1–E8 por progreso acumulativo, no gasto de energía.
 
 ### AS-R4 convergencias y GAIA (pendiente)

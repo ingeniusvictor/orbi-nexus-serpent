@@ -10,7 +10,7 @@ for (const phrase of [
   "core.floatingTexts.length > 65",
   "core.orbs.length > 80",
   "const sealIndex = copy.findIndex(card => card.id.startsWith('seal_'))",
-  "if (sealIndex >= 0) finalSelection.push",
+  "if (sealIndex >= 0 && finalSelection.length < 3) finalSelection.push",
   "GAIA LOCK 9/9 · SINCRONIZACIÓN COMPLETA",
   "const gaiaBefore = getGaiaEnergyProgress",
   "const gaiaAfter = getGaiaEnergyProgress",

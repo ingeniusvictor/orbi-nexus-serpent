@@ -2,9 +2,9 @@ name: Nexus Serpent - Build and Type Audit
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, feature/assault-rv10b-telegraphed-artillery]
   pull_request:
-    branches: [main, develop, feature/assault-rv02-nine-energies]
+    branches: [main, develop, feature/assault-rv02-nine-energies, feature/assault-rv10-tactical-formations]
   workflow_dispatch:
 
 permissions:
@@ -45,6 +45,8 @@ jobs:
         run: bun run qa:assault-rv08
       - name: Validate Foton, core spawn and GAIA supreme form
         run: bun run qa:assault-rv09
+      - name: Validate RV-10A and RV-10B tactical combat regression
+        run: bun run qa:assault-rv10b
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

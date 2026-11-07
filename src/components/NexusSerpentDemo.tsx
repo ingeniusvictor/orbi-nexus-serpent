@@ -19042,8 +19042,10 @@ export default function NexusSerpentDemo() {
 
     // Layered Render of continuous glowing energy stream
     if (canonicalProfile.stage >= 5) {
-      buildTaperedPath(3.4, isGaiaActive ? '#22c55e' : theme.auraColor, 0.18 * canonicalProfile.auraScale * bodyOuterGlowAlpha);
-      buildTaperedPath(2.0, isGaiaActive ? '#DFFF4A' : theme.secondaryColor, 0.35 * canonicalProfile.trailScale * bodyMidGlowAlpha);
+      buildTaperedPath(isGaiaActive ? 1.75 : 3.4, isGaiaActive ? '#0d7567' : theme.auraColor,
+        (isGaiaActive ? 0.10 : 0.18) * canonicalProfile.auraScale * bodyOuterGlowAlpha);
+      buildTaperedPath(isGaiaActive ? 1.25 : 2.0, isGaiaActive ? '#62fcdc' : theme.secondaryColor,
+        (isGaiaActive ? 0.22 : 0.35) * canonicalProfile.trailScale * bodyMidGlowAlpha);
     }
 
     if (canonicalProfile.mode === 'vital_flow') {
@@ -19052,21 +19054,25 @@ export default function NexusSerpentDemo() {
     }
 
     // Layer 1: Massive soft space aura glow
-    buildTaperedPath(2.4, isGaiaActive ? '#22c55e' : theme.auraColor, 0.25 * canonicalProfile.auraScale * bodyOuterGlowAlpha);
+    buildTaperedPath(isGaiaActive ? 1.55 : 2.4, isGaiaActive ? '#0d7567' : theme.auraColor,
+      (isGaiaActive ? 0.12 : 0.25) * canonicalProfile.auraScale * bodyOuterGlowAlpha);
 
     // Layer 2: Plasma flow volume
-    buildTaperedPath(1.4, isGaiaActive ? '#22c55e' : theme.secondaryColor, 0.45 * canonicalProfile.trailScale * bodyMidGlowAlpha);
+    buildTaperedPath(isGaiaActive ? 1.12 : 1.4, isGaiaActive ? '#36ceb6' : theme.secondaryColor,
+      (isGaiaActive ? 0.26 : 0.45) * canonicalProfile.trailScale * bodyMidGlowAlpha);
 
     // Layer 2.5: Energy scale skin pattern (Módulo 5R.4 / Sección 3)
     if (ENABLE_ENERGY_SCALE_SKIN_PATTERN) {
-      buildEnergyScalesPattern(baseWidth, isGaiaActive ? '#DFFF4A' : theme.primaryColor, scaleLineAlpha);
+      buildEnergyScalesPattern(baseWidth, isGaiaActive ? '#dffff5' : theme.primaryColor,
+        isGaiaActive ? scaleLineAlpha * 0.5 : scaleLineAlpha);
     }
 
     // Layer 3: Central glowing core (Central energy filament)
-    buildTaperedPath(0.72, isGaiaActive ? '#DFFF4A' : theme.primaryColor, centralFilamentAlpha * bodyRibbonAlpha);
+    buildTaperedPath(isGaiaActive ? 0.55 : 0.72, isGaiaActive ? '#dbfff6' : theme.primaryColor,
+      centralFilamentAlpha * bodyRibbonAlpha);
 
     // Layer 4: Pure white-hot innermost fusion spine
-    buildTaperedPath(0.24, isGaiaActive ? '#FFE875' : '#ffffff', 1.0);
+    buildTaperedPath(isGaiaActive ? 0.20 : 0.24, '#ffffff', 1.0);
 
     // Draw spaced canonical internal cores
     const totalSegs = p.segments.length;

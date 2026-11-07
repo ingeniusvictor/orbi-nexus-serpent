@@ -16,7 +16,15 @@
     "qa:assault-geometry": "node --import tsx --test src/gameplay/assault/resonanceGeometry.test.ts src/gameplay/assault/resonancePreview.test.ts",
     "qa:assault-preview-scope": "node scripts/qa-assault-preview-scope.mjs",
     "qa:assault-revive": "node --import tsx --test src/gameplay/assault/assaultRevive.test.ts",
-    "qa:assault-revive-scope": "node scripts/qa-assault-revive-scope.mjs"
+    "qa:assault-revive-scope": "node scripts/qa-assault-revive-scope.mjs",
+    "qa:assault-nine-energies": "node scripts/qa-assault-nine-energies.mjs",
+    "qa:assault-rv03": "node scripts/qa-assault-rv03.mjs",
+    "qa:assault-rv04": "node --import tsx --test src/gameplay/assault/targeting.test.ts src/gameplay/assault/resonanceCombat.test.ts && node scripts/qa-assault-rv04-scope.mjs",
+    "qa:assault-rv05": "node --import tsx --test src/gameplay/assault/rarity.test.ts",
+    "qa:assault-rv06": "node --import tsx --test src/gameplay/assault/gaiaAwakening.test.ts",
+    "qa:assault-rv07": "node --import tsx --test src/gameplay/assault/encounterDirector.test.ts",
+    "qa:assault-rv08": "node --import tsx --test src/gameplay/assault/advancedMutations.test.ts src/gameplay/assault/fusionRecipes.test.ts && node scripts/qa-assault-rv08-scope.mjs",
+    "qa:assault-rv09": "node --import tsx --test src/gameplay/assault/moduleAnchors.test.ts src/gameplay/assault/gaiaSupremeVisual.test.ts && node scripts/qa-assault-rv09-visual.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

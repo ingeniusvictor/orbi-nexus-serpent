@@ -174,7 +174,7 @@ export type OrbiCoreElement = OrbiEnergyId;
 
 export type OrbiElementType = OrbiEnergyId | "terra";
 
-export type UpgradeRarity = "common" | "rare" | "epic";
+export type UpgradeRarity = "common" | "rare" | "epic" | "legendary";
 
 export interface OrbiCombatModule {
   id: string;
@@ -192,7 +192,8 @@ export interface OrbiCombatModule {
   projectileCount: number;
   autoFire: boolean;
   statusEffect?: "slow" | "knockback";
-  mutation?: "solar_lance" | "tidal_siphon" | "wind_split" | "terra_pulse" | "termo_pulse";
+  mutation?: "solar_lance" | "tidal_siphon" | "wind_split" | "terra_pulse" | "termo_pulse" |
+    "magnetic_chain" | "aton_fission" | "kinetrix_impulse" | "h2nova_repair" | "quantum_echo";
   attackType?: string;
   
   // Backwards compatibility properties
@@ -285,6 +286,9 @@ export interface AssaultProjectile {
   isWindSplit?: boolean;
   attackType?: string;
   element?: string;
+  /** RV-08: mutation travels with the projectile from its source core. */
+  mutation?: OrbiCombatModule['mutation'];
+  sourceModuleId?: string;
   coreColor?: string;
   glowColor?: string;
   trailColor?: string;
@@ -327,10 +331,23 @@ export interface NexusAssaultRun {
   enemies: AssaultEnemy[];
   projectiles: AssaultProjectile[];
   modules: OrbiCombatModule[];
+  /** RV-02: nine GAIA energy discoveries independent of eight physical module slots. */
+  gaiaSeals?: OrbiEnergyId[];
+  /** One-time GAIA challenge unlocked by a boss after collecting all seals. */
+  gaiaChallengeComplete?: boolean;
+  gaiaChallengeRoom?: number;
+  gaiaAwakeningPending?: boolean;
+  gaiaAwakenedSec?: number;
+  /** RV-09: one-time presentation ripple; unlock is derived from nine seals. */
+  gaiaSupremeFlashSec?: number;
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;
-  synergiesActive?: string[]; // track active synergies
+  synergiesActive?: string[]; // passive resonances, independent from chosen fusions
+  /** RV-08: chosen E5 recipes, never purchases; max two. */
+  selectedFusions?: string[];
+  /** RV-08: successful mutation impacts counted per module for bounded healing. */
+  mutationHitCounts?: Record<string, number>;
   waveClearTimer?: number;
   roomClearDuration?: number;
   tailHitsThisRoom?: number;
@@ -473,7 +490,7 @@ export interface Camera {
   smoothAngle?: number;
 }
 
-export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON';
+export type GuardianId = 'FOTON' | 'HYDRO' | 'AERO' | 'TERMO' | 'MAGNE' | 'ATON' | 'KINETRIX' | 'H2NOVA' | 'QUANTUM';
 
 export interface GuardianTheme {
   id: GuardianId;

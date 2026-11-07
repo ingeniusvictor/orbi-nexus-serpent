@@ -4,7 +4,7 @@ on:
   push:
     branches: [develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, feature/assault-rv02-nine-energies]
   workflow_dispatch:
 
 permissions:
@@ -29,6 +29,22 @@ jobs:
         run: bun run qa:assault-revive
       - name: Audit revival scope and wallet invariants
         run: bun run qa:assault-revive-scope
+      - name: Validate nine-energy Assault progression and GAIA isolation
+        run: bun run qa:assault-nine-energies
+      - name: Audit Assault RV-03 GAIA and late-game effect limits
+        run: bun run qa:assault-rv03
+      - name: Validate node-local targeting and resonance damage
+        run: bun run qa:assault-rv04
+      - name: Validate four-tier legendary card odds
+        run: bun run qa:assault-rv05
+      - name: Validate boss-gated GAIA awakening and lifetime
+        run: bun run qa:assault-rv06
+      - name: Validate deterministic elite and pre-boss room director
+        run: bun run qa:assault-rv07
+      - name: Validate RV-08 mutations and selected fusion recipes
+        run: bun run qa:assault-rv08
+      - name: Validate Foton, core spawn and GAIA supreme form
+        run: bun run qa:assault-rv09
       - name: Build web application
         run: bun run build
       - name: Upload build artifact
@@ -55,6 +71,8 @@ jobs:
           status=$?
           echo "TypeScript exit status: $status"
           grep -c 'error TS[0-9]*:' typescript-diagnostics.txt || true
+          # Keep the precise failing locations visible to the RV-08 audit.
+          sed -n '1,90p' typescript-diagnostics.txt
           exit "$status"
       - name: Upload diagnostics even if type check fails
         if: always()

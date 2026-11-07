@@ -43,6 +43,8 @@ jobs:
         run: bun run qa:assault-rv07
       - name: Validate RV-08 mutations and selected fusion recipes
         run: bun run qa:assault-rv08
+      - name: Validate Foton, core spawn and GAIA supreme form
+        run: bun run qa:assault-rv09
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

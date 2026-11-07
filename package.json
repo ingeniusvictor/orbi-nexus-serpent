@@ -25,7 +25,8 @@
     "qa:assault-rv07": "node --import tsx --test src/gameplay/assault/encounterDirector.test.ts",
     "qa:assault-rv08": "node --import tsx --test src/gameplay/assault/advancedMutations.test.ts src/gameplay/assault/fusionRecipes.test.ts && node scripts/qa-assault-rv08-scope.mjs",
     "qa:assault-rv09": "node --import tsx --test src/gameplay/assault/moduleAnchors.test.ts src/gameplay/assault/gaiaSupremeVisual.test.ts && node scripts/qa-assault-rv09-visual.mjs",
-    "qa:assault-rv10": "node --import tsx --test src/gameplay/assault/tacticalFormations.test.ts && npm run qa:assault-rv09"
+    "qa:assault-rv10": "node --import tsx --test src/gameplay/assault/tacticalFormations.test.ts && npm run qa:assault-rv09",
+    "qa:assault-rv10b": "node --import tsx --test src/gameplay/assault/tacticalFormations.test.ts src/gameplay/assault/artilleryTelegraph.test.ts && npm run qa:assault-rv09"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -39,6 +39,7 @@ import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
 import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
 import { resolveAssaultModuleAnchor, createInitialAssaultSegments } from '../gameplay/assault/moduleAnchors';
+import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/gaiaSupremeVisual';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -12867,6 +12868,7 @@ export default function NexusSerpentDemo() {
         ? 'GAIA LOCK 9/9 · SINCRONIZACIÓN COMPLETA'
         : `SELLO GAIA · ${gaiaAfter}/9 ENERGÍAS`);
       if (gaiaAfter === 9) {
+        core.assaultRun.gaiaSupremeFlashSec = 1.2;
         triggerAudioSign('Red Vital Conectada', 'evolve');
         triggerBurstSparks(core.player.x, core.player.y, '#34d399', 'NEXUS_SPARK', 30);
       }
@@ -14320,6 +14322,11 @@ export default function NexusSerpentDemo() {
     }
     if (combatReady && (core.assaultRun.gaiaAwakenedSec ?? 0) > 0) {
       core.assaultRun.gaiaAwakenedSec = tickGaiaAwakening(core.assaultRun.gaiaAwakenedSec ?? 0, dt / 60);
+    }
+    // Transformation VFX is independent from the permanent nine-seal silhouette.
+    if ((core.assaultRun.gaiaSupremeFlashSec ?? 0) > 0) {
+      core.assaultRun.gaiaSupremeFlashSec = Math.max(0,
+        (core.assaultRun.gaiaSupremeFlashSec ?? 0) - dt / 60);
     }
     // AS-R3: grade/leaderboard time counts real combat, never upgrade menus.
     if (status === 'combat' && !core.assaultRun.bossIntroActive) {
@@ -17647,8 +17654,17 @@ export default function NexusSerpentDemo() {
           drawSpaceAtmosphereNebula(ctx, cam);
           syncAssaultModulesToBodySlots();
           drawNexusAssaultRoom(ctx, dt);
-          // Render Player Avatar (Orbi Foton Flow - Ribbon + reactor core + stage wings)
+          // Existing ORBI body first; supreme geometry visibly replaces its silhouette
+          // only after all nine energies are discovered. Boss buff is independent.
           drawPremiumOrbiSerpent(ctx);
+          if (core.assaultRun && isGaiaSupremeUnlocked(core.assaultRun)) {
+            drawGaiaSupremeForm(ctx, core.player, {
+              time: core.vitalEnergyWind,
+              lowEffects: core.lowEffectsMode === true,
+              flashSec: core.assaultRun.gaiaSupremeFlashSec,
+              convergenceSec: core.assaultRun.gaiaAwakenedSec
+            });
+          }
           // Short, visible post-revival protection: world-space halo, no new physics.
           if (core.assaultRun && (core.assaultRun.reviveShieldSec ?? 0) > 0) {
             ctx.save();
@@ -18947,12 +18963,10 @@ export default function NexusSerpentDemo() {
       ctx.restore();
     };
 
-    // Gaia supreme convergence check (all 9 active elements)
-    const isGaiaActive = (canonicalProfile.mode === 'nexus_assault' && core.assaultRun && core.assaultRun.modules) ? (() => {
-      const elements = new Set(core.assaultRun.modules.map((m: any) => m.element));
-      const uniqueElements = Array.from(elements).filter(el => el !== 'gaia');
-      return uniqueElements.length >= 9;
-    })() : false;
+    // RV-09: 9 distinct energy discoveries, not 9 physical slots (only 8 exist).
+    // Shape is persistent for the run; boss buff has a separate time limit.
+    const isGaiaActive = canonicalProfile.mode === 'nexus_assault'
+      && isGaiaSupremeUnlocked(core.assaultRun);
 
     // Overriding visual label in HUD if Gaia is active
     if (isGaiaActive && p.visualProfile) {
@@ -20156,7 +20170,11 @@ export default function NexusSerpentDemo() {
                   <div className="flex flex-col gap-1 w-44 sm:w-48 bg-[#030712]/90 border border-emerald-500/20 p-2 rounded-xl backdrop-blur-md shadow-xl">
                     <div className="flex justify-between items-center text-[8.5px] font-mono text-slate-350 gap-2 leading-none">
                       <span className="font-bold flex items-center gap-1 text-emerald-400">
-                        <Sparkles className="w-3 h-3 text-emerald-400" /> {(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0) > 0 ? 'GAIA · CONVERGENCIA' : 'GAIA LOCK'}
+                        <Sparkles className="w-3 h-3 text-emerald-400" /> {(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0) > 0
+                          ? 'GAIA · CONVERGENCIA'
+                          : isGaiaSupremeUnlocked(stateRef.current.assaultRun)
+                            ? 'GAIA SUPREME'
+                            : 'GAIA LOCK'}
                       </span>
                       <span className="font-bold text-emerald-400">
                         {getGaiaEnergyProgress(stateRef.current.assaultRun)} / 9
@@ -20171,6 +20189,16 @@ export default function NexusSerpentDemo() {
                         }}
                       />
                     </div>
+                    {isGaiaSupremeUnlocked(stateRef.current.assaultRun) && (
+                      <div className="flex justify-between text-[8px] font-mono font-semibold text-emerald-200 mt-0.5">
+                        <span>FORMA SUPREMA · PERMANENTE</span>
+                        {(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0) > 0 && (
+                          <span className="text-fuchsia-300">
+                            {Math.ceil(stateRef.current.assaultRun.gaiaAwakenedSec ?? 0)}s
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 

@@ -338,6 +338,8 @@ export interface NexusAssaultRun {
   gaiaChallengeRoom?: number;
   gaiaAwakeningPending?: boolean;
   gaiaAwakenedSec?: number;
+  /** RV-09: one-time presentation ripple; unlock is derived from nine seals. */
+  gaiaSupremeFlashSec?: number;
   enemiesKilled: number;
   upgradesAvailable: AssaultUpgrade[];
   showUpgradeSelection: boolean;

@@ -41,6 +41,7 @@ import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirecto
 import { resolveAssaultModuleAnchor, createInitialAssaultSegments } from '../gameplay/assault/moduleAnchors';
 import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/gaiaSupremeVisual';
 import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
+import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -14624,7 +14625,13 @@ export default function NexusSerpentDemo() {
           // AIMED SHOT
           const diff = getNexusAssaultRoomDifficulty(core.assaultRun.roomIndex ?? 1);
           enemy.shootCooldown -= 1 * dt * diff.fireRateMultiplier;
+          // RV-10B: lock the artillery trajectory before firing, enabling a meaningful dodge.
+          if (enemy.shootCooldown > 0 && enemy.shootCooldown <= ARTILLERY_LOCK_FRAMES && !enemy.artilleryLockedAim) {
+            enemy.artilleryLockedAim = normalizedAim(dx, dy);
+          }
           if (enemy.shootCooldown <= 0) {
+            const aim = enemy.artilleryLockedAim || normalizedAim(dx, dy);
+            enemy.artilleryLockedAim = undefined;
             enemy.shootCooldown = 160 + Math.random() * 50;
             if (dist > 0 && dist < 480) {
               const budget = getEnemyProjectileBudget(core.assaultRun.roomIndex ?? 1, core.assaultRun.roomType ?? 'normal');
@@ -14633,8 +14640,8 @@ export default function NexusSerpentDemo() {
                   id: 'spitter_proj_' + Date.now() + '_' + Math.random(),
                   x: enemy.x,
                   y: enemy.y,
-                  vx: (dx / dist) * 4.6 * diff.projectileSpeedMultiplier,
-                  vy: (dy / dist) * 4.6 * diff.projectileSpeedMultiplier,
+                  vx: aim.x * 4.6 * diff.projectileSpeedMultiplier,
+                  vy: aim.y * 4.6 * diff.projectileSpeedMultiplier,
                   radius: 6,
                   damage: 13,
                   color: '#ff3d3d',
@@ -15573,6 +15580,30 @@ export default function NexusSerpentDemo() {
         }
       } else {
         drawSerpentEnemy(ctx, enemy);
+        // RV-10B: aimed warning drawn only during the final 36 ticks.
+        if (enemy.archetype === 'spitter_serpent' && enemy.health > 0) {
+          const warning = getArtilleryTelegraph(
+            enemy.shootCooldown ?? Infinity,
+            core.player.x - enemy.x, core.player.y - enemy.y,
+            enemy.artilleryLockedAim
+          );
+          if (warning.warning) {
+            ctx.save();
+            ctx.strokeStyle = warning.locked ? '#ffad58' : '#ff6868';
+            ctx.lineWidth = warning.locked ? 2.2 : 1.4;
+            ctx.globalAlpha = 0.38 + warning.progress * 0.42;
+            ctx.setLineDash(warning.locked ? [] : [7, 7]);
+            ctx.beginPath();
+            ctx.moveTo(enemy.x + warning.direction.x * (enemy.radius + 6), enemy.y + warning.direction.y * (enemy.radius + 6));
+            ctx.lineTo(enemy.x + warning.direction.x * 175, enemy.y + warning.direction.y * 175);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, enemy.radius + 6 + 3 * warning.progress, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * warning.progress);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
       }
     });
 

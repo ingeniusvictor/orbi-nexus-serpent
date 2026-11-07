@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const src=readFileSync(new URL('../src/components/NexusSerpentDemo.tsx',import.meta.url),'utf8');
+// Normalize Windows CRLF and legacy CR line endings so static checks remain platform-independent.
+const src=readFileSync(new URL('../src/components/NexusSerpentDemo.tsx',import.meta.url),'utf8').replace(/\r\n?/g,'\n');
 const types=readFileSync(new URL('../src/types.ts',import.meta.url),'utf8');
 const checks=[
  ['Foton Assault laser length is compact, not 1.35x',src.includes('length *= 0.94;')&&!src.includes('length *= 1.35; // projectileLengthMultiplier')],

@@ -24,6 +24,7 @@ export function flankVelocity(enemy:Vec2,player:Vec2,side:-1|1,speed:number):Vec
  const radial=distance<185?-0.65:distance>310?0.75:0;
  const v=unit(aim.x*radial-aim.y*side,aim.y*radial+aim.x*side);
  const bounded=Number.isFinite(speed)?Math.max(0,Math.min(3,speed)):0;
+ if(bounded===0)return {x:0,y:0};
  return {x:v.x*bounded,y:v.y*bounded};
 }
 export function splitAllowance(roomIndex:number,activeEnemies:number,existingChildren:number):number{

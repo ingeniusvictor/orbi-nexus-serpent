@@ -15,7 +15,7 @@ const checks=[
  ['GAIA reveal only once when progress reaches ninth seal',src.includes('if (gaiaAfter === 9) {\n        core.assaultRun.gaiaSupremeFlashSec = 1.2;')],
  ['RV09B TERMO glow compacted in Assault without changing projectile radius',src.includes("core.gameMode === 'nexus_assault' ? 0.58 : 1.0")&&src.includes("core.gameMode === 'nexus_assault' ? 2.7 : 3.4")],
  ['RV09B GAIA redraws canonical elemental modules above supreme armor',src.includes('drawGaiaSupremeVisibleCores(ctx, core.assaultRun.modules, core.player')&&src.includes('resolveAssaultModuleAnchor(mod, player.segments, player)')],
- ['RV09B starter energy counted by discovered-energy progress',src.includes('modules: [\\n          startModule')&&src.includes('getGaiaEnergyProgress(stateRef.current.assaultRun)')],
+ ['RV09B starter energy counted by discovered-energy progress',/modules:\s*\[\s*startModule\s*\]/.test(src)&&src.includes('const startModule = createOrbiCombatModule(startEnergy, 3, "common")')&&src.includes('getGaiaEnergyProgress(stateRef.current.assaultRun)')],
  ['No new game loop or monetization introduced by RV-09',types.includes('gaiaSupremeFlashSec?: number;')],
 ];
 for(const [name,result] of checks){assert.ok(result,'visual QA: '+name);console.log('RV09 '+name+' OK');}

@@ -42,6 +42,7 @@ import { resolveAssaultModuleAnchor, createInitialAssaultSegments } from '../gam
 import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/gaiaSupremeVisual';
 import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
+import { nextCharge, flankVelocity, splitAllowance } from '../gameplay/assault/blackoutIntelligence';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -11236,6 +11237,8 @@ export default function NexusSerpentDemo() {
         alive: true
       };
       applyEnemyArchetype(enemy, archKey);
+      // Only a subset after room six: readable danger, not indiscriminate speed buffs.
+      if (roomIndex >= 6 && i % 5 === 0 && archKey === 'baby_serpent') enemy.blackoutCharge = true;
       enemiesList.push(enemy);
     }
 
@@ -11259,6 +11262,10 @@ export default function NexusSerpentDemo() {
         alive: true
       };
       applyEnemyArchetype(enemy, archKey);
+      if (roomIndex >= 5 && i % 4 === 0) {
+        enemy.blackoutFlanker = true;
+        enemy.flankSide = (i % 8 === 0 ? 1 : -1);
+      }
       enemiesList.push(enemy);
     }
 
@@ -11648,6 +11655,32 @@ export default function NexusSerpentDemo() {
       return;
     }
 
+    // RV-10C: only the original splitter can release children, at most once.
+    // Cap total living enemies, cap six child units and prevent recursion.
+    if (enemy.archetype === 'splitter_serpent' && !enemy.isElite &&
+        !enemy.blackoutChild && !enemy.blackoutDidSplit) {
+      enemy.blackoutDidSplit = true;
+      const living = core.assaultRun.enemies.filter((e: any) => e.health > 0).length;
+      const children = core.assaultRun.enemies.filter((e: any) => e.blackoutChild && e.health > 0).length;
+      const allowed = splitAllowance(core.assaultRun.roomIndex, living, children);
+      for (let i = 0; i < allowed; i++) {
+        const angle = i === 0 ? -0.6 : 0.6;
+        const child = {
+          id: 'blackout_fragment_' + enemy.id + '_' + i,
+          type: 'WISP' as const,
+          x: Math.max(60, Math.min(ASSAULT_WORLD_WIDTH - 60, enemy.x + Math.cos(angle) * 23)),
+          y: Math.max(60, Math.min(ASSAULT_WORLD_HEIGHT - 60, enemy.y + Math.sin(angle) * 23)),
+          vx: 0, vy: 0, radius: 9,
+          health: Math.max(8, Math.round(enemy.maxHealth * 0.15)),
+          maxHealth: Math.max(8, Math.round(enemy.maxHealth * 0.15)),
+          color: '#b46aff', shootCooldown: 0, lastShotTime: 0,
+          alive: true, blackoutChild: true,
+          spawnPortalTimer: 14, spawnPortalDuration: 14
+        };
+        applyEnemyArchetype(child, 'baby_serpent');
+        core.assaultRun.enemies.push(child);
+      }
+    }
     core.assaultRun.enemiesKilled++;
     setAssaultKills(core.assaultRun.enemiesKilled);
 
@@ -14379,7 +14412,26 @@ export default function NexusSerpentDemo() {
         const dist = Math.hypot(dx, dy);
 
         // --- MOVEMENT STYLE & VELOCITY CALCULATIONS ---
-        if (arch === 'baby_serpent') {
+        if (enemy.blackoutCharge && arch === 'baby_serpent') {
+          enemy.blackoutChargeState = nextCharge(enemy.blackoutChargeState, dx, dy, dt);
+          const phase = enemy.blackoutChargeState.phase;
+          const v = enemy.blackoutChargeState.direction;
+          const speed = phase === 'charge' ? 4.0 * speedMult : phase === 'recover' ? 0.7 * speedMult : 0;
+          enemy.vx = v.x * speed;
+          enemy.vy = v.y * speed;
+          enemy.x += enemy.vx * dt;
+          enemy.y += enemy.vy * dt;
+          if (phase === 'charge' && dist < enemy.radius + 22) {
+            enemy.health = 0;
+            hurtAssaultPlayer(12, 'head');
+            triggerBurstSparks(enemy.x, enemy.y, '#ff8844', 'BLACKOUT_SMOKE', 10);
+          }
+        } else if (enemy.blackoutFlanker && arch === 'armored_serpent') {
+          const v = flankVelocity(enemy, core.player, enemy.flankSide || 1, 1.6 * speedMult);
+          enemy.vx = v.x; enemy.vy = v.y;
+          enemy.x += enemy.vx * dt;
+          enemy.y += enemy.vy * dt;
+        } else if (arch === 'baby_serpent') {
           // FAST SLITHER toward player head with micro sinuous wave
           const speed = 2.4 * speedMult;
           const sinWave = Math.sin(core.vitalEnergyWind * 6.0) * 0.45;
@@ -15580,6 +15632,25 @@ export default function NexusSerpentDemo() {
         }
       } else {
         drawSerpentEnemy(ctx, enemy);
+        // RV-10C: short wind-up ring and dash lane for charged Blackout hunters.
+        if (enemy.blackoutCharge && enemy.blackoutChargeState &&
+            enemy.blackoutChargeState.phase === 'warning') {
+          const charge = enemy.blackoutChargeState;
+          ctx.save();
+          ctx.strokeStyle = '#ff9650';
+          ctx.globalAlpha = 0.55;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(enemy.x, enemy.y, enemy.radius + 8, -Math.PI / 2,
+            -Math.PI / 2 + 2 * Math.PI * (1 - charge.frames / 38));
+          ctx.stroke();
+          ctx.setLineDash([7, 6]);
+          ctx.beginPath();
+          ctx.moveTo(enemy.x, enemy.y);
+          ctx.lineTo(enemy.x + charge.direction.x * 110, enemy.y + charge.direction.y * 110);
+          ctx.stroke();
+          ctx.restore();
+        }
         // RV-10B: aimed warning drawn only during the final 36 ticks.
         if (enemy.archetype === 'spitter_serpent' && enemy.health > 0) {
           const warning = getArtilleryTelegraph(

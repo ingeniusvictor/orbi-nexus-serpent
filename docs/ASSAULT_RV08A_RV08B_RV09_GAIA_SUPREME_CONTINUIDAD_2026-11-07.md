@@ -58,3 +58,15 @@ No modificar `main` ni `develop`; crear PRs en borrador desde una rama de trabaj
 
 ## 5. Instrucción de ejecución al retomar
 Trabajar directamente en GitHub `ingeniusvictor/orbi-nexus-serpent`, usando `feature/assault-rv08-mutations-fusions` como punto de partida **solo si la rama sigue vigente**; comprobar HEAD antes de actuar. Implementar RV-08A, validar y luego RV-08B; crear RV-09 únicamente cuando ambas superen sus gates. No sustituir el objetivo de GAIA por un simple buff/HUD. Entregar comandos PowerShell completos para probar localmente y conservar `main` intacta.
+
+---
+
+## 6. Implementación real RV-08A/RV-08B/RV-09 (7 noviembre 2026)
+**Código implementado en** `feature/assault-rv09-supreme-form-implementation`. **PR:** https://github.com/ingeniusvictor/orbi-nexus-serpent/pull/9 (borrador). Esta sección sustituye el estado histórico de planificación de las fases 1–3.
+
+- **RV-08A implementada:** FOTON en Assault usa 0.94 en vez de 1.35 de longitud extraordinaria, glow y bloom focales menores, y partículas de estela reducidas. Hitbox y daño se mantienen.
+- **RV-08B implementada:** `moduleAnchors.ts` define un centro común para el cuerpo físico, proyectil, halo y núcleo. `createInitialAssaultSegments` crea los puntos del cuerpo antes del primer fotograma; se sincronizan los slots al iniciar y antes de dibujar Assault.
+- **RV-09 implementada:** `gaiaSupremeVisual.ts` dibuja una capa de silueta original con cuerpo blanco/verde vital, corona y crestas gemelas, nueve sigilos prismáticos, tail tip y halo de convergencia. El requisito de progreso se deriva de los nueve sellos conocidos, no del número de módulos. El render base reduce sus halos verdes para dar protagonismo a esta silueta.
+- **Reglas conservadas:** ocho núcleos físicos, nueve sellos GAIA, buff Convergencia temporal, revive, resto de modos, wallets sin pagos.
+- **Pruebas añadidas:** `src/gameplay/assault/moduleAnchors.test.ts`, `gaiaSupremeVisual.test.ts` y `scripts/qa-assault-rv09-visual.mjs`. Ver workflow `build-and-type-audit.yml`.
+- **Pendiente:** verificación manual del aspecto real en Chrome (pantallas del usuario), alineación instantánea de los nueve Guardianes, continuidad con ocho núcleos y 9/9, FPS de sala 25+. No confundir CI con certificación de gameplay.

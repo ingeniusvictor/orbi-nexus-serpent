@@ -57,3 +57,6 @@ La base de desarrollo es `develop`; todas las funcionalidades nuevas están **so
 - No añadir otro bucle de animación ni reescribir toda la serpiente. Los sistemas se integran en el tick existente.
 - Cada release exige build y tests, más prueba manual de los flujos que una CI no puede certificar.
 - Mantener PRs en borrador mientras existan bloqueos. No mezclar la economía Prismas con el combate.
+
+## Prioridad visual inmediata (7 de noviembre de 2026)
+La fase RV-08A corrige el tamaño de FOTON y halos de disparos; RV-08B elimina la desincronización inicial del núcleo; RV-09 implementará GAIA SUPREME FORM con apariencia persistente al completar 9/9 sellos y Convergencia temporal tras jefe. Ver [especificación y QA completos](ASSAULT_RV08A_RV08B_RV09_GAIA_SUPREME_CONTINUIDAD_2026-11-07.md). **Este documento es una planificación: esas tres fases aún no están implementadas.**

@@ -38,6 +38,7 @@ import { calculateResonanceHits } from '../gameplay/assault/resonanceCombat';
 import { rollAssaultRarity } from '../gameplay/assault/rarity';
 import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaDamageBonus } from '../gameplay/assault/gaiaAwakening';
 import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
+import { resolveAssaultModuleAnchor, createInitialAssaultSegments } from '../gameplay/assault/moduleAnchors';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -5635,6 +5636,8 @@ export default function NexusSerpentDemo() {
     if (gameMode === 'nexus_assault') {
       core.player.length = 12;
       core.player.targetLength = 12;
+      // RV-08B: seed body before assigning any core or displaying frame zero.
+      core.player.segments = createInitialAssaultSegments(core.player, core.player.angle, 12);
 
       const startEnergy = getSelectedAssaultHeroEnergy();
       const startModule = createOrbiCombatModule(startEnergy, 3, "common");
@@ -5675,6 +5678,7 @@ export default function NexusSerpentDemo() {
         pickups: [],
         particles: []
       };
+      syncAssaultModulesToBodySlots();
       setAssaultRunHp(100);
       setAssaultRunMaxHp(100);
       setAssaultRunRoom(1);
@@ -11155,15 +11159,7 @@ export default function NexusSerpentDemo() {
   const getAssaultModuleFireOrigin = (module: any): { x: number; y: number } => {
     const bodyPoints = getOrbiBodyPoints();
 
-    if (bodyPoints && bodyPoints.length > 2) {
-      const index = Math.max(1, Math.min(bodyPoints.length - 1, module.bodyIndex !== undefined ? module.bodyIndex : (module.segmentIndex !== undefined ? module.segmentIndex : 3)));
-      return {
-        x: bodyPoints[index].x,
-        y: bodyPoints[index].y,
-      };
-    }
-
-    return { x: stateRef.current.player.x, y: stateRef.current.player.y };
+    return resolveAssaultModuleAnchor(module, bodyPoints, stateRef.current.player);
   };
 
   const applyEnemyArchetype = (enemy: any, archKey: SerpentEnemyArchetype) => {
@@ -14862,8 +14858,7 @@ export default function NexusSerpentDemo() {
 
       if (mod.lastFireTime >= fireCooldownValue) {
         // AS-R2: every core independently aims from its own physical segment.
-        const index = mod.bodyIndex !== undefined ? mod.bodyIndex : (mod.segmentIndex !== undefined ? mod.segmentIndex : 3);
-        const seg = core.player.segments[index] || core.player;
+        const seg = resolveAssaultModuleAnchor(mod, core.player.segments, core.player);
         const maxRange = mod.range !== undefined ? mod.range : 550;
         const nearestEnemy = selectNearestAssaultTarget(seg, core.assaultRun.enemies, maxRange);
         if (nearestEnemy) {
@@ -15918,9 +15913,9 @@ export default function NexusSerpentDemo() {
     });
 
     core.assaultRun.modules.forEach((mod: any) => {
-      const seg = core.player.segments[mod.segmentIndex];
+      const seg = resolveAssaultModuleAnchor(mod, core.player.segments, core.player);
       if (seg) {
-        const pulse = 1.2 + Math.sin(core.vitalEnergyWind * 2.8 + mod.segmentIndex) * 0.2;
+        const pulse = 1.2 + Math.sin(core.vitalEnergyWind * 2.8 + Math.max(0,seg.index)) * 0.2;
         const palette = getOrbiCorePalette(mod.element);
         const radius = getAssaultCoreVisualRadius(mod) * pulse;
 
@@ -17650,6 +17645,7 @@ export default function NexusSerpentDemo() {
         } else if (core.gameMode === 'nexus_assault') {
           // Capa 1 & 2: Space Gradient with cinematic gas nebulas (Atmospheric Depth)
           drawSpaceAtmosphereNebula(ctx, cam);
+          syncAssaultModulesToBodySlots();
           drawNexusAssaultRoom(ctx, dt);
           // Render Player Avatar (Orbi Foton Flow - Ribbon + reactor core + stage wings)
           drawPremiumOrbiSerpent(ctx);

@@ -14994,13 +14994,13 @@ export default function NexusSerpentDemo() {
           const trailStyle = sig.trailStyle;
 
           let particleType: ParticleType = "NEXUS_SPARK";
-          let particleSize = proj.radius * 0.45;
+          let particleSize = proj.radius * (el === 'foton' && core.gameMode === 'nexus_assault' ? 0.27 : 0.45);
           let decayVal = 0.08 + Math.random() * 0.05;
           let glowEnabled = true;
 
           if (trailStyle === "linear_solar") {
             particleType = "SOLAR_SPARK";
-            decayVal = 0.12;
+            decayVal = el === 'foton' && core.gameMode === 'nexus_assault' ? 0.19 : 0.12;
           } else if (trailStyle === "liquid_trail") {
             particleType = "HYDRO_DROP";
             particleSize = proj.radius * 0.55;
@@ -15660,20 +15660,23 @@ export default function NexusSerpentDemo() {
         let height = proj.radius * 0.85;
 
         if (core.gameMode === 'nexus_assault' && element === 'foton') {
-          length *= 1.35; // projectileLengthMultiplier
-          height *= 0.72; // projectileWidthMultiplier
+          // RV-08A: compact, readable solar lance; damage and hitbox are untouched.
+          length *= 0.94;
+          height *= 0.78;
         }
 
         // Glow
-        const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, length * 1.5);
+        const solarAssault = core.gameMode === 'nexus_assault' && element === 'foton';
+        const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, length * (solarAssault ? 0.93 : 1.5));
         glowGrad.addColorStop(0, coreCol);
         glowGrad.addColorStop(0.35, mainCol);
-        glowGrad.addColorStop(0.7, glowCol);
+        glowGrad.addColorStop(0.7, solarAssault ? 'rgba(141,255,0,0.12)' : glowCol);
         glowGrad.addColorStop(1, "transparent");
 
         ctx.fillStyle = glowGrad;
         ctx.beginPath();
-        ctx.ellipse(0, 0, length * 1.2, height * 2.8, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, length * (solarAssault ? 0.92 : 1.2),
+          height * (solarAssault ? 1.55 : 2.8), 0, 0, Math.PI * 2);
         ctx.fill();
 
         // Inner Sharp lance
@@ -15688,7 +15691,7 @@ export default function NexusSerpentDemo() {
 
         // Bright white core highlights
         ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = (core.gameMode === 'nexus_assault' && element === 'foton') ? 2.5 : 1.5;
+        ctx.lineWidth = (core.gameMode === 'nexus_assault' && element === 'foton') ? 1.35 : 1.5;
         ctx.beginPath();
         ctx.moveTo(-length * 0.5, 0);
         ctx.lineTo(length * 0.65, 0);
@@ -15697,13 +15700,13 @@ export default function NexusSerpentDemo() {
         // Extra bloom and laser-like sharpness for Foton in Assault
         if (core.gameMode === 'nexus_assault' && element === 'foton') {
           ctx.save();
-          const bloomGrad = ctx.createRadialGradient(length * 0.8, 0, 0, length * 0.8, 0, height * 3.5);
-          bloomGrad.addColorStop(0, '#ffffff');
-          bloomGrad.addColorStop(0.35, '#8DFF00');
-          bloomGrad.addColorStop(1, 'transparent');
+          const bloomGrad = ctx.createRadialGradient(length * 0.65, 0, 0, length * 0.65, 0, height * 1.35);
+          bloomGrad.addColorStop(0, 'rgba(255,255,255,0.72)');
+          bloomGrad.addColorStop(0.35, 'rgba(141,255,0,0.15)');
+          bloomGrad.addColorStop(1, 'rgba(141,255,0,0)');
           ctx.fillStyle = bloomGrad;
           ctx.beginPath();
-          ctx.arc(length * 0.8, 0, height * 3.5, 0, Math.PI * 2);
+          ctx.arc(length * 0.65, 0, height * 1.35, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }

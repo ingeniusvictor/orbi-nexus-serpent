@@ -40,6 +40,7 @@ import { unlockGaiaByBoss, activateGaiaInNextRoom, tickGaiaAwakening, applyGaiaD
 import { selectAssaultEncounterType } from '../gameplay/assault/encounterDirector';
 import { resolveAssaultModuleAnchor, createInitialAssaultSegments } from '../gameplay/assault/moduleAnchors';
 import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/gaiaSupremeVisual';
+import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -11207,31 +11208,10 @@ export default function NexusSerpentDemo() {
     const baseCount = config.enemyCountBase;
     const totalCount = Math.max(1, Math.round(baseCount * diff.spawnCountMultiplier));
 
-    let wispCount = 0;
-    let droneCount = 0;
-    let spitterCount = 0;
-
-    if (roomType === 'swarm') {
-      wispCount = Math.round(totalCount * 0.65);
-      droneCount = Math.round(totalCount * 0.25);
-      spitterCount = Math.max(0, totalCount - wispCount - droneCount);
-    } else if (roomType === 'elite') {
-      wispCount = Math.max(1, Math.round(totalCount * 0.3));
-      droneCount = Math.max(1, Math.round(totalCount * 0.3));
-      spitterCount = Math.max(0, totalCount - wispCount - droneCount);
-    } else if (roomType === 'boss_preview') {
-      wispCount = 1;
-      droneCount = 1;
-      spitterCount = 1;
-    } else {
-      wispCount = Math.round(totalCount * 0.4);
-      droneCount = Math.round(totalCount * 0.4);
-      spitterCount = Math.max(0, totalCount - wispCount - droneCount);
-    }
-
-    if (wispCount === 0 && droneCount === 0 && spitterCount === 0) {
-      wispCount = 3;
-    }
+    // RV-10A: tactical diversity, with the existing difficulty-controlled population.
+    // No extra enemies, no new entity types and no modifications to boss/rest paths.
+    const { wispCount, droneCount, spitterCount } =
+      selectAssaultFormation(roomIndex, roomType, totalCount);
 
     for (let i = 0; i < wispCount; ++i) {
       const pos = getAssaultSpawnPos();

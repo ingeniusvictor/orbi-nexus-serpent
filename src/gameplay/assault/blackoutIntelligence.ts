@@ -10,7 +10,7 @@ export function unit(dx:number,dy:number):Vec2{
  return Number.isFinite(len)&&len>0.0001?{x:dx/len,y:dy/len}:{x:1,y:0};
 }
 export function nextCharge(state:ChargeState|undefined,dx:number,dy:number,dt:number):ChargeState {
- const step=Number.isFinite(dt)?Math.max(0,Math.min(dt,4)):1;
+ const step=Number.isFinite(dt)?Math.max(0,Math.min(dt,120)):1;
  if(!state)return {phase:'warning',frames:CHARGE_WARNING,direction:unit(dx,dy)};
  const frames=state.frames-step;
  if(frames>0)return {...state,frames};

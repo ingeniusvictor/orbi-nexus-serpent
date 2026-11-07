@@ -11238,7 +11238,7 @@ export default function NexusSerpentDemo() {
       };
       applyEnemyArchetype(enemy, archKey);
       // Only a subset after room six: readable danger, not indiscriminate speed buffs.
-      if (roomIndex >= 6 && i % 5 === 0 && archKey === 'baby_serpent') enemy.blackoutCharge = true;
+      if (roomIndex >= 6 && i % 5 === 0 && archKey === 'baby_serpent') (enemy as any).blackoutCharge = true;
       enemiesList.push(enemy);
     }
 
@@ -11263,8 +11263,8 @@ export default function NexusSerpentDemo() {
       };
       applyEnemyArchetype(enemy, archKey);
       if (roomIndex >= 5 && i % 4 === 0) {
-        enemy.blackoutFlanker = true;
-        enemy.flankSide = (i % 8 === 0 ? 1 : -1);
+        (enemy as any).blackoutFlanker = true;
+        (enemy as any).flankSide = (i % 8 === 0 ? 1 : -1);
       }
       enemiesList.push(enemy);
     }

@@ -15784,15 +15784,15 @@ export default function NexusSerpentDemo() {
         ctx.closePath();
         ctx.fill();
       } else if (attackType === "thermal_orb") {
-        const radius = proj.radius * 1.2 * (core.gameMode === 'nexus_assault' ? 0.70 : 1.0);
+        const radius = proj.radius * 1.2 * (core.gameMode === 'nexus_assault' ? 0.58 : 1.0);
 
         // Multi-stop fire radial gradient
-        const glowRadius = radius * 3.4;
+        const glowRadius = radius * (core.gameMode === 'nexus_assault' ? 2.7 : 3.4);
         const fireGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
         fireGrad.addColorStop(0, "#ffffff");
         fireGrad.addColorStop(0.18, coreCol);
         fireGrad.addColorStop(0.45, mainCol);
-        fireGrad.addColorStop(0.75, glowCol);
+        fireGrad.addColorStop(0.75, core.gameMode === 'nexus_assault' ? 'rgba(255,45,0,0.10)' : glowCol);
         fireGrad.addColorStop(1, "transparent");
 
         ctx.fillStyle = fireGrad;
@@ -17664,6 +17664,9 @@ export default function NexusSerpentDemo() {
               flashSec: core.assaultRun.gaiaSupremeFlashSec,
               convergenceSec: core.assaultRun.gaiaAwakenedSec
             });
+            // RV-09B: retain physical elemental cores above the permanent GAIA armor.
+            // This is visual-only; the canonical module slots, firing and hitboxes remain unchanged.
+            drawGaiaSupremeVisibleCores(ctx, core.assaultRun.modules, core.player, core.vitalEnergyWind, core.lowEffectsMode === true);
           }
           // Short, visible post-revival protection: world-space halo, no new physics.
           if (core.assaultRun && (core.assaultRun.reviveShieldSec ?? 0) > 0) {
@@ -18850,6 +18853,43 @@ export default function NexusSerpentDemo() {
   };
 
   // Draw Player Avatar: Tapered energy ribbon trail + symmetrical reactor core
+  // GAIA adornment is an armor layer; elemental modules still sit visibly above it.
+  // Do not create new modules or mutate body slot positions for this render pass.
+  const drawGaiaSupremeVisibleCores = (
+    ctx: CanvasRenderingContext2D,
+    modules: OrbiCombatModule[],
+    player: typeof stateRef.current.player,
+    time: number,
+    lowEffects: boolean
+  ) => {
+    for (const mod of modules) {
+      const seg = resolveAssaultModuleAnchor(mod, player.segments, player);
+      if (!seg) continue;
+      const palette = getOrbiCorePalette(mod.element);
+      const radius = getAssaultCoreVisualRadius(mod) * 1.08;
+      const pulse = 1 + Math.sin(time * 2.5 + Math.max(0, seg.index)) * 0.06;
+      const r = radius * pulse;
+      ctx.save();
+      const aura = ctx.createRadialGradient(seg.x, seg.y, r * 0.35, seg.x, seg.y, r * (lowEffects ? 1.55 : 1.9));
+      aura.addColorStop(0, palette.accent || palette.projectile);
+      aura.addColorStop(0.38, palette.bodyGlow || palette.projectile);
+      aura.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = aura;
+      ctx.beginPath(); ctx.arc(seg.x, seg.y, r * (lowEffects ? 1.55 : 1.9), 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = palette.bodyCore || '#ffffff';
+      ctx.beginPath(); ctx.arc(seg.x, seg.y, r * 0.78, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = palette.accent || palette.projectile;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.arc(seg.x, seg.y, r * 1.18, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.80)';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.arc(seg.x, seg.y, r * 0.43, -Math.PI * 0.8, Math.PI * 0.1); ctx.stroke();
+      ctx.restore();
+    }
+  };
+
   const drawPremiumOrbiSerpent = (
     ctx: CanvasRenderingContext2D,
     playerOverride?: any,

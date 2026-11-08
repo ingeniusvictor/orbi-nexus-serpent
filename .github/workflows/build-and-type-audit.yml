@@ -2,9 +2,9 @@ name: Nexus Serpent - Build and Type Audit
 
 on:
   push:
-    branches: [develop, feature/assault-rv10b-telegraphed-artillery, feature/assault-rv10c-blackout-intelligence]
+    branches: [develop, feature/assault-rv10b-telegraphed-artillery, feature/assault-rv10c-blackout-intelligence, feature/assault-rv11-visual-continuity-serpent-identity]
   pull_request:
-    branches: [main, develop, feature/assault-rv02-nine-energies, feature/assault-rv10-tactical-formations, feature/assault-rv10b-telegraphed-artillery]
+    branches: [main, develop, feature/assault-rv02-nine-energies, feature/assault-rv10-tactical-formations, feature/assault-rv10b-telegraphed-artillery, feature/assault-rv10c-blackout-intelligence]
   workflow_dispatch:
 
 permissions:
@@ -49,6 +49,8 @@ jobs:
         run: bun run qa:assault-rv10b
       - name: Validate RV-10C charge, flank and split guards
         run: bun run qa:assault-rv10c
+      - name: Validate RV-11 visual continuity and serpent boss identity
+        run: bun run qa:assault-rv11
       - name: Build web application
         run: bun run build
       - name: Upload build artifact

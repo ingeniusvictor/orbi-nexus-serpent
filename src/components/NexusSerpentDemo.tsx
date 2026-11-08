@@ -43,6 +43,8 @@ import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/
 import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
 import { nextCharge, flankVelocity, splitAllowance } from '../gameplay/assault/blackoutIntelligence';
+import { validateAssaultVisual, repairAssaultEnemyPositions, shouldUseSerpentBossSilhouette } from '../gameplay/assault/visualContinuity';
+import { drawSerpentBossForm } from '../gameplay/assault/serpentBossVisual';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -6158,9 +6160,14 @@ export default function NexusSerpentDemo() {
       // Exploration worlds intentionally extend beyond the normal viewport.
       // Never force a cover-zoom when the browser is zoomed out: doing so
       // cancels the user's attempt to inspect the complete world.
-      zoom = Math.max(0.05, zoom);
+      zoom = Number.isFinite(zoom) && zoom > 0 ? Math.max(0.05, zoom) : 1;
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
+      // RV-11: Assault camera constraints must match the actual 16:9 combat world.
+      const cameraWorldWidth = core.gameMode === 'nexus_assault'
+        ? ASSAULT_WORLD_WIDTH : core.arenaWidth;
+      const cameraWorldHeight = core.gameMode === 'nexus_assault'
+        ? ASSAULT_WORLD_HEIGHT : core.arenaSize;
       // QA-01G-4: the exploration camera tracks the actual player even at
       // reduced browser/game zoom. Keeping the reset-time camera coordinates
       // fixed caused the serpent to disappear beyond the initial viewport.
@@ -6169,12 +6176,12 @@ export default function NexusSerpentDemo() {
         centerX = core.player.x;
         centerY = core.player.y;
       }
-      centerX = halfW >= core.arenaWidth / 2
-        ? core.arenaWidth / 2
-        : Math.max(halfW, Math.min(core.arenaWidth - halfW, centerX));
-      centerY = halfH >= core.arenaSize / 2
-        ? core.arenaSize / 2
-        : Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
+      centerX = halfW >= cameraWorldWidth / 2
+        ? cameraWorldWidth / 2
+        : Math.max(halfW, Math.min(cameraWorldWidth - halfW, centerX));
+      centerY = halfH >= cameraWorldHeight / 2
+        ? cameraWorldHeight / 2
+        : Math.max(halfH, Math.min(cameraWorldHeight - halfH, centerY));
     }
 
     return { viewW, viewH, zoom: Math.max(0.001, zoom), centerX, centerY };
@@ -10012,6 +10019,41 @@ export default function NexusSerpentDemo() {
     if (dy !== 0) p.vy *= -0.2;
   };
 
+  // RV-11: repair invalid visual geometry, without resetting valid run progress.
+  const ensureAssaultVisualContinuity = (checkpoint: string) => {
+    const core = stateRef.current;
+    if (core.gameMode !== 'nexus_assault' || !core.assaultRun) return;
+    const p = core.player;
+    const restored = validateAssaultVisual({
+      x: p.x, y: p.y, angle: p.angle, segments: p.segments
+    }, ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT,
+      ASSAULT_WALL_MARGIN + 10, p.targetLength);
+    if (restored.repaired) {
+      p.x = restored.player.x;
+      p.y = restored.player.y;
+      p.angle = restored.player.angle;
+      p.vx = Number.isFinite(p.vx) ? p.vx : 0;
+      p.vy = Number.isFinite(p.vy) ? p.vy : 0;
+      p.segments = restored.player.segments as typeof p.segments;
+      syncAssaultModulesToBodySlots();
+      console.warn('[ASSAULT CONTINUITY]', checkpoint, restored.reason,
+        'room', core.assaultRun.roomIndex);
+    }
+    const corrected = repairAssaultEnemyPositions(
+      core.assaultRun.enemies, ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT);
+    if (corrected.repairs > 0) {
+      for (const enemy of core.assaultRun.enemies) {
+        const fixed = corrected.enemies.find(e => e.id === enemy.id);
+        if (fixed) { enemy.x = fixed.x; enemy.y = fixed.y; }
+      }
+      console.warn('[ASSAULT CONTINUITY]', checkpoint,
+        'repositioned enemies', corrected.repairs);
+    }
+    if (!Number.isFinite(core.camera.zoom) || core.camera.zoom <= 0) core.camera.zoom = 1;
+    if (!Number.isFinite(core.camera.x)) core.camera.x = p.x;
+    if (!Number.isFinite(core.camera.y)) core.camera.y = p.y;
+  };
+
   const enforceAssaultHardRoomBounds = () => {
     const core = stateRef.current;
     const nexusAssaultState = core.assaultRun;
@@ -10974,6 +11016,7 @@ export default function NexusSerpentDemo() {
     clearAssaultCombatResidue();
 
     restoreAssaultOrbiContinuity(preservedHead, preservedBody, preservedTrail);
+    ensureAssaultVisualContinuity('room transition ' + previousRoomNumber + ' to ' + nextRoomNumber);
 
     // CHOOSE SHAPE FIRST BEFORE SPAWNING (IMPLEMENTACIÓN 4)
     if (!nexusAssaultState.room) {
@@ -11084,6 +11127,7 @@ export default function NexusSerpentDemo() {
       );
     }
 
+    ensureAssaultVisualContinuity('room entry ' + nextRoomNumber);
     nexusAssaultState.isTransitioningRoom = false;
   };
 
@@ -13440,6 +13484,31 @@ export default function NexusSerpentDemo() {
 
   const drawNexusAssaultBoss = (ctx: CanvasRenderingContext2D, boss: any) => {
     const core = stateRef.current;
+    // RV-11: preserve snake-world identity through room 25, including bosses.
+    // Visual adapter only: no edits to attacks, phases, health or collision radii.
+    if (shouldUseSerpentBossSilhouette(core.assaultRun?.roomIndex ?? 0)) {
+      drawSerpentBossForm(ctx, boss, core.vitalEnergyWind);
+      // Preserve invulnerability and status effect indicators from the existing boss renderer.
+      ctx.save();
+      if ((boss.invulnTimer ?? 0) > 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(boss.x, boss.y, boss.radius * 1.45, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+      }
+      for (const [index, effect] of (boss.statusEffects ?? []).slice(0, 3).entries()) {
+        const color = effect.type === 'slow' ? '#22d3ee'
+          : effect.type === 'overheat' ? '#f97316'
+          : effect.type === 'solar_mark' ? '#ffd166' : '#e2e8f0';
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(boss.x + (index - 1) * 12, boss.y - boss.radius * 1.7, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      return;
+    }
     
     // Crimson Overdrive Phase 2 (QA Checkpoint 7.2)
     const isOverdrive = boss.phase === 2;
@@ -14319,6 +14388,7 @@ export default function NexusSerpentDemo() {
     }
 
     // Run the high-precision state machine update first
+    ensureAssaultVisualContinuity('combat tick');
     updateNexusAssaultFlow(dt);
 
     // If we are currently in upgrade selection or transition next room, freeze gameplay logic
@@ -17723,6 +17793,7 @@ export default function NexusSerpentDemo() {
         ctx.fillRect(0, 0, dimensions.width, dimensions.height);
         
         // Center camera coordinates inside standard viewport translation matrix with scaling
+        if (core.gameMode === 'nexus_assault') ensureAssaultVisualContinuity('before camera');
         const cam = core.camera;
         const { viewW, viewH, zoom: renderZoom, centerX: renderCenterX, centerY: renderCenterY } = getViewportCamera();
         ctx.translate(viewW / 2, viewH / 2);

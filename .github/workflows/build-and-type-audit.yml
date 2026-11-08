@@ -49,7 +49,9 @@ jobs:
         run: bun run qa:assault-rv10b
       - name: Validate RV-10C charge, flank and split guards
         run: bun run qa:assault-rv10c
-      - name: Validate RV-11 visual continuity and serpent boss identity\n        run: bun run qa:assault-rv11\n      - name: Build web application
+      - name: Validate RV-11 visual continuity and serpent boss identity
+        run: bun run qa:assault-rv11
+      - name: Build web application
         run: bun run build
       - name: Upload build artifact
         if: success()

@@ -44,6 +44,7 @@ import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
 import { nextCharge, flankVelocity, splitAllowance } from '../gameplay/assault/blackoutIntelligence';
 import { validateAssaultVisual, repairAssaultEnemyPositions, shouldUseSerpentBossSilhouette } from '../gameplay/assault/visualContinuity';
+import { drawSerpentBossForm } from '../gameplay/assault/serpentBossVisual';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -13478,6 +13479,12 @@ export default function NexusSerpentDemo() {
 
   const drawNexusAssaultBoss = (ctx: CanvasRenderingContext2D, boss: any) => {
     const core = stateRef.current;
+    // RV-11: preserve snake-world identity through room 25, including bosses.
+    // Visual adapter only: no edits to attacks, phases, health or collision radii.
+    if (shouldUseSerpentBossSilhouette(core.assaultRun?.roomIndex ?? 0)) {
+      drawSerpentBossForm(ctx, boss, core.vitalEnergyWind);
+      return;
+    }
     
     // Crimson Overdrive Phase 2 (QA Checkpoint 7.2)
     const isOverdrive = boss.phase === 2;

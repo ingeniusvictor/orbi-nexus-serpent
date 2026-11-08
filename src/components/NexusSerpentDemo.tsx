@@ -6160,9 +6160,14 @@ export default function NexusSerpentDemo() {
       // Exploration worlds intentionally extend beyond the normal viewport.
       // Never force a cover-zoom when the browser is zoomed out: doing so
       // cancels the user's attempt to inspect the complete world.
-      zoom = Math.max(0.05, zoom);
+      zoom = Number.isFinite(zoom) && zoom > 0 ? Math.max(0.05, zoom) : 1;
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
+      // RV-11: Assault camera constraints must match the actual 16:9 combat world.
+      const cameraWorldWidth = core.gameMode === 'nexus_assault'
+        ? ASSAULT_WORLD_WIDTH : core.arenaWidth;
+      const cameraWorldHeight = core.gameMode === 'nexus_assault'
+        ? ASSAULT_WORLD_HEIGHT : core.arenaSize;
       // QA-01G-4: the exploration camera tracks the actual player even at
       // reduced browser/game zoom. Keeping the reset-time camera coordinates
       // fixed caused the serpent to disappear beyond the initial viewport.
@@ -6171,12 +6176,12 @@ export default function NexusSerpentDemo() {
         centerX = core.player.x;
         centerY = core.player.y;
       }
-      centerX = halfW >= core.arenaWidth / 2
-        ? core.arenaWidth / 2
-        : Math.max(halfW, Math.min(core.arenaWidth - halfW, centerX));
-      centerY = halfH >= core.arenaSize / 2
-        ? core.arenaSize / 2
-        : Math.max(halfH, Math.min(core.arenaSize - halfH, centerY));
+      centerX = halfW >= cameraWorldWidth / 2
+        ? cameraWorldWidth / 2
+        : Math.max(halfW, Math.min(cameraWorldWidth - halfW, centerX));
+      centerY = halfH >= cameraWorldHeight / 2
+        ? cameraWorldHeight / 2
+        : Math.max(halfH, Math.min(cameraWorldHeight - halfH, centerY));
     }
 
     return { viewW, viewH, zoom: Math.max(0.001, zoom), centerX, centerY };

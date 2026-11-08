@@ -13488,6 +13488,25 @@ export default function NexusSerpentDemo() {
     // Visual adapter only: no edits to attacks, phases, health or collision radii.
     if (shouldUseSerpentBossSilhouette(core.assaultRun?.roomIndex ?? 0)) {
       drawSerpentBossForm(ctx, boss, core.vitalEnergyWind);
+      // Preserve invulnerability and status effect indicators from the existing boss renderer.
+      ctx.save();
+      if ((boss.invulnTimer ?? 0) > 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(boss.x, boss.y, boss.radius * 1.45, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+      }
+      for (const [index, effect] of (boss.statusEffects ?? []).slice(0, 3).entries()) {
+        const color = effect.type === 'slow' ? '#22d3ee'
+          : effect.type === 'overheat' ? '#f97316'
+          : effect.type === 'solar_mark' ? '#ffd166' : '#e2e8f0';
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(boss.x + (index - 1) * 12, boss.y - boss.radius * 1.7, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
       return;
     }
     

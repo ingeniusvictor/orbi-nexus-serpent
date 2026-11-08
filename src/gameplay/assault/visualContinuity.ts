@@ -1,0 +1,62 @@
+/** RV-11 — finite-state continuity guard for Assault only.
+ * Repairs corrupted visual coordinates without changing healthy player progression.
+ * Kept pure so room 16→17 and other transitions are deterministic in tests.
+ */
+export type AssaultPoint={x:number;y:number};
+export type AssaultBodyPoint=AssaultPoint&{size?:number;angle?:number};
+export type AssaultVisualSnapshot={
+  x:number;y:number;angle:number;segments:AssaultBodyPoint[];
+};
+export type AssaultRepair={player:AssaultVisualSnapshot; repaired:boolean; reason:string};
+const finite=(v:number)=>Number.isFinite(v);
+const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
+export function validateAssaultVisual(
+ input:AssaultVisualSnapshot,width:number,height:number,
+ margin=60, targetLength=12
+):AssaultRepair {
+ const w=finite(width)&&width>200?width:2850;
+ const h=finite(height)&&height>200?height:1600;
+ const pad=clamp(finite(margin)?margin:60,20,Math.min(w,h)/3);
+ const safeX=finite(input.x)?clamp(input.x,pad,w-pad):w/2;
+ const safeY=finite(input.y)?clamp(input.y,pad,h-pad):h/2;
+ const safeAngle=finite(input.angle)?input.angle:0;
+ const raw=Array.isArray(input.segments)?input.segments:[];
+ const segmentCount=clamp(finite(targetLength)?Math.round(targetLength):12,8,60);
+ const brokenHead=!finite(input.x)||!finite(input.y);
+ const brokenSegments=raw.length===0||raw.some(p=>!p||!finite(p.x)||!finite(p.y));
+ const displaced=raw.length>0&&finite(raw[0]?.x)&&finite(raw[0]?.y)&&
+  Math.hypot(raw[0].x-safeX,raw[0].y-safeY)>Math.max(w,h)*1.5;
+ const mustRebuild=brokenHead||brokenSegments||displaced;
+ const segments=mustRebuild
+  ?Array.from({length:segmentCount},(_,i)=>({
+    x:clamp(safeX-Math.cos(safeAngle)*(i+1)*16,pad,w-pad),
+    y:clamp(safeY-Math.sin(safeAngle)*(i+1)*16,pad,h-pad),
+    size:15,angle:safeAngle
+  }))
+  :raw.map(p=>({...p,x:clamp(p.x,pad,w-pad),y:clamp(p.y,pad,h-pad)}));
+ const repaired=mustRebuild||safeX!==input.x||safeY!==input.y||
+  safeAngle!==input.angle||segments.some((p,i)=>p.x!==raw[i]?.x||p.y!==raw[i]?.y);
+ return {player:{x:safeX,y:safeY,angle:safeAngle,segments},repaired,
+   reason:mustRebuild?'invalid player/body':repaired?'out-of-bounds coordinates':'ok'};
+}
+export function repairAssaultEnemyPositions<T extends AssaultPoint&{radius:number;health:number}>(
+ enemies:readonly T[],width:number,height:number
+):{enemies:T[];repairs:number}{
+ let repairs=0;
+ const w=finite(width)&&width>200?width:2850;
+ const h=finite(height)&&height>200?height:1600;
+ const cleaned:T[]=[];
+ for(const e of enemies){
+  if(!e||!finite(e.health)||e.health<=0)continue;
+  const pad=clamp(finite(e.radius)?e.radius+48:60,30,Math.min(w,h)/3);
+  const x=finite(e.x)?clamp(e.x,pad,w-pad):w/2;
+  const y=finite(e.y)?clamp(e.y,pad,h-pad):h/2;
+  if(x!==e.x||y!==e.y)repairs++;
+  cleaned.push(x===e.x&&y===e.y?e:{...e,x,y});
+ }
+ return {enemies:cleaned,repairs};
+}
+export const SERPENT_ONLY_THROUGH_ROOM=25;
+export function shouldUseSerpentBossSilhouette(roomIndex:number):boolean{
+ return Number.isInteger(roomIndex)&&roomIndex>=1&&roomIndex<=SERPENT_ONLY_THROUGH_ROOM;
+}

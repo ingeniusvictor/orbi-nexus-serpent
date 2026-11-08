@@ -6,6 +6,7 @@ const tests=[
  ['room entry guard',src.includes("ensureAssaultVisualContinuity('room entry '")],
  ['update guard',src.includes("ensureAssaultVisualContinuity('combat tick')")],
  ['pre-camera guard',src.includes("ensureAssaultVisualContinuity('before camera')")],
+ ['camera uses Assault panoramic bounds',src.includes("core.gameMode === 'nexus_assault'\n        ? ASSAULT_WORLD_WIDTH : core.arenaWidth")&&src.includes('cameraWorldHeight - halfH')],
  ['module re-anchoring',src.includes("syncAssaultModulesToBodySlots();\n      console.warn('[ASSAULT CONTINUITY]'")],
  ['boss serpent gate',src.includes('shouldUseSerpentBossSilhouette(core.assaultRun?.roomIndex ?? 0)')],
  ['serpent boss renderer',src.includes('drawSerpentBossForm(ctx, boss, core.vitalEnergyWind);')],

@@ -33,7 +33,8 @@ export function validateAssaultVisual(
     y:clamp(safeY-Math.sin(safeAngle)*(i+1)*16,pad,h-pad),
     size:15,angle:safeAngle
   }))
-  :raw.map(p=>({...p,x:clamp(p.x,pad,w-pad),y:clamp(p.y,pad,h-pad)}));
+  :raw.map(p=>({...p,x:p.x< -200||p.x>w+200?clamp(p.x,pad,w-pad):p.x,
+    y:p.y< -200||p.y>h+200?clamp(p.y,pad,h-pad):p.y}));
  const repaired=mustRebuild||safeX!==input.x||safeY!==input.y||
   safeAngle!==input.angle||segments.some((p,i)=>p.x!==raw[i]?.x||p.y!==raw[i]?.y);
  return {player:{x:safeX,y:safeY,angle:safeAngle,segments},repaired,

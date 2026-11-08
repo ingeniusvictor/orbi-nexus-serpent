@@ -43,6 +43,7 @@ import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/
 import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
 import { nextCharge, flankVelocity, splitAllowance } from '../gameplay/assault/blackoutIntelligence';
+import { validateAssaultVisual, repairAssaultEnemyPositions, shouldUseSerpentBossSilhouette } from '../gameplay/assault/visualContinuity';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
 import { ORBI_PRISMAS, ORBI_ASSAULT_RECONNECTION_OFFER, formatOrbiPrismas } from '../economy/orbiEconomy';
@@ -10012,6 +10013,41 @@ export default function NexusSerpentDemo() {
     if (dy !== 0) p.vy *= -0.2;
   };
 
+  // RV-11: repair invalid visual geometry, without resetting valid run progress.
+  const ensureAssaultVisualContinuity = (checkpoint: string) => {
+    const core = stateRef.current;
+    if (core.gameMode !== 'nexus_assault' || !core.assaultRun) return;
+    const p = core.player;
+    const restored = validateAssaultVisual({
+      x: p.x, y: p.y, angle: p.angle, segments: p.segments
+    }, ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT,
+      ASSAULT_WALL_MARGIN + 10, p.targetLength);
+    if (restored.repaired) {
+      p.x = restored.player.x;
+      p.y = restored.player.y;
+      p.angle = restored.player.angle;
+      p.vx = Number.isFinite(p.vx) ? p.vx : 0;
+      p.vy = Number.isFinite(p.vy) ? p.vy : 0;
+      p.segments = restored.player.segments as typeof p.segments;
+      syncAssaultModulesToBodySlots();
+      console.warn('[ASSAULT CONTINUITY]', checkpoint, restored.reason,
+        'room', core.assaultRun.roomIndex);
+    }
+    const corrected = repairAssaultEnemyPositions(
+      core.assaultRun.enemies, ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT);
+    if (corrected.repairs > 0) {
+      for (const enemy of core.assaultRun.enemies) {
+        const fixed = corrected.enemies.find(e => e.id === enemy.id);
+        if (fixed) { enemy.x = fixed.x; enemy.y = fixed.y; }
+      }
+      console.warn('[ASSAULT CONTINUITY]', checkpoint,
+        'repositioned enemies', corrected.repairs);
+    }
+    if (!Number.isFinite(core.camera.zoom) || core.camera.zoom <= 0) core.camera.zoom = 1;
+    if (!Number.isFinite(core.camera.x)) core.camera.x = p.x;
+    if (!Number.isFinite(core.camera.y)) core.camera.y = p.y;
+  };
+
   const enforceAssaultHardRoomBounds = () => {
     const core = stateRef.current;
     const nexusAssaultState = core.assaultRun;
@@ -10974,6 +11010,7 @@ export default function NexusSerpentDemo() {
     clearAssaultCombatResidue();
 
     restoreAssaultOrbiContinuity(preservedHead, preservedBody, preservedTrail);
+    ensureAssaultVisualContinuity('room transition ' + previousRoomNumber + ' to ' + nextRoomNumber);
 
     // CHOOSE SHAPE FIRST BEFORE SPAWNING (IMPLEMENTACIÓN 4)
     if (!nexusAssaultState.room) {
@@ -11084,6 +11121,7 @@ export default function NexusSerpentDemo() {
       );
     }
 
+    ensureAssaultVisualContinuity('room entry ' + nextRoomNumber);
     nexusAssaultState.isTransitioningRoom = false;
   };
 
@@ -14319,6 +14357,7 @@ export default function NexusSerpentDemo() {
     }
 
     // Run the high-precision state machine update first
+    ensureAssaultVisualContinuity('combat tick');
     updateNexusAssaultFlow(dt);
 
     // If we are currently in upgrade selection or transition next room, freeze gameplay logic
@@ -17723,6 +17762,7 @@ export default function NexusSerpentDemo() {
         ctx.fillRect(0, 0, dimensions.width, dimensions.height);
         
         // Center camera coordinates inside standard viewport translation matrix with scaling
+        if (core.gameMode === 'nexus_assault') ensureAssaultVisualContinuity('before camera');
         const cam = core.camera;
         const { viewW, viewH, zoom: renderZoom, centerX: renderCenterX, centerY: renderCenterY } = getViewportCamera();
         ctx.translate(viewW / 2, viewH / 2);

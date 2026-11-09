@@ -14,7 +14,7 @@ const rules = [
   ['Reset begins at panorama centre', src.includes("gameMode === 'nexus_assault') ? EXPLORATION_WORLD_WIDTH / 2 : 1425;")],
   ['Player movement evaluates full world width', src.includes("core.gameMode === 'nexus_assault' ? core.arenaWidth : size;")],
   ['Hard room boundary clamps both X and Y with world dimensions', section('const constrainPointToRoom', 'const getSelectedAssaultHeroEnergy').includes('ASSAULT_WORLD_WIDTH - margin') && section('const constrainPointToRoom', 'const getSelectedAssaultHeroEnergy').includes('ASSAULT_WORLD_HEIGHT - margin')],
-  ['Assault camera follows player instead of fixed-room fit', !section('const getViewportCamera', 'const pointerToWorld').includes("if (core.gameMode === 'nexus_assault')") && section('const getViewportCamera', 'const pointerToWorld').includes('centerX = core.player.x')],
+  ['Assault camera follows player instead of fixed-room fit', section('const getViewportCamera', 'const pointerToWorld').includes('resolveAssaultCamera(core.player, zoom, viewW, viewH,') && section('const getViewportCamera', 'const pointerToWorld').includes('ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT')],
   ['Room renderer traces full rectangular edge', section('const drawNexusAssaultRoom', 'const handleStartPlaying').includes('ctx.rect(-offset, -offset, ASSAULT_WORLD_WIDTH + 2 * offset, ASSAULT_WORLD_HEIGHT + 2 * offset)')],
   ['Encounter spawning stays near current player', section('const getAssaultSpawnPos', 'const getOrbiCorePalette').includes('core.player.x + Math.cos(angle) * distance')],
   ['All room transitions keep panoramic shape', src.includes("nexusAssaultState.room.shape = 'WIDE_RECTANGLE';") && src.includes("core.assaultRun.room.shape = 'WIDE_RECTANGLE';")],

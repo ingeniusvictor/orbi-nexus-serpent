@@ -6170,11 +6170,9 @@ export default function NexusSerpentDemo() {
       zoom = Number.isFinite(zoom) && zoom > 0 ? Math.max(0.05, zoom) : 1;
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
-      // RV-11: Assault camera constraints must match the actual 16:9 combat world.
-      const cameraWorldWidth = core.gameMode === 'nexus_assault'
-        ? ASSAULT_WORLD_WIDTH : core.arenaWidth;
-      const cameraWorldHeight = core.gameMode === 'nexus_assault'
-        ? ASSAULT_WORLD_HEIGHT : core.arenaSize;
+      // RV-12: Assault was resolved above; this branch serves other worlds.
+      const cameraWorldWidth = core.arenaWidth;
+      const cameraWorldHeight = core.arenaSize;
       // QA-01G-4: the exploration camera tracks the actual player even at
       // reduced browser/game zoom. Keeping the reset-time camera coordinates
       // fixed caused the serpent to disappear beyond the initial viewport.

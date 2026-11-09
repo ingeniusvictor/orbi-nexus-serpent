@@ -43,7 +43,7 @@ import { isGaiaSupremeUnlocked, drawGaiaSupremeForm } from '../gameplay/assault/
 import { selectAssaultFormation } from '../gameplay/assault/tacticalFormations';
 import { ARTILLERY_LOCK_FRAMES, getArtilleryTelegraph, normalizedAim } from '../gameplay/assault/artilleryTelegraph';
 import { nextCharge, flankVelocity, splitAllowance } from '../gameplay/assault/blackoutIntelligence';
-import { validateAssaultVisual, repairAssaultEnemyPositions, shouldUseSerpentBossSilhouette } from '../gameplay/assault/visualContinuity';
+import { validateAssaultVisual, repairAssaultEnemyPositions, resolveAssaultCamera, shouldUseSerpentBossSilhouette } from '../gameplay/assault/visualContinuity';
 import { drawSerpentBossForm } from '../gameplay/assault/serpentBossVisual';
 import { eligibleAdvancedMutations, calculateAdvancedMutationImpact } from '../gameplay/assault/advancedMutations';
 import { FUSION_RECIPES, eligibleFusionRecipes, fusionImpactMultiplier } from '../gameplay/assault/fusionRecipes';
@@ -6148,7 +6148,14 @@ export default function NexusSerpentDemo() {
     let centerY = core.camera.y;
 
     // Assault uses the exploration follow camera rather than a fixed small-room fit.
-    if (core.gameMode === 'vital_flow' && core.vitalFlow) {
+    if (core.gameMode === 'nexus_assault') {
+      // RV-12: isolated follow camera. The player's valid head is authoritative.
+      const assaultCam = resolveAssaultCamera(core.player, zoom, viewW, viewH,
+        ASSAULT_WORLD_WIDTH, ASSAULT_WORLD_HEIGHT);
+      zoom = assaultCam.zoom;
+      centerX = assaultCam.centerX;
+      centerY = assaultCam.centerY;
+    } else if (core.gameMode === 'vital_flow' && core.vitalFlow) {
       const bounds = getActiveVitalFlowArenaBounds();
       zoom = Math.min(
         Math.max(1, viewW - padding * 2) / Math.max(1, bounds.width),
@@ -6163,11 +6170,9 @@ export default function NexusSerpentDemo() {
       zoom = Number.isFinite(zoom) && zoom > 0 ? Math.max(0.05, zoom) : 1;
       const halfW = viewW / (2 * zoom);
       const halfH = viewH / (2 * zoom);
-      // RV-11: Assault camera constraints must match the actual 16:9 combat world.
-      const cameraWorldWidth = core.gameMode === 'nexus_assault'
-        ? ASSAULT_WORLD_WIDTH : core.arenaWidth;
-      const cameraWorldHeight = core.gameMode === 'nexus_assault'
-        ? ASSAULT_WORLD_HEIGHT : core.arenaSize;
+      // RV-12: Assault was resolved above; this branch serves other worlds.
+      const cameraWorldWidth = core.arenaWidth;
+      const cameraWorldHeight = core.arenaSize;
       // QA-01G-4: the exploration camera tracks the actual player even at
       // reduced browser/game zoom. Keeping the reset-time camera coordinates
       // fixed caused the serpent to disappear beyond the initial viewport.
@@ -11017,6 +11022,10 @@ export default function NexusSerpentDemo() {
 
     restoreAssaultOrbiContinuity(preservedHead, preservedBody, preservedTrail);
     ensureAssaultVisualContinuity('room transition ' + previousRoomNumber + ' to ' + nextRoomNumber);
+    // Use the same player position the renderer follows; never carry a stale
+    // camera center across a new combat room.
+    core.camera.x = core.player.x;
+    core.camera.y = core.player.y;
 
     // CHOOSE SHAPE FIRST BEFORE SPAWNING (IMPLEMENTACIÓN 4)
     if (!nexusAssaultState.room) {
@@ -11128,6 +11137,20 @@ export default function NexusSerpentDemo() {
     }
 
     ensureAssaultVisualContinuity('room entry ' + nextRoomNumber);
+    core.camera.x = core.player.x;
+    core.camera.y = core.player.y;
+    if (ENABLE_ASSAULT_ROOM_FLOW_DIAGNOSTICS) {
+      console.info('[ASSAULT CAMERA TRANSITION]', {
+        from: previousRoomNumber, to: nextRoomNumber,
+        x: core.player.x, y: core.player.y,
+        zoom: core.camera.zoom,
+        segments: core.player.segments.length,
+        firstSegmentGap: core.player.segments.length
+          ? Math.hypot(core.player.segments[0].x-core.player.x,
+            core.player.segments[0].y-core.player.y) : null,
+        enemyCount: nexusAssaultState.enemies.length
+      });
+    }
     nexusAssaultState.isTransitioningRoom = false;
   };
 

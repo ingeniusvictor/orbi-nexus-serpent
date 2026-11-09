@@ -26,7 +26,14 @@ export function validateAssaultVisual(
  const brokenSegments=raw.length===0||raw.some(p=>!p||!finite(p.x)||!finite(p.y));
  const displaced=raw.length>0&&finite(raw[0]?.x)&&finite(raw[0]?.y)&&
   Math.hypot(raw[0].x-safeX,raw[0].y-safeY)>Math.max(w,h)*1.5;
- const mustRebuild=brokenHead||brokenSegments||displaced;
+ // Finite but disconnected body is also corrupted: the core can be onscreen
+ // while elemental segments are stranded across the world.
+ const maxLink=180;
+ const disconnected=raw.length>0 && !brokenSegments && (
+  Math.hypot(raw[0].x-safeX,raw[0].y-safeY)>maxLink ||
+  raw.some((point,i)=>i>0 && Math.hypot(point.x-raw[i-1].x,point.y-raw[i-1].y)>maxLink)
+ );
+ const mustRebuild=brokenHead||brokenSegments||displaced||disconnected;
  const segments=mustRebuild
   ?Array.from({length:segmentCount},(_,i)=>({
     x:clamp(safeX-Math.cos(safeAngle)*(i+1)*16,pad,w-pad),
@@ -60,4 +67,26 @@ export function repairAssaultEnemyPositions<T extends AssaultPoint&{radius:numbe
 export const SERPENT_ONLY_THROUGH_ROOM=25;
 export function shouldUseSerpentBossSilhouette(roomIndex:number):boolean{
  return Number.isInteger(roomIndex)&&roomIndex>=1&&roomIndex<=SERPENT_ONLY_THROUGH_ROOM;
+}
+
+/** Independent Assault follow camera. Never use another mode's arena bounds. */
+export type AssaultCameraResult={zoom:number;centerX:number;centerY:number;repaired:boolean;reason:string};
+export function resolveAssaultCamera(
+ head:AssaultPoint, requestedZoom:number, viewW:number, viewH:number,
+ worldW:number,worldH:number
+):AssaultCameraResult {
+ const w=Number.isFinite(worldW)&&worldW>200?worldW:2850;
+ const h=Number.isFinite(worldH)&&worldH>200?worldH:1600;
+ const vw=Number.isFinite(viewW)&&viewW>0?viewW:1;
+ const vh=Number.isFinite(viewH)&&viewH>0?viewH:1;
+ const zoom=Number.isFinite(requestedZoom)&&requestedZoom>0
+   ?Math.max(0.05,Math.min(4,requestedZoom)):1;
+ const halfW=vw/(2*zoom),halfH=vh/(2*zoom);
+ const hx=Number.isFinite(head.x)?head.x:w/2;
+ const hy=Number.isFinite(head.y)?head.y:h/2;
+ const centerX=halfW>=w/2?w/2:clamp(hx,halfW,w-halfW);
+ const centerY=halfH>=h/2?h/2:clamp(hy,halfH,h-halfH);
+ return {zoom,centerX,centerY,
+  repaired:!Number.isFinite(head.x)||!Number.isFinite(head.y)||!Number.isFinite(requestedZoom)||requestedZoom<=0,
+  reason:'assault camera tracks repaired player using world bounds'};
 }
